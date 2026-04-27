@@ -27,11 +27,17 @@ if [ ! -f /.dockerenv ] && [ -z "${container:-}" ]; then
   else
     die "Docker or Podman is required to build on a non-native host. Install Docker: https://docs.docker.com/engine/install/ -- or Podman: https://podman.io/docs/installation"
   fi
+  _SCRIPT_SOURCE="${BASH_SOURCE[0]:-$0}"
+  if [[ "${_SCRIPT_SOURCE}" != */* ]]; then
+    _SCRIPT_SOURCE="$(command -v -- "${_SCRIPT_SOURCE}" || true)"
+  fi
+  [ -n "${_SCRIPT_SOURCE}" ] || die "Unable to resolve script path for container re-exec"
+  _SCRIPT_PATH="$(realpath "${_SCRIPT_SOURCE}")" || die "Unable to canonicalize script path: ${_SCRIPT_SOURCE}"
   log "Re-launching inside ${CONTAINER_IMAGE} via ${_RUNTIME}..."
   mkdir -p "${OUTPUT_DIR}"
   exec "${_RUNTIME}" run --rm --privileged \
     -v "$(realpath "${OUTPUT_DIR}"):/out" \
-    -v "$(realpath "$0"):/build.sh:ro" \
+    -v "${_SCRIPT_PATH}:/build.sh:ro" \
     -e BUILD_DIR=/tmp/distro-build \
     -e OUTPUT_DIR=/out \
     "${CONTAINER_IMAGE}" bash /build.sh
