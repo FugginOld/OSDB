@@ -8,10 +8,14 @@
   <script>
     // Apply saved or system theme before first paint to avoid flash
     (function () {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (saved === 'dark' || (!saved && prefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+      try {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {
+        // Storage unavailable; fall back to default light theme
       }
     })();
   </script>
@@ -66,7 +70,11 @@
     btn.addEventListener('click', function () {
       const next = getTheme() === 'dark' ? 'light' : 'dark';
       updateUI(next);
-      localStorage.setItem('theme', next);
+      try {
+        localStorage.setItem('theme', next);
+      } catch (e) {
+        // Ignore storage failures so theme toggling still works without persistence.
+      }
     });
   })();
 </script>
