@@ -1,18 +1,134 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
-  <title id="title">MATE preview</title>
-  <desc id="desc">Repository-hosted preview image for MATE.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="de-title de-desc">
+  <title id="de-title">MATE desktop environment preview</title>
+  <desc id="de-desc">MATE with top and bottom panels (GNOME 2 style), Caja file manager, and Pluma text editor.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#14532D"/>
-      <stop offset="100%" stop-color="#4D7C0F"/>
-    </linearGradient>
+  <linearGradient id="mate_bg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#1a2e1a"/>
+    <stop offset="100%" stop-color="#0e1e0e"/>
+  </linearGradient>
   </defs>
-  <rect width="1280" height="720" fill="url(#bg)"/>
-  <rect x="70" y="70" width="1140" height="580" rx="18" fill="rgba(15,23,42,0.35)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-  <rect x="110" y="130" width="1060" height="70" rx="10" fill="rgba(255,255,255,0.18)"/>
-  <rect x="110" y="230" width="300" height="360" rx="10" fill="rgba(255,255,255,0.14)"/>
-  <rect x="440" y="230" width="730" height="170" rx="10" fill="rgba(255,255,255,0.12)"/>
-  <rect x="440" y="420" width="730" height="170" rx="10" fill="rgba(255,255,255,0.1)"/>
-  <text x="640" y="390" text-anchor="middle" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="700">MATE</text>
-  <text x="640" y="445" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="Segoe UI, Arial, sans-serif" font-size="26">Local preview asset</text>
+  <rect width="1280" height="720" fill="url(#mate_bg)"/>
+  <rect width="1280" height="28" fill="#1c3e1c"/>
+  <rect x="2" y="2" width="100" height="24" rx="3" fill="rgba(255,255,255,0.08)"/>
+  <text x="52" y="19" text-anchor="middle" fill="white" font-family="sans-serif" font-size="12">Applications</text>
+  <rect x="107" y="2" width="52" height="24" rx="3" fill="rgba(255,255,255,0.06)"/>
+  <text x="133" y="19" text-anchor="middle" fill="white" font-family="sans-serif" font-size="12">Places</text>
+  <rect x="164" y="2" width="52" height="24" rx="3" fill="rgba(255,255,255,0.06)"/>
+  <text x="190" y="19" text-anchor="middle" fill="white" font-family="sans-serif" font-size="12">System</text>
+  <circle cx="1090" cy="14" r="5" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="1106" cy="14" r="5" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="1122" cy="14" r="5" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="1138" cy="14" r="5" fill="rgba(255,255,255,0.7)"/>
+  <text x="1230" y="14" text-anchor="middle" fill="white" font-family="sans-serif" font-size="12">Mon 21:32</text>
+  <rect y="692" width="1280" height="28" fill="#1c3e1c"/>
+  <rect x="2" y="694" width="28" height="24" rx="2" fill="#3a6e3a"/>
+  <text x="16" y="710" text-anchor="middle" fill="white" font-family="sans-serif" font-size="16">⊞</text>
+  <rect x="40" y="694" width="158" height="24" rx="3" fill="#2e5a2e"/>
+  <text x="119" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">Caja — Home</text>
+  <rect x="202" y="694" width="158" height="24" rx="3" fill="#1e3e1e"/>
+  <text x="281" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">Pluma — doc.txt</text>
+  <rect x="364" y="694" width="158" height="24" rx="3" fill="#1e3e1e"/>
+  <text x="443" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">Terminal</text>
+  <rect x="1140" y="694" width="24" height="24" rx="2" fill="#2e5a2e"/>
+  <rect x="1168" y="694" width="24" height="24" rx="2" fill="#1e3e1e"/>
+  <rect x="1196" y="694" width="24" height="24" rx="2" fill="#1e3e1e"/>
+  <rect x="1224" y="694" width="24" height="24" rx="2" fill="#1e3e1e"/>
+  <rect x="64" y="49" width="755" height="510" rx="8" fill="rgba(0,0,0,0.45)"/>
+  <rect x="60" y="45" width="755" height="510" rx="8" fill="#1c2e1c"/>
+  <rect x="60" y="45" width="755" height="30" rx="8" fill="#2e5a2e"/>
+  <rect x="60" y="53" width="755" height="22" fill="#2e5a2e"/>
+  <text x="437" y="65" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">Caja — /home/user</text>
+  <circle cx="74" cy="60" r="6" fill="#cc2222"/>
+  <circle cx="92" cy="60" r="6" fill="#febc2e"/>
+  <circle cx="110" cy="60" r="6" fill="#22aa22"/>
+  <rect x="60" y="75" width="755" height="26" fill="#253c25"/>
+  <rect x="192" y="78" width="280" height="18" rx="2" fill="#142014"/>
+  <text x="332" y="91" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="11">/home/user</text>
+  <rect x="60" y="101" width="162" height="454" fill="#1a2e1a"/>
+  <text x="76" y="124" text-anchor="start" fill="rgba(255,255,255,0.45)" font-family="sans-serif" font-size="10">PLACES</text>
+  <rect x="67" y="129" width="148" height="24" rx="2" fill="rgba(255,255,255,0.1)"/>
+  <text x="80" y="146" text-anchor="start" fill="white" font-family="sans-serif" font-size="12">Home</text>
+  <text x="80" y="168" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Desktop</text>
+  <text x="80" y="190" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Documents</text>
+  <text x="80" y="212" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Downloads</text>
+  <text x="80" y="234" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Music</text>
+  <text x="80" y="256" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Pictures</text>
+  <text x="76" y="286" text-anchor="start" fill="rgba(255,255,255,0.45)" font-family="sans-serif" font-size="10">DEVICES</text>
+  <text x="80" y="306" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">sda1 (250GB)</text>
+  <rect x="222" y="101" width="593" height="454" fill="#111c11"/>
+  <rect x="242" y="118" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="255" y="132" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="255" y="129" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="278" y="204" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Desktop</text>
+  <rect x="348" y="118" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="361" y="132" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="361" y="129" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="384" y="204" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Documents</text>
+  <rect x="454" y="118" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="467" y="132" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="467" y="129" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="490" y="204" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Downloads</text>
+  <rect x="560" y="118" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="573" y="132" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="573" y="129" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="596" y="204" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Music</text>
+  <rect x="666" y="118" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="679" y="132" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="679" y="129" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="702" y="204" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Pictures</text>
+  <rect x="242" y="220" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="255" y="234" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="255" y="231" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="278" y="306" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Templates</text>
+  <rect x="348" y="220" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="361" y="234" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="361" y="231" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="384" y="306" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Videos</text>
+  <rect x="454" y="220" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="467" y="234" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="467" y="231" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="490" y="306" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">notes.txt</text>
+  <rect x="560" y="220" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="573" y="234" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="573" y="231" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="596" y="306" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">photo.jpg</text>
+  <rect x="666" y="220" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="679" y="234" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="679" y="231" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="702" y="306" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">script.sh</text>
+  <rect x="242" y="322" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="255" y="336" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="255" y="333" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="278" y="408" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">project</text>
+  <rect x="348" y="322" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="361" y="336" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="361" y="333" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <text x="384" y="408" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">backup</text>
+  <rect x="454" y="322" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="467" y="336" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="467" y="333" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <rect x="560" y="322" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="573" y="336" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="573" y="333" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <rect x="666" y="322" width="72" height="72" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="679" y="336" width="44" height="32" rx="3" fill="#3a7a3a"/>
+  <rect x="679" y="333" width="22" height="10" rx="3" fill="#3a7a3a"/>
+  <rect x="852" y="64" width="360" height="290" rx="8" fill="rgba(0,0,0,0.45)"/>
+  <rect x="848" y="60" width="360" height="290" rx="8" fill="#111c11"/>
+  <rect x="848" y="60" width="360" height="30" rx="8" fill="#253c25"/>
+  <rect x="848" y="68" width="360" height="22" fill="#253c25"/>
+  <text x="1028" y="80" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">Pluma — document.txt</text>
+  <circle cx="862" cy="75" r="6" fill="#cc2222"/>
+  <circle cx="880" cy="75" r="6" fill="#febc2e"/>
+  <circle cx="898" cy="75" r="6" fill="#22aa22"/>
+  <rect x="848" y="90" width="360" height="260" fill="#0a140a"/>
+  <text x="862" y="118" fill="rgba(255,255,255,0.4)" font-family="monospace" font-size="11">  1</text>
+  <text x="886" y="118" fill="rgba(255,255,255,0.8)" font-family="monospace" font-size="11"># MATE Desktop Notes</text>
+  <text x="862" y="136" fill="rgba(255,255,255,0.4)" font-family="monospace" font-size="11">  2</text>
+  <text x="862" y="154" fill="rgba(255,255,255,0.4)" font-family="monospace" font-size="11">  3</text>
+  <text x="886" y="154" fill="rgba(255,255,255,0.8)" font-family="monospace" font-size="11">Traditional GNOME 2 layout.</text>
+  <text x="862" y="172" fill="rgba(255,255,255,0.4)" font-family="monospace" font-size="11">  4</text>
+  <text x="886" y="172" fill="rgba(255,255,255,0.8)" font-family="monospace" font-size="11">Lightweight and customizable.</text>
+  <rect x="848" y="322" width="360" height="28" fill="#1a2e1a"/>
+  <text x="855" y="340" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="10">Ln 4, Col 1  |  UTF-8  |  Plain Text</text>
 </svg>
