@@ -305,6 +305,38 @@ const DE_LABELS = {
   labwc: 'labwc (Wayland)', openbox: 'Openbox', none: 'Headless / None',
 };
 
+// DE brief descriptions shown under the screenshot
+const DE_DESCRIPTIONS = {
+  gnome:    'Modern, touch-friendly shell focused on simplicity (Wayland/X11)',
+  kde:      'Feature-rich, highly customisable Plasma desktop (Wayland/X11)',
+  cinnamon: 'Traditional desktop forked from GNOME 3, comfortable on X11',
+  xfce:     'Lightweight, fast and modular GTK desktop environment',
+  lxqt:     'Lightweight Qt-based desktop environment',
+  lxde:     'Extremely lightweight GTK2 desktop environment',
+  mate:     'Traditional desktop, continuation of GNOME 2',
+  budgie:   'Modern, elegant desktop developed by the Solus project',
+  i3:       'Minimalist keyboard-driven tiling window manager (X11)',
+  sway:     'i3-compatible tiling compositor for Wayland',
+  labwc:    'Lightweight stacking Wayland compositor (used on Raspberry Pi OS)',
+  openbox:  'Minimalist, highly configurable floating window manager',
+};
+
+// DE screenshots — Wikimedia Commons thumbnails (1280 px wide)
+const DE_SCREENSHOTS = {
+  gnome:    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/GNOME_Shell_47.png/1280px-GNOME_Shell_47.png',
+  kde:      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/KDE_Plasma_6.0.png/1280px-KDE_Plasma_6.0.png',
+  cinnamon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Cinnamon_6.0.png/1280px-Cinnamon_6.0.png',
+  xfce:     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Xfce_4.18.png/1280px-Xfce_4.18.png',
+  lxqt:     'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/LXQt-1.0.0-desktop.png/1280px-LXQt-1.0.0-desktop.png',
+  lxde:     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/LXDE_desktop_full.png/1280px-LXDE_desktop_full.png',
+  mate:     'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/MATE_1.26.png/1280px-MATE_1.26.png',
+  budgie:   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Budgie-Desktop-10.9.png/1280px-Budgie-Desktop-10.9.png',
+  i3:       'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/I3_tiling_WM.png/1280px-I3_tiling_WM.png',
+  sway:     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Sway_1.0_screenshot.png/1280px-Sway_1.0_screenshot.png',
+  openbox:  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Openbox_3.6_with_Cairo-Dock.png/1280px-Openbox_3.6_with_Cairo-Dock.png',
+  labwc:    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Labwc_0.7_screenshot.png/1280px-Labwc_0.7_screenshot.png',
+};
+
 // ── Per-package compatibility ────────────────────────────────
 const PACKAGES = [
   { id: 'firefox',      label: 'Firefox',           families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'firefox-esr',   pacman: 'firefox',        dnf: 'firefox',         zypper: 'firefox'        }, defaultOn: true  },
@@ -708,6 +740,22 @@ function renderStepDE() {
     </div>`;
   }
   html += '</div>';
+
+  // Screenshot preview — shown below the tiles, updated on hover/selection
+  const screenshotUrl = state.de && state.de !== 'none' && DE_SCREENSHOTS[state.de]
+    ? DE_SCREENSHOTS[state.de] : '';
+  const screenshotLabel = state.de ? (DE_LABELS[state.de] || state.de) : '';
+  const screenshotDesc  = state.de ? (DE_DESCRIPTIONS[state.de] || '') : '';
+  const captionHtml = screenshotLabel
+    ? `<strong>${esc(screenshotLabel)}</strong>${screenshotDesc ? ` — ${esc(screenshotDesc)}` : ''}`
+    : '';
+  html += `<div class="de-screenshot-wrap"${screenshotUrl ? '' : ' hidden'} id="de-screenshot-wrap">
+    <img class="de-screenshot-img" id="de-screenshot-img"
+      src="${esc(screenshotUrl)}" alt="${esc(screenshotLabel)} desktop screenshot"
+      onerror="this.closest('.de-screenshot-wrap').hidden=true" />
+    <p class="de-screenshot-caption" id="de-screenshot-caption">${captionHtml}</p>
+  </div>`;
+
   return html;
 }
 
@@ -1006,8 +1054,31 @@ function attachStepListeners(stepId) {
 
     case 'de': {
       const deTiles = [...container.querySelectorAll('[data-de]')];
+
+      const updateDeScreenshot = (de) => {
+        const wrap = document.getElementById('de-screenshot-wrap');
+        const img  = document.getElementById('de-screenshot-img');
+        const cap  = document.getElementById('de-screenshot-caption');
+        if (!wrap || !img || !cap) return;
+        const url   = de && de !== 'none' && DE_SCREENSHOTS[de] ? DE_SCREENSHOTS[de] : '';
+        const label = de ? (DE_LABELS[de] || de) : '';
+        const desc  = de ? (DE_DESCRIPTIONS[de] || '') : '';
+        if (url) {
+          img.src = url;
+          img.alt = label + ' desktop screenshot';
+          cap.innerHTML = `<strong>${esc(label)}</strong>${desc ? ` — ${esc(desc)}` : ''}`;
+          wrap.hidden = false;
+        } else {
+          wrap.hidden = true;
+        }
+      };
+
       const activateDe = (el) => { state.de = el.dataset.de; renderAll(); };
-      deTiles.forEach(el => el.addEventListener('click', () => activateDe(el)));
+      deTiles.forEach(el => {
+        el.addEventListener('click',      () => activateDe(el));
+        el.addEventListener('mouseenter', () => updateDeScreenshot(el.dataset.de));
+        el.addEventListener('mouseleave', () => updateDeScreenshot(state.de));
+      });
       attachTileKeys(deTiles, activateDe);
       break;
     }
