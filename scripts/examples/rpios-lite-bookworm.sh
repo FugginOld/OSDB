@@ -76,10 +76,10 @@ chmod +x stage-custom/03-run/01-run.sh
 log "Starting pi-gen build (this may take 30–90 minutes)..."
 sudo ./build.sh 2>&1 | tee "${OUTPUT_DIR}/build.log"
 
-find deploy -name '*.img.xz' \
-  -exec cp {} "${OUTPUT_DIR}/${DISTRO_NAME}.img.xz" \; 2>/dev/null || true
-find deploy -name '*.img' -not -name '*.img.xz' \
-  -exec cp {} "${OUTPUT_DIR}/${DISTRO_NAME}.img" \; 2>/dev/null || true
+LATEST_XZ=$(find deploy -name '*.img.xz' | head -1)
+LATEST_IMG=$(find deploy -name '*.img' -not -name '*.img.xz' | head -1)
+[ -n "${LATEST_XZ}"  ] && cp "${LATEST_XZ}"  "${OUTPUT_DIR}/${DISTRO_NAME}.img.xz" || true
+[ -n "${LATEST_IMG}" ] && cp "${LATEST_IMG}" "${OUTPUT_DIR}/${DISTRO_NAME}.img"    || true
 
 log "Build complete! Output: ${OUTPUT_DIR}"
 log ""

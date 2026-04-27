@@ -308,7 +308,8 @@ const DE_LABELS = {
 // ── Per-package compatibility ────────────────────────────────
 const PACKAGES = [
   { id: 'firefox',      label: 'Firefox',           families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'firefox-esr',   pacman: 'firefox',        dnf: 'firefox',         zypper: 'firefox'        }, defaultOn: true  },
-  // chromium-browser is the RPi OS (rpi) package name; rpi-ubuntu and rpi-arch use 'chromium'
+  // chromium-browser is the apt package name on both RPi OS and Ubuntu for RPi;
+  // rpi-arch uses 'chromium' via pacman
   { id: 'chromium',     label: 'Chromium',           families: ['rpi','rpi-ubuntu','rpi-arch'],                                       pkgName: { apt: 'chromium-browser', pacman: 'chromium'                                                          }, defaultOn: true  },
   { id: 'vlc',          label: 'VLC',                families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'vlc',           pacman: 'vlc',            dnf: 'vlc',             zypper: 'vlc'            }, defaultOn: true  },
   { id: 'git',          label: 'Git',                families: ['debian','ubuntu','arch','fedora','opensuse','rpi','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'git',      pacman: 'git',            dnf: 'git',             zypper: 'git'            }, defaultOn: true  },
@@ -1587,8 +1588,10 @@ log "Starting pi-gen build (this may take 30–90 minutes)..."
 sudo ./build.sh 2>&1 | tee "\${OUTPUT_DIR}/build.log"
 
 # ── Copy output ────────────────────────────────────────────────
-find deploy -name '*.img.xz' -exec cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz" \\; 2>/dev/null || true
-find deploy -name '*.img' -not -name '*.img.xz' -exec cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.img" \\; 2>/dev/null || true
+LATEST_XZ=\$(find deploy -name '*.img.xz' | head -1)
+LATEST_IMG=\$(find deploy -name '*.img' -not -name '*.img.xz' | head -1)
+[ -n "\${LATEST_XZ}"  ] && cp "\${LATEST_XZ}"  "\${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz" || true
+[ -n "\${LATEST_IMG}" ] && cp "\${LATEST_IMG}" "\${OUTPUT_DIR}/\${DISTRO_NAME}.img"    || true
 
 log "Build complete! Output: \${OUTPUT_DIR}"
 log ""
