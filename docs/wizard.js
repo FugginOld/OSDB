@@ -751,7 +751,8 @@ function renderStepDE() {
     : '';
   html += `<div class="de-screenshot-wrap"${screenshotUrl ? '' : ' hidden=""'} id="de-screenshot-wrap">
     <img class="de-screenshot-img" id="de-screenshot-img"
-      src="${esc(screenshotUrl)}" alt="${esc(screenshotLabel)} desktop screenshot" />
+      src="${esc(screenshotUrl)}" alt="${esc(screenshotLabel)} desktop screenshot"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer" />
     <p class="de-screenshot-caption" id="de-screenshot-caption">${captionHtml}</p>
   </div>`;
 
@@ -1086,6 +1087,8 @@ function attachStepListeners(stepId) {
         el.addEventListener('click',      () => activateDe(el));
         el.addEventListener('mouseenter', () => updateDeScreenshot(el.dataset.de));
         el.addEventListener('mouseleave', () => updateDeScreenshot(state.de));
+        el.addEventListener('focus',      () => updateDeScreenshot(el.dataset.de));
+        el.addEventListener('blur',       () => updateDeScreenshot(state.de));
       });
       attachTileKeys(deTiles, activateDe);
       break;
