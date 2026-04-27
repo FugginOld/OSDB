@@ -920,6 +920,9 @@ function renderStepSummary() {
     <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
       <button class="btn-download" id="btn-download">⬇ Download build-distro.sh</button>
     </div>
+    <div class="info-banner">
+      ℹ️ If your host OS differs from the build environment, the generated script will automatically use Docker or Podman to create the correct environment. The ISO or IMG will be saved to your <code>OUTPUT_DIR</code> on the host. Requires Docker (<a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">install</a>) or Podman (<a href="https://podman.io/docs/installation" target="_blank" rel="noopener">install</a>).
+    </div>
     <div class="script-preview-wrap">
       <button class="preview-toggle" id="btn-preview">▶ Preview script</button>
       <div id="script-preview-content" style="display:none">
@@ -1202,7 +1205,40 @@ function serviceEnableBlock(units) {
   return units.split(' ').filter(Boolean).map(u => `systemctl enable "${u}"`).join('\n');
 }
 
-function scriptHeader(name, builder) {
+// ─ Docker/Podman container self-re-launch preamble ───────────
+// Injected into generated scripts so they work on any host OS.
+function containerPreamble(containerImage) {
+  return `
+# ── Container self-re-launch ──────────────────────────────────
+# If this script is not already running inside a container it
+# re-execs itself inside the correct build environment using
+# Docker or Podman, so it works on any host OS (e.g. building a
+# Debian ISO from an Arch Linux host).  The finished ISO / IMG is
+# written to OUTPUT_DIR on the host via a bind-mount.
+# --privileged is required for loop-device and chroot operations.
+CONTAINER_IMAGE="${containerImage}"
+
+if [ ! -f /.dockerenv ] && [ -z "\${container:-}" ]; then
+  if command -v docker >/dev/null 2>&1; then
+    _RUNTIME=docker
+  elif command -v podman >/dev/null 2>&1; then
+    _RUNTIME=podman
+  else
+    die "Docker or Podman is required to build on a non-native host. Install Docker: https://docs.docker.com/engine/install/ -- or Podman: https://podman.io/docs/installation"
+  fi
+  log "Re-launching inside \${CONTAINER_IMAGE} via \${_RUNTIME}..."
+  mkdir -p "\${OUTPUT_DIR}"
+  exec "\${_RUNTIME}" run --rm --privileged \\
+    -v "\$(realpath "\${OUTPUT_DIR}"):/out" \\
+    -v "\$(realpath "\$0"):/build.sh:ro" \\
+    -e BUILD_DIR=/tmp/distro-build \\
+    -e OUTPUT_DIR=/out \\
+    "\${CONTAINER_IMAGE}" bash /build.sh
+fi
+`;
+}
+
+function scriptHeader(name, builder, containerImage) {
   return `#!/usr/bin/env bash
 # ============================================================
 # ${name} — build-distro.sh
@@ -1217,7 +1253,7 @@ OUTPUT_DIR="\${OUTPUT_DIR:-/tmp/distro-output}"
 
 log() { printf '\\033[1;34m[%s]\\033[0m %s\\n' "\$(date +%T)" "\$*"; }
 die() { printf '\\033[1;31m[ERROR]\\033[0m %s\\n' "\$*" >&2; exit 1; }
-
+${containerImage ? containerPreamble(containerImage) : ''}
 if [ "\${EUID:-\$(id -u)}" -ne 0 ]; then
   die "This script must be run as root. Re-run with: sudo \$0"
 fi
@@ -1237,6 +1273,7 @@ function generateLiveBuild(base, name) {
   const areas = base.areas;
   const suite = base.suite;
   const services = enabledServicesList();
+  const containerImage = base.family === 'ubuntu' ? `ubuntu:${suite}` : `debian:${suite}`;
 
   const calamaresBlock = state.installer === 'calamares' ? `
 # ── Calamares installer config ────────────────────────────────
@@ -1303,7 +1340,7 @@ SVC_EOF
       ).join('\n') + '\napt-get update'
     : '';
 
-  return `${scriptHeader(name, 'live-build')}
+  return `${scriptHeader(name, 'live-build', containerImage)}
 LB_DIR="\${BUILD_DIR}/lb"
 ${ubiquityNote}
 # ── Prerequisites ─────────────────────────────────────────────
@@ -1391,6 +1428,7 @@ function generateArchiso(base, name) {
   const userPkgs = enabledPkgList(base);
   const allPkgs = [dePackages, userPkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
   const services = enabledServicesList();
+  const containerImage = 'archlinux:latest';
 
   const arInstallBlock = state.installer === 'archinstall'
     ? '\n# archinstall is included in the live environment by default\n'
@@ -1415,7 +1453,7 @@ branding: ${name}
 CALA_EOF
 ` : '';
 
-  return `${scriptHeader(name, 'archiso')}
+  return `${scriptHeader(name, 'archiso', containerImage)}
 PROFILE_DIR="\${BUILD_DIR}/profile"
 WORK_DIR="\${BUILD_DIR}/work"
 
@@ -1486,12 +1524,13 @@ function generateLorax(base, name) {
   const services = enabledServicesList();
   const suite = base.suite; // f40, f41 …
   const version = suite.replace('f', '');
+  const containerImage = `fedora:${version}`;
 
   const ksGroups = state.de && state.de !== 'none'
     ? `@${state.de}-desktop-environment`
     : '';
 
-  return `${scriptHeader(name, 'lorax')}
+  return `${scriptHeader(name, 'lorax', containerImage)}
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
 FEDORA_VERSION="${version}"
@@ -1576,6 +1615,7 @@ function generatePiGen(base, name) {
   const hwObj = RPI_HARDWARE.find(h => h.id === hw) || { arch: 'aarch64' };
   const is64 = hwObj.arch === 'aarch64';
   const sshEnabled = state.services['sshd'] ? '1' : '0';
+  const containerImage = 'debian:bookworm';
 
   const configTxtLines = buildConfigTxt(is64);
 
@@ -1585,7 +1625,7 @@ function generatePiGen(base, name) {
     ? 'touch ./stage5/SKIP\ntouch ./stage5/SKIP_IMAGES'
     : '# No stages skipped (full build)';
 
-  return `${scriptHeader(name, 'pi-gen')}
+  return `${scriptHeader(name, 'pi-gen', containerImage)}
 PIGEN_DIR="\${BUILD_DIR}/pi-gen"
 
 # ── Prerequisites ─────────────────────────────────────────────
@@ -1697,10 +1737,11 @@ function generateUbuntuRpi(base, name) {
     ? state.customMirrorUrl.trim() : base.mirror;
   const areas = base.areas;
   const needsEeprom = ['rpi4','rpi5'].includes(hw);
+  const containerImage = `ubuntu:${suite}`;
 
   const configTxtLines = buildConfigTxt(arch === 'aarch64');
 
-  return `${scriptHeader(name, 'ubuntu-rpi')}
+  return `${scriptHeader(name, 'ubuntu-rpi', containerImage)}
 ROOTFS="\${BUILD_DIR}/rootfs"
 IMG_SIZE="8G"
 IMG_FILE="\${OUTPUT_DIR}/\${DISTRO_NAME}.img"
@@ -1921,8 +1962,10 @@ function generateKiwi(base, name) {
   const userPkgs = enabledPkgList(base);
   const services = enabledServicesList();
   const suite = base.suite;
+  const leapVersion = (base.label.match(/\d+\.\d+/) || ['15.6'])[0];
+  const containerImage = suite === 'leap' ? `opensuse/leap:${leapVersion}` : 'opensuse/tumbleweed';
 
-  return `${scriptHeader(name, 'kiwi')}
+  return `${scriptHeader(name, 'kiwi', containerImage)}
 KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 
 # ── Prerequisites ─────────────────────────────────────────────
