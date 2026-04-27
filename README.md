@@ -1,4 +1,4 @@
-# OSDB — Linux Distro Builder Wizard
+# OSDB — Linux OS Distro Builder Wizard
 
 **🔗 Live wizard:** https://fugginold.github.io/OSDB/
 
