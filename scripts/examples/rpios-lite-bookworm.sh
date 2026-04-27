@@ -9,14 +9,17 @@ OUTPUT_DIR="${OUTPUT_DIR:-/tmp/distro-output}"
 
 log() { printf '\033[1;34m[%s]\033[0m %s\n' "$(date +%T)" "$*"; }
 
+# This script is designed to be run as a normal user with sudo available.
+# Privileged operations (apt-get, build.sh) use sudo explicitly.
+
 mkdir -p "${BUILD_DIR}" "${OUTPUT_DIR}"
 
 PIGEN_DIR="${BUILD_DIR}/pi-gen"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing pi-gen dependencies..."
-apt-get update -qq
-apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree \
+sudo apt-get update -qq
+sudo apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree \
   zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git curl bc gpg
 
 # ── Clone pi-gen ──────────────────────────────────────────────
@@ -28,9 +31,14 @@ else
 fi
 cd "${PIGEN_DIR}"
 
+# ── User password ─────────────────────────────────────────────
+# Set PIGEN_USER_PASS env var before running, or it defaults to "raspberry".
+# WARNING: the default password is insecure — change it for production images.
+: "${PIGEN_USER_PASS:=raspberry}"
+
 # ── Main config ───────────────────────────────────────────────
 log "Writing pi-gen config..."
-cat > config << 'CONFIG_EOF'
+cat > config << CONFIG_EOF
 IMG_NAME="MyDistro"
 RELEASE="bookworm"
 LOCALE_DEFAULT="en_US.UTF-8"
@@ -38,7 +46,7 @@ KEYBOARD_KEYMAP="us"
 KEYBOARD_LAYOUT="English (US)"
 TIMEZONE_DEFAULT="America/New_York"
 FIRST_USER_NAME="pi"
-FIRST_USER_PASS="raspberry"
+FIRST_USER_PASS="${PIGEN_USER_PASS}"
 ENABLE_SSH=1
 STAGE_LIST="stage0 stage1 stage2 stage-custom"
 CONFIG_EOF

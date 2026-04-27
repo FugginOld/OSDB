@@ -10,6 +10,10 @@ OUTPUT_DIR="${OUTPUT_DIR:-/tmp/distro-output}"
 log() { printf '\033[1;34m[%s]\033[0m %s\n' "$(date +%T)" "$*"; }
 die() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+  die "This script must be run as root. Re-run with: sudo $0"
+fi
+
 mkdir -p "${BUILD_DIR}" "${OUTPUT_DIR}"
 
 LB_DIR="${BUILD_DIR}/lb"

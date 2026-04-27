@@ -644,7 +644,7 @@ function renderStepBase() {
     if (!keys.length) continue;
     html += `<div class="family-group">
       <div class="family-header">${esc(group.label)}</div>
-      <div class="tiles">`;
+      <div class="tiles" role="radiogroup" aria-label="${esc(group.label)}">`;
     for (const key of keys) {
       const b = BASES[key];
       const sel = state.base === key ? 'selected' : '';
@@ -657,7 +657,7 @@ function renderStepBase() {
       const archBadge = b.arch ? `<span class="badge badge-arch">${esc(b.arch)}</span>` : '';
       const builderBadge = `<span class="badge badge-arch">${esc(b.builder)}</span>`;
       const notesTxt = b.notes ? `<div class="tile-notes">${esc(b.notes)}</div>` : '';
-      html += `<div class="tile ${sel} ${eolCls}" data-base="${esc(key)}" role="radio" aria-checked="${sel === 'selected'}">
+      html += `<div class="tile ${sel} ${eolCls}" data-base="${esc(key)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
         <div class="tile-title">${warn} ${esc(b.label)}</div>
         <div class="tile-meta">${trackBadge(b.track)} ${imgBadge} ${archBadge} ${builderBadge}</div>
         ${notesTxt}
@@ -672,11 +672,11 @@ function renderStepBase() {
 function renderStepRpiHw() {
   let html = `<h2 class="step-heading">Hardware Target</h2>
     <p class="step-sub">Choose your Raspberry Pi hardware. This determines the CPU architecture (aarch64 vs armhf) and available config.txt flags.</p>
-    <div class="tiles">`;
+    <div class="tiles" role="radiogroup" aria-label="Raspberry Pi hardware">`;
   for (const hw of RPI_HARDWARE) {
     const sel = state.rpiHardware === hw.id ? 'selected' : '';
     const archBadge = `<span class="badge badge-arch">${esc(hw.arch)}</span>`;
-    html += `<div class="tile ${sel}" data-rpi-hw="${esc(hw.id)}" role="radio" aria-checked="${sel === 'selected'}">
+    html += `<div class="tile ${sel}" data-rpi-hw="${esc(hw.id)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
       <div class="tile-title">${esc(hw.label)}</div>
       <div class="tile-meta">${archBadge}</div>
       <div class="tile-notes">${esc(hw.notes)}</div>
@@ -692,7 +692,7 @@ function renderStepDE() {
   const avail = base ? base.des : ['none'];
   let html = `<h2 class="step-heading">Step 2 — Desktop Environment</h2>
     <p class="step-sub">Choose a desktop environment, or select <em>Headless / None</em> for a minimal server image.</p>
-    <div class="tiles">`;
+    <div class="tiles" role="radiogroup" aria-label="Desktop environment">`;
   for (const de of avail) {
     const label = DE_LABELS[de] || de;
     const sel = state.de === de ? 'selected' : '';
@@ -701,7 +701,7 @@ function renderStepDE() {
       : '';
     const dm = DE_DM[de] || '';
     const dmBadge = dm ? `<span class="badge badge-arch">DM: ${esc(dm)}</span>` : '';
-    html += `<div class="tile ${sel}" data-de="${esc(de)}" role="radio" aria-checked="${sel === 'selected'}">
+    html += `<div class="tile ${sel}" data-de="${esc(de)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
       <div class="tile-title">${esc(label)}</div>
       <div class="tile-meta">${dmBadge}</div>
       ${pkgLine ? `<div class="pkg-preview">${esc(pkgLine)}</div>` : ''}
@@ -722,7 +722,7 @@ function renderStepPackages() {
     const on = state.pkgs[pkg.id] !== undefined ? state.pkgs[pkg.id] : pkg.defaultOn;
     const cls = on ? 'on' : '';
     const pkgName = getPkgName(pkg);
-    html += `<div class="toggle-row ${cls}" data-pkg="${esc(pkg.id)}" role="checkbox" aria-checked="${on}">
+    html += `<div class="toggle-row ${cls}" data-pkg="${esc(pkg.id)}" role="checkbox" tabindex="0" aria-checked="${on}">
       <div class="toggle-label">
         <strong>${esc(pkg.label)}</strong>
         <span>${esc(pkgName)}</span>
@@ -743,10 +743,10 @@ function renderStepRepo() {
   const avail = base ? base.repoTypes : ['official'];
   let html = `<h2 class="step-heading">Step 4 — Repository</h2>
     <p class="step-sub">Choose which repositories to enable in the build.</p>
-    <div class="tiles single-col">`;
+    <div class="tiles single-col" role="radiogroup" aria-label="Repository type">`;
   for (const rt of avail) {
     const sel = state.repoType === rt ? 'selected' : '';
-    html += `<div class="tile ${sel}" data-repo="${esc(rt)}" role="radio" aria-checked="${sel === 'selected'}">
+    html += `<div class="tile ${sel}" data-repo="${esc(rt)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
       <div class="tile-title">${esc(rt.toUpperCase())}</div>
       <div class="installer-desc">${esc(REPO_DESC[rt] || rt)}</div>
     </div>`;
@@ -774,10 +774,10 @@ function renderStepInstaller() {
   const avail = base ? base.installers : ['none'];
   let html = `<h2 class="step-heading">Step 5 — Installer</h2>
     <p class="step-sub">Choose a graphical installer to include, or <em>None</em> for a live-only / image-write build.</p>
-    <div class="tiles single-col">`;
+    <div class="tiles single-col" role="radiogroup" aria-label="Installer">`;
   for (const ins of avail) {
     const sel = state.installer === ins ? 'selected' : '';
-    html += `<div class="tile ${sel}" data-installer="${esc(ins)}" role="radio" aria-checked="${sel === 'selected'}">
+    html += `<div class="tile ${sel}" data-installer="${esc(ins)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
       <div class="tile-title">${esc(ins.charAt(0).toUpperCase() + ins.slice(1))}</div>
       <div class="installer-desc">${esc(INSTALLER_DESC[ins] || ins)}</div>
     </div>`;
@@ -848,7 +848,7 @@ function renderStepServices() {
 function renderToggleRow(svc, stateMap) {
   const on = stateMap[svc.id] !== undefined ? stateMap[svc.id] : svc.defaultOn;
   const cls = on ? 'on' : '';
-  return `<div class="toggle-row ${cls}" data-service="${esc(svc.id)}" role="checkbox" aria-checked="${on}">
+  return `<div class="toggle-row ${cls}" data-service="${esc(svc.id)}" role="checkbox" tabindex="0" aria-checked="${on}">
     <div class="toggle-label">
       <strong>${esc(svc.label)}</strong>
       <span>${esc(svc.unit)} — ${esc(svc.desc)}</span>
@@ -930,6 +930,47 @@ function renderStepSummary() {
 }
 
 // ============================================================
+// KEYBOARD HELPERS
+// ============================================================
+
+// Arrow/Space/Enter navigation for radio-style tiles
+function attachTileKeys(tiles, onActivate) {
+  tiles.forEach((el, idx) => {
+    el.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case ' ':
+        case 'Enter':
+          e.preventDefault();
+          onActivate(el);
+          break;
+        case 'ArrowDown':
+        case 'ArrowRight':
+          e.preventDefault();
+          tiles[(idx + 1) % tiles.length].focus();
+          break;
+        case 'ArrowUp':
+        case 'ArrowLeft':
+          e.preventDefault();
+          tiles[(idx - 1 + tiles.length) % tiles.length].focus();
+          break;
+      }
+    });
+  });
+}
+
+// Space/Enter toggle for checkbox-style rows
+function attachToggleKeys(toggles, onToggle) {
+  toggles.forEach(el => {
+    el.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        onToggle(el);
+      }
+    });
+  });
+}
+
+// ============================================================
 // STEP EVENT LISTENERS
 // ============================================================
 
@@ -937,57 +978,56 @@ function attachStepListeners(stepId) {
   const container = document.getElementById('step-container');
 
   switch (stepId) {
-    case 'base':
-      container.querySelectorAll('[data-base]').forEach(el => {
-        el.addEventListener('click', () => {
-          const baseId = el.dataset.base;
-          onBaseSelected(baseId);
-        });
-      });
+    case 'base': {
+      const baseTiles = [...container.querySelectorAll('[data-base]')];
+      const activateBase = (el) => { onBaseSelected(el.dataset.base); };
+      baseTiles.forEach(el => el.addEventListener('click', () => activateBase(el)));
+      attachTileKeys(baseTiles, activateBase);
       break;
+    }
 
-    case 'rpi-hw':
-      container.querySelectorAll('[data-rpi-hw]').forEach(el => {
-        el.addEventListener('click', () => {
-          state.rpiHardware = el.dataset.rpiHw;
-          // armhf Pi can't do 64-bit
-          const hw = RPI_HARDWARE.find(h => h.id === state.rpiHardware);
-          if (hw && hw.arch === 'armhf') {
-            state.configTxt['arm_64bit'] = false;
-          }
-          renderAll();
-        });
-      });
+    case 'rpi-hw': {
+      const rpiTiles = [...container.querySelectorAll('[data-rpi-hw]')];
+      const activateRpiHw = (el) => {
+        state.rpiHardware = el.dataset.rpiHw;
+        const hw = RPI_HARDWARE.find(h => h.id === state.rpiHardware);
+        if (hw && hw.arch === 'armhf') {
+          state.configTxt['arm_64bit'] = false;
+        }
+        renderAll();
+      };
+      rpiTiles.forEach(el => el.addEventListener('click', () => activateRpiHw(el)));
+      attachTileKeys(rpiTiles, activateRpiHw);
       break;
+    }
 
-    case 'de':
-      container.querySelectorAll('[data-de]').forEach(el => {
-        el.addEventListener('click', () => {
-          state.de = el.dataset.de;
-          renderAll();
-        });
-      });
+    case 'de': {
+      const deTiles = [...container.querySelectorAll('[data-de]')];
+      const activateDe = (el) => { state.de = el.dataset.de; renderAll(); };
+      deTiles.forEach(el => el.addEventListener('click', () => activateDe(el)));
+      attachTileKeys(deTiles, activateDe);
       break;
+    }
 
-    case 'packages':
-      container.querySelectorAll('[data-pkg]').forEach(el => {
-        el.addEventListener('click', () => {
-          const id = el.dataset.pkg;
-          state.pkgs[id] = !state.pkgs[id];
-          el.classList.toggle('on', state.pkgs[id]);
-          el.querySelector('.toggle-switch').style.cssText = '';
-          el.setAttribute('aria-checked', state.pkgs[id]);
-        });
-      });
+    case 'packages': {
+      const pkgToggles = [...container.querySelectorAll('[data-pkg]')];
+      const togglePkg = (el) => {
+        const id = el.dataset.pkg;
+        state.pkgs[id] = !state.pkgs[id];
+        el.classList.toggle('on', state.pkgs[id]);
+        el.querySelector('.toggle-switch').style.cssText = '';
+        el.setAttribute('aria-checked', state.pkgs[id]);
+      };
+      pkgToggles.forEach(el => el.addEventListener('click', () => togglePkg(el)));
+      attachToggleKeys(pkgToggles, togglePkg);
       break;
+    }
 
-    case 'repo':
-      container.querySelectorAll('[data-repo]').forEach(el => {
-        el.addEventListener('click', () => {
-          state.repoType = el.dataset.repo;
-          renderAll();
-        });
-      });
+    case 'repo': {
+      const repoTiles = [...container.querySelectorAll('[data-repo]')];
+      const activateRepo = (el) => { state.repoType = el.dataset.repo; renderAll(); };
+      repoTiles.forEach(el => el.addEventListener('click', () => activateRepo(el)));
+      attachTileKeys(repoTiles, activateRepo);
       {
         const customInput = document.getElementById('custom-mirror');
         if (customInput) {
@@ -1004,25 +1044,26 @@ function attachStepListeners(stepId) {
         }
       }
       break;
+    }
 
-    case 'installer':
-      container.querySelectorAll('[data-installer]').forEach(el => {
-        el.addEventListener('click', () => {
-          state.installer = el.dataset.installer;
-          renderAll();
-        });
-      });
+    case 'installer': {
+      const insTiles = [...container.querySelectorAll('[data-installer]')];
+      const activateIns = (el) => { state.installer = el.dataset.installer; renderAll(); };
+      insTiles.forEach(el => el.addEventListener('click', () => activateIns(el)));
+      attachTileKeys(insTiles, activateIns);
       break;
+    }
 
-    case 'services':
-      container.querySelectorAll('[data-service]').forEach(el => {
-        el.addEventListener('click', () => {
-          const id = el.dataset.service;
-          state.services[id] = !state.services[id];
-          el.classList.toggle('on', state.services[id]);
-          el.setAttribute('aria-checked', state.services[id]);
-        });
-      });
+    case 'services': {
+      const svcToggles = [...container.querySelectorAll('[data-service]')];
+      const toggleSvc = (el) => {
+        const id = el.dataset.service;
+        state.services[id] = !state.services[id];
+        el.classList.toggle('on', state.services[id]);
+        el.setAttribute('aria-checked', state.services[id]);
+      };
+      svcToggles.forEach(el => el.addEventListener('click', () => toggleSvc(el)));
+      attachToggleKeys(svcToggles, toggleSvc);
       container.querySelectorAll('[data-config]').forEach(el => {
         el.addEventListener('change', () => {
           state.configTxt[el.dataset.config] = el.checked;
@@ -1037,6 +1078,7 @@ function attachStepListeners(stepId) {
         });
       });
       break;
+    }
 
     case 'summary':
       {
@@ -1176,6 +1218,10 @@ OUTPUT_DIR="\${OUTPUT_DIR:-/tmp/distro-output}"
 log() { printf '\\033[1;34m[%s]\\033[0m %s\\n' "\$(date +%T)" "\$*"; }
 die() { printf '\\033[1;31m[ERROR]\\033[0m %s\\n' "\$*" >&2; exit 1; }
 
+if [ "\${EUID:-\$(id -u)}" -ne 0 ]; then
+  die "This script must be run as root. Re-run with: sudo \$0"
+fi
+
 mkdir -p "\${BUILD_DIR}" "\${OUTPUT_DIR}"
 `;
 }
@@ -1290,6 +1336,10 @@ printf '%s\\n' "live-boot" "live-config" "live-config-systemd" > config/package-
 ${state.installer === 'calamares' ? 'printf \'%s\\n\' "calamares" "calamares-settings-debian" > config/package-lists/installer.list.chroot' : ''}
 ${state.installer === 'ubiquity'  ? 'printf \'%s\\n\' "ubiquity" "ubiquity-frontend-gtk" > config/package-lists/installer.list.chroot' : ''}
 
+# ── Chroot hooks ───────────────────────────────────────────────
+log "Writing chroot hooks..."
+mkdir -p config/hooks/live
+
 # ── PPAs ──────────────────────────────────────────────────────
 ${ppaBlock ? `log "Adding PPAs..."
 cat > config/hooks/live/0001-ppa.hook.chroot << 'HOOK_EOF'
@@ -1299,10 +1349,6 @@ apt-get install -y software-properties-common
 ${ppaBlock}
 HOOK_EOF
 chmod +x config/hooks/live/0001-ppa.hook.chroot` : '# No PPAs configured'}
-
-# ── Chroot hooks ───────────────────────────────────────────────
-log "Writing chroot hooks..."
-mkdir -p config/hooks/live
 
 # Hook: enable services
 cat > config/hooks/live/0010-services.hook.chroot << 'HOOK_EOF'
@@ -1375,7 +1421,7 @@ WORK_DIR="\${BUILD_DIR}/work"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing archiso..."
-pacman -Sy --noconfirm archiso ${state.installer === 'calamares' ? 'calamares' : ''}
+pacman -Syu --noconfirm archiso ${state.installer === 'calamares' ? 'calamares' : ''}
 
 # ── Copy baseline profile ──────────────────────────────────────
 log "Setting up archiso profile..."
@@ -1398,10 +1444,22 @@ ${services.split(' ').filter(Boolean).map(u =>
 
 # ── Autologin ─────────────────────────────────────────────────
 ${autologinHook(base)
-  ? `cat > airootfs/etc/autologin.sh << 'AUTO_EOF'
-#!/bin/sh
+  ? `mkdir -p airootfs/root
+if [ -f airootfs/root/customize_airootfs.sh ]; then
+  cat >> airootfs/root/customize_airootfs.sh << 'AUTO_EOF'
+
+# Configure display manager autologin
 ${autologinHook(base)}
-AUTO_EOF`
+AUTO_EOF
+else
+  cat > airootfs/root/customize_airootfs.sh << 'AUTO_EOF'
+#!/bin/sh
+
+# Configure display manager autologin
+${autologinHook(base)}
+AUTO_EOF
+fi
+chmod +x airootfs/root/customize_airootfs.sh`
   : '# No display manager autologin needed'}
 
 # ── Custom mirror ──────────────────────────────────────────────
@@ -1442,16 +1500,21 @@ FEDORA_VERSION="${version}"
 log "Installing lorax and livecd-tools..."
 dnf install -y lorax livecd-tools pykickstart
 
+# ── User password (required) ──────────────────────────────────
+# Set LORAX_USER_PASSWORD before running to define the default user password.
+: "\${LORAX_USER_PASSWORD:?Set LORAX_USER_PASSWORD to the desired default user password before running this script.}"
+USER_PASSWORD_HASH=\$(openssl passwd -6 "\${LORAX_USER_PASSWORD}")
+
 # ── Kickstart file ─────────────────────────────────────────────
 log "Writing kickstart file..."
-cat > "\${KS_FILE}" << 'KS_EOF'
+cat > "\${KS_FILE}" << KS_EOF
 # ${name} Kickstart
 text
 lang en_US.UTF-8
 keyboard us
 timezone America/New_York
-rootpw --plaintext toor
-user --name=user --plaintext --password=user --groups=wheel
+rootpw --lock
+user --name=user --iscrypted --password="\${USER_PASSWORD_HASH}" --groups=wheel
 
 bootloader --location=mbr
 zerombr
@@ -1541,9 +1604,14 @@ else
 fi
 cd "\${PIGEN_DIR}"
 
+# ── User password ─────────────────────────────────────────────
+# Set PIGEN_USER_PASS env var before running, or it defaults to "raspberry".
+# WARNING: the default password is insecure — change it for production images.
+: "\${PIGEN_USER_PASS:=raspberry}"
+
 # ── Main config ───────────────────────────────────────────────
 log "Writing pi-gen config..."
-cat > config << 'CONFIG_EOF'
+cat > config << CONFIG_EOF
 IMG_NAME="${name}"
 RELEASE="${base.suite}"
 LOCALE_DEFAULT="en_US.UTF-8"
@@ -1551,7 +1619,7 @@ KEYBOARD_KEYMAP="us"
 KEYBOARD_LAYOUT="English (US)"
 TIMEZONE_DEFAULT="America/New_York"
 FIRST_USER_NAME="pi"
-FIRST_USER_PASS="raspberry"
+FIRST_USER_PASS="\${PIGEN_USER_PASS}"
 ENABLE_SSH=${sshEnabled}
 STAGE_LIST="stage0 stage1 stage2 stage-custom"
 CONFIG_EOF
@@ -1710,8 +1778,9 @@ rm -f "\${ROOTFS}/tmp/enable-services.sh"
 
 # ── Create default user ───────────────────────────────────────
 log "Creating default user 'ubuntu'..."
+: "\${UBUNTU_PASSWORD:?Set UBUNTU_PASSWORD to the desired password for the ubuntu user before running this script.}"
 chroot "\${ROOTFS}" useradd -m -s /bin/bash -G sudo,adm ubuntu
-printf '%s:%s\n' "ubuntu" "ubuntu" | chroot "\${ROOTFS}" chpasswd
+printf '%s:%s\n' "ubuntu" "\${UBUNTU_PASSWORD}" | chroot "\${ROOTFS}" chpasswd
 chroot "\${ROOTFS}" chage -d 0 ubuntu
 
 # ── Hostname & fstab ──────────────────────────────────────────
@@ -1926,7 +1995,7 @@ function downloadScript() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 // ============================================================
