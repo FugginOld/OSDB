@@ -12,6 +12,9 @@ on:
       - 'scripts/examples/**'
       - '.github/workflows/shellcheck.yml'
 
+permissions:
+  contents: read
+
 jobs:
   shellcheck:
     name: Lint example scripts
@@ -25,8 +28,13 @@ jobs:
       - name: Run ShellCheck on all example scripts
         run: |
           echo "Running ShellCheck on scripts/examples/..."
-          find scripts/examples -name '*.sh' | sort | while read -r script; do
+          failed=0
+          while IFS= read -r script; do
             echo "  Checking: $script"
-            shellcheck --severity=warning --shell=bash "$script"
-          done
+            shellcheck --severity=warning --shell=bash "$script" || failed=1
+          done < <(find scripts/examples -name '*.sh' | sort)
+          if [ "$failed" -ne 0 ]; then
+            echo "One or more scripts failed ShellCheck."
+            exit 1
+          fi
           echo "All scripts passed ShellCheck."

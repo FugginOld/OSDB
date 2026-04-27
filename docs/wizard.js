@@ -308,7 +308,8 @@ const DE_LABELS = {
 // ── Per-package compatibility ────────────────────────────────
 const PACKAGES = [
   { id: 'firefox',      label: 'Firefox',           families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'firefox-esr',   pacman: 'firefox',        dnf: 'firefox',         zypper: 'firefox'        }, defaultOn: true  },
-  { id: 'chromium',     label: 'Chromium',           families: ['rpi'],                                                               pkgName: { apt: 'chromium-browser'                                                                              }, defaultOn: true  },
+  // chromium-browser is the RPi OS (rpi) package name; rpi-ubuntu and rpi-arch use 'chromium'
+  { id: 'chromium',     label: 'Chromium',           families: ['rpi','rpi-ubuntu','rpi-arch'],                                       pkgName: { apt: 'chromium-browser', pacman: 'chromium'                                                          }, defaultOn: true  },
   { id: 'vlc',          label: 'VLC',                families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'vlc',           pacman: 'vlc',            dnf: 'vlc',             zypper: 'vlc'            }, defaultOn: true  },
   { id: 'git',          label: 'Git',                families: ['debian','ubuntu','arch','fedora','opensuse','rpi','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'git',      pacman: 'git',            dnf: 'git',             zypper: 'git'            }, defaultOn: true  },
   { id: 'cups',         label: 'CUPS (printing)',     families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu'],           pkgName: { apt: 'cups',          pacman: 'cups',           dnf: 'cups',            zypper: 'cups'           }, defaultOn: true  },
@@ -1241,7 +1242,7 @@ USERS_EOF
 cat > "\${CALA_DIR}/modules/services-systemd.conf" << 'SVC_EOF'
 ---
 units:
-${services.split(' ').filter(Boolean).map(u => `  - name: "${u}"\n    mandatory: false`).join('\n')}
+${services.split(' ').filter(Boolean).flatMap(u => [`  - name: "${u}"`, `    mandatory: false`]).join('\n')}
 SVC_EOF
 ` : '';
 
@@ -1586,8 +1587,8 @@ log "Starting pi-gen build (this may take 30–90 minutes)..."
 sudo ./build.sh 2>&1 | tee "\${OUTPUT_DIR}/build.log"
 
 # ── Copy output ────────────────────────────────────────────────
-find deploy -name '*.img.xz' -newer deploy -exec cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz" \\; 2>/dev/null || true
-find deploy -name '*.img'    -newer deploy -exec cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.img"    \\; 2>/dev/null || true
+find deploy -name '*.img.xz' -exec cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz" \\; 2>/dev/null || true
+find deploy -name '*.img' -not -name '*.img.xz' -exec cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.img" \\; 2>/dev/null || true
 
 log "Build complete! Output: \${OUTPUT_DIR}"
 log ""
@@ -1695,13 +1696,20 @@ ${configTxtLines}
 
 # ── Enable services ───────────────────────────────────────────
 log "Enabling systemd services..."
-chroot "\${ROOTFS}" bash -c '${serviceEnableBlock(services).replace(/'/g, "'\\''") || ':'}'
+cat > "\${ROOTFS}/tmp/enable-services.sh" << 'SVC_SCRIPT_EOF'
+#!/bin/sh
+set -e
+${serviceEnableBlock(services) || ':'}
+SVC_SCRIPT_EOF
+chmod +x "\${ROOTFS}/tmp/enable-services.sh"
+chroot "\${ROOTFS}" /tmp/enable-services.sh
+rm -f "\${ROOTFS}/tmp/enable-services.sh"
 
 # ── Create default user ───────────────────────────────────────
 log "Creating default user 'ubuntu'..."
 chroot "\${ROOTFS}" useradd -m -s /bin/bash -G sudo,adm ubuntu
-chroot "\${ROOTFS}" bash -c 'echo "ubuntu:ubuntu" | chpasswd'
-chroot "\${ROOTFS}" bash -c 'chage -d 0 ubuntu'
+printf '%s:%s\n' "ubuntu" "ubuntu" | chroot "\${ROOTFS}" chpasswd
+chroot "\${ROOTFS}" chage -d 0 ubuntu
 
 # ── Hostname & fstab ──────────────────────────────────────────
 echo "\${DISTRO_NAME}" > "\${ROOTFS}/etc/hostname"
