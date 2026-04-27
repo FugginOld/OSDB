@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="de-title de-desc">
+  <title id="de-title">Openbox window manager preview</title>
+  <desc id="de-desc">Openbox minimal window manager with root menu, PCManFM, and xterm.</desc>
+  <defs>
+  <linearGradient id="ob_bg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#1a1a2e"/>
+    <stop offset="100%" stop-color="#16213e"/>
+  </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#ob_bg)"/>
+  <rect y="692" width="1280" height="28" fill="rgba(0,0,0,0.75)"/>
+  <rect x="2" y="694" width="28" height="24" rx="2" fill="#4a5a7a"/>
+  <text x="16" y="710" text-anchor="middle" fill="white" font-family="sans-serif" font-size="13">⊞</text>
+  <rect x="40" y="694" width="155" height="24" rx="3" fill="#2e3a52"/>
+  <text x="117" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">PCManFM — Home</text>
+  <rect x="199" y="694" width="155" height="24" rx="3" fill="#1e2a3e"/>
+  <text x="276" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">xterm</text>
+  <rect x="358" y="694" width="155" height="24" rx="3" fill="#1e2a3e"/>
+  <text x="435" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">gedit</text>
+  <circle cx="1100" cy="705" r="5" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="1116" cy="705" r="5" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="1132" cy="705" r="5" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="1148" cy="705" r="5" fill="rgba(255,255,255,0.7)"/>
+  <text x="1225" y="705" text-anchor="middle" fill="white" font-family="sans-serif" font-size="12">21:32 Mon</text>
+  <rect x="601" y="201" width="198" height="258" rx="1" fill="#1e2636" stroke="#3a4a6a" stroke-width="1"/>
+  <rect x="601" y="201" width="198" height="22" fill="#2e3a52"/>
+  <text x="700" y="217" text-anchor="middle" fill="white" font-family="sans-serif" font-size="12">Openbox</text>
+  <rect x="602" y="223" width="196" height="1" fill="rgba(255,255,255,0.15)"/>
+  <rect x="601" y="227" width="198" height="22" fill="rgba(74,90,122,0.4)"/>
+  <text x="614" y="243" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Terminal</text>
+  <rect x="602" y="249" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="262" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">File Manager</text>
+  <rect x="602" y="266" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="279" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Web Browser</text>
+  <rect x="602" y="283" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="296" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Text Editor</text>
+  <rect x="602" y="300" width="196" height="1" fill="rgba(255,255,255,0.15)"/>
+  <text x="614" y="313" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Applications ►</text>
+  <rect x="602" y="317" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="330" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Settings ►</text>
+  <rect x="602" y="334" width="196" height="1" fill="rgba(255,255,255,0.15)"/>
+  <text x="614" y="347" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Restart</text>
+  <rect x="602" y="351" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="364" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Exit</text>
+  <rect x="602" y="368" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="381" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Log Out</text>
+  <rect x="602" y="385" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="398" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Shutdown</text>
+  <rect x="602" y="402" width="196" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="614" y="415" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Reboot</text>
+  <text x="614" y="445" text-anchor="start" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="12">Suspend</text>
+  <rect x="64" y="52" width="700" height="480" rx="8" fill="rgba(0,0,0,0.45)"/>
+  <rect x="60" y="48" width="700" height="480" rx="8" fill="#1a2236"/>
+  <rect x="60" y="48" width="700" height="30" rx="8" fill="#2e3a52"/>
+  <rect x="60" y="56" width="700" height="22" fill="#2e3a52"/>
+  <text x="410" y="68" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">PCManFM — /home/user</text>
+  <circle cx="74" cy="63" r="6" fill="#cc3333"/>
+  <circle cx="92" cy="63" r="6" fill="#febc2e"/>
+  <circle cx="110" cy="63" r="6" fill="#33aa33"/>
+  <rect x="60" y="78" width="700" height="24" fill="#24303e"/>
+  <rect x="190" y="81" width="260" height="16" rx="2" fill="#141d2e"/>
+  <text x="320" y="93" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-family="sans-serif" font-size="11">/home/user</text>
+  <rect x="60" y="102" width="155" height="426" fill="#16202e"/>
+  <text x="74" y="124" text-anchor="start" fill="rgba(255,255,255,0.45)" font-family="sans-serif" font-size="10">PLACES</text>
+  <rect x="67" y="129" width="141" height="22" rx="2" fill="rgba(255,255,255,0.08)"/>
+  <text x="78" y="145" text-anchor="start" fill="white" font-family="sans-serif" font-size="12">Home</text>
+  <text x="78" y="165" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Desktop</text>
+  <text x="78" y="185" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Documents</text>
+  <text x="78" y="205" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Downloads</text>
+  <text x="78" y="225" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Music</text>
+  <text x="78" y="245" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">Pictures</text>
+  <text x="74" y="272" text-anchor="start" fill="rgba(255,255,255,0.45)" font-family="sans-serif" font-size="10">DEVICES</text>
+  <text x="78" y="292" text-anchor="start" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="12">sda1</text>
+  <rect x="215" y="102" width="545" height="426" fill="#101820"/>
+  <rect x="234" y="118" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="247" y="132" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="247" y="129" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="268" y="200" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Desktop</text>
+  <rect x="334" y="118" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="347" y="132" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="347" y="129" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="368" y="200" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Documents</text>
+  <rect x="434" y="118" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="447" y="132" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="447" y="129" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="468" y="200" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Downloads</text>
+  <rect x="534" y="118" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="547" y="132" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="547" y="129" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="568" y="200" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Music</text>
+  <rect x="634" y="118" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="647" y="132" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="647" y="129" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="668" y="200" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Pictures</text>
+  <rect x="234" y="216" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="247" y="230" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="247" y="227" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="268" y="298" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Templates</text>
+  <rect x="334" y="216" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="347" y="230" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="347" y="227" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="368" y="298" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Videos</text>
+  <rect x="434" y="216" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="447" y="230" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="447" y="227" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="468" y="298" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">notes.txt</text>
+  <rect x="534" y="216" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="547" y="230" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="547" y="227" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="568" y="298" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">photo.jpg</text>
+  <rect x="634" y="216" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="647" y="230" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="647" y="227" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="668" y="298" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">script.sh</text>
+  <rect x="234" y="314" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="247" y="328" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="247" y="325" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="268" y="396" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">project</text>
+  <rect x="334" y="314" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="347" y="328" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="347" y="325" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <text x="368" y="396" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">backup</text>
+  <rect x="434" y="314" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="447" y="328" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="447" y="325" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <rect x="534" y="314" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="547" y="328" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="547" y="325" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <rect x="634" y="314" width="68" height="68" rx="6" fill="rgba(255,255,255,0.07)"/>
+  <rect x="647" y="328" width="44" height="32" rx="3" fill="#4a5a7a"/>
+  <rect x="647" y="325" width="22" height="10" rx="3" fill="#4a5a7a"/>
+  <rect x="834" y="84" width="380" height="280" rx="8" fill="rgba(0,0,0,0.45)"/>
+  <rect x="830" y="80" width="380" height="280" rx="8" fill="#000000"/>
+  <rect x="830" y="80" width="380" height="30" rx="8" fill="#1e2636"/>
+  <rect x="830" y="88" width="380" height="22" fill="#1e2636"/>
+  <text x="1020" y="100" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">xterm</text>
+  <circle cx="844" cy="95" r="6" fill="#cc3333"/>
+  <circle cx="862" cy="95" r="6" fill="#febc2e"/>
+  <circle cx="880" cy="95" r="6" fill="#33aa33"/>
+  <text x="844" y="140" fill="#aaaaff" font-family="monospace" font-size="12">user@openbox:~$</text>
+  <text x="844" y="158" fill="white" font-family="monospace" font-size="12">openbox --version</text>
+  <text x="844" y="178" fill="rgba(255,255,255,0.75)" font-family="monospace" font-size="11">Openbox 3.6.1</text>
+  <text x="844" y="196" fill="rgba(255,255,255,0.75)" font-family="monospace" font-size="11">Copyright (c) 2004 Mikael Magnusson</text>
+  <text x="844" y="214" fill="rgba(255,255,255,0.75)" font-family="monospace" font-size="11">Copyright (c) 2002 Dana Jansens</text>
+  <text x="844" y="326" fill="#aaaaff" font-family="monospace" font-size="12">user@openbox:~$</text>
+  <rect x="942" y="314" width="8" height="14" fill="#aaaaff"/>
+</svg>

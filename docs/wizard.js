@@ -321,20 +321,20 @@ const DE_DESCRIPTIONS = {
   openbox:  'Minimalist, highly configurable floating window manager',
 };
 
-// DE screenshots — Wikimedia Commons thumbnails (1280 px wide)
+// DE screenshots — repository-hosted assets
 const DE_SCREENSHOTS = {
-  gnome:    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/GNOME_Shell_47.png/1280px-GNOME_Shell_47.png',
-  kde:      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/KDE_Plasma_6.0.png/1280px-KDE_Plasma_6.0.png',
-  cinnamon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Cinnamon_6.0.png/1280px-Cinnamon_6.0.png',
-  xfce:     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Xfce_4.18.png/1280px-Xfce_4.18.png',
-  lxqt:     'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/LXQt-1.0.0-desktop.png/1280px-LXQt-1.0.0-desktop.png',
-  lxde:     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/LXDE_desktop_full.png/1280px-LXDE_desktop_full.png',
-  mate:     'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/MATE_1.26.png/1280px-MATE_1.26.png',
-  budgie:   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Budgie-Desktop-10.9.png/1280px-Budgie-Desktop-10.9.png',
-  i3:       'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/I3_tiling_WM.png/1280px-I3_tiling_WM.png',
-  sway:     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Sway_1.0_screenshot.png/1280px-Sway_1.0_screenshot.png',
-  labwc:    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Labwc_0.7_screenshot.png/1280px-Labwc_0.7_screenshot.png',
-  openbox:  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Openbox_3.6_with_Cairo-Dock.png/1280px-Openbox_3.6_with_Cairo-Dock.png',
+  gnome:    'assets/de-screenshots/gnome.svg',
+  kde:      'assets/de-screenshots/kde.svg',
+  cinnamon: 'assets/de-screenshots/cinnamon.svg',
+  xfce:     'assets/de-screenshots/xfce.svg',
+  lxqt:     'assets/de-screenshots/lxqt.svg',
+  lxde:     'assets/de-screenshots/lxde.svg',
+  mate:     'assets/de-screenshots/mate.svg',
+  budgie:   'assets/de-screenshots/budgie.svg',
+  i3:       'assets/de-screenshots/i3.svg',
+  sway:     'assets/de-screenshots/sway.svg',
+  labwc:    'assets/de-screenshots/labwc.svg',
+  openbox:  'assets/de-screenshots/openbox.svg',
 };
 
 // ── Per-package compatibility ────────────────────────────────

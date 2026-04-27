@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="de-title de-desc">
+  <title id="de-title">i3 window manager preview</title>
+  <desc id="de-desc">i3 tiling window manager with five tiled windows and i3bar status bar.</desc>
+  <rect width="1280" height="720" fill="#1e1e2e"/>
+  <rect x="0" y="0" width="640" height="370" fill="#89b4fa"/>
+  <rect x="2" y="0" width="636" height="22" fill="#89b4fa"/>
+  <rect x="2" y="22" width="636" height="346" fill="#11111b"/>
+  <text x="320" y="15" text-anchor="middle" fill="#1e2030" font-family="monospace" font-size="11">Firefox — GitHub</text>
+  <rect x="640" y="0" width="640" height="370" fill="#89b4fa"/>
+  <rect x="642" y="0" width="636" height="22" fill="#89b4fa"/>
+  <rect x="642" y="22" width="636" height="346" fill="#11111b"/>
+  <text x="960" y="15" text-anchor="middle" fill="#1e2030" font-family="monospace" font-size="11">nvim — config.lua</text>
+  <rect x="0" y="370" width="426" height="325" fill="#89b4fa"/>
+  <rect x="2" y="370" width="422" height="22" fill="#89b4fa"/>
+  <rect x="2" y="392" width="422" height="301" fill="#11111b"/>
+  <text x="213" y="385" text-anchor="middle" fill="#1e2030" font-family="monospace" font-size="11">Terminal — bash</text>
+  <rect x="426" y="370" width="426" height="325" fill="#89b4fa"/>
+  <rect x="428" y="370" width="422" height="22" fill="#89b4fa"/>
+  <rect x="428" y="392" width="422" height="301" fill="#11111b"/>
+  <text x="639" y="385" text-anchor="middle" fill="#1e2030" font-family="monospace" font-size="11">Terminal — htop</text>
+  <rect x="852" y="370" width="428" height="325" fill="#89b4fa"/>
+  <rect x="854" y="370" width="424" height="22" fill="#89b4fa"/>
+  <rect x="854" y="392" width="424" height="301" fill="#11111b"/>
+  <text x="1066" y="385" text-anchor="middle" fill="#1e2030" font-family="monospace" font-size="11">Terminal — git log</text>
+  <rect x="4" y="24" width="632" height="342" fill="#1e1e2e"/>
+  <rect x="8" y="28" width="624" height="28" fill="#181825"/>
+  <rect x="150" y="32" width="330" height="18" rx="9" fill="#313244"/>
+  <text x="315" y="45" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">github.com/FugginOld/OSDB</text>
+  <rect x="8" y="60" width="624" height="302" fill="#1e1e2e"/>
+  <rect x="30" y="80" width="500" height="18" rx="3" fill="#313244"/>
+  <rect x="30" y="106" width="350" height="10" rx="2" fill="#2a2a3e"/>
+  <rect x="30" y="124" width="420" height="10" rx="2" fill="#2a2a3e"/>
+  <rect x="30" y="142" width="380" height="10" rx="2" fill="#2a2a3e"/>
+  <rect x="30" y="160" width="310" height="10" rx="2" fill="#2a2a3e"/>
+  <rect x="644" y="24" width="632" height="342" fill="#11111b"/>
+  <rect x="644" y="24" width="22" height="342" fill="#181825"/>
+  <text x="646" y="42" fill="rgba(255,255,255,0.3)" font-family="monospace" font-size="10">  1</text>
+  <text x="668" y="42" fill="#cba6f7" font-family="monospace" font-size="10">return</text>
+  <text x="718" y="42" fill="#89b4fa" font-family="monospace" font-size="10">{</text>
+  <text x="646" y="58" fill="rgba(255,255,255,0.3)" font-family="monospace" font-size="10">  2</text>
+  <text x="668" y="58" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="10">  theme =</text>
+  <text x="748" y="58" fill="#a6e3a1" font-family="monospace" font-size="10">"catppuccin"</text>
+  <text x="646" y="74" fill="rgba(255,255,255,0.3)" font-family="monospace" font-size="10">  3</text>
+  <text x="668" y="74" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="10">  colorscheme =</text>
+  <text x="798" y="74" fill="#a6e3a1" font-family="monospace" font-size="10">"mocha"</text>
+  <text x="646" y="90" fill="rgba(255,255,255,0.3)" font-family="monospace" font-size="10">  4</text>
+  <text x="668" y="90" fill="#89b4fa" font-family="monospace" font-size="10">}</text>
+  <rect x="4" y="394" width="418" height="297" fill="#11111b"/>
+  <text x="14" y="416" fill="#a6e3a1" font-family="monospace" font-size="11">user@i3:~$</text>
+  <text x="14" y="432" fill="white" font-family="monospace" font-size="11">i3 --version</text>
+  <text x="14" y="448" fill="rgba(255,255,255,0.75)" font-family="monospace" font-size="11">i3 version 4.23</text>
+  <text x="14" y="466" fill="#a6e3a1" font-family="monospace" font-size="11">user@i3:~$</text>
+  <rect x="100" y="454" width="8" height="13" fill="#a6e3a1"/>
+  <rect x="430" y="394" width="418" height="297" fill="#11111b"/>
+  <text x="440" y="416" fill="#f38ba8" font-family="monospace" font-size="11">CPU [|||||||     ] 48%</text>
+  <text x="440" y="434" fill="#a6e3a1" font-family="monospace" font-size="11">MEM [||||        ] 36%</text>
+  <text x="440" y="452" fill="#89dceb" font-family="monospace" font-size="11">Tasks: 142 running</text>
+  <rect x="856" y="394" width="420" height="297" fill="#11111b"/>
+  <text x="866" y="416" fill="#cba6f7" font-family="monospace" font-size="11">* abc1234 feat: add search</text>
+  <text x="866" y="434" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="11">* def5678 fix: null check</text>
+  <text x="866" y="452" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="11">* ghi9012 docs: update readme</text>
+  <text x="866" y="470" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="11">* jkl3456 refactor: clean up</text>
+  <rect y="695" width="1280" height="25" fill="#181825"/>
+  <rect x="4" y="698" width="22" height="18" rx="2" fill="#89b4fa"/>
+  <text x="15" y="711" text-anchor="middle" fill="#11111b" font-family="monospace" font-size="11" font-weight="700">1</text>
+  <rect x="30" y="698" width="22" height="18" rx="2" fill="#313244"/>
+  <text x="41" y="711" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="11">2</text>
+  <rect x="56" y="698" width="22" height="18" rx="2" fill="#313244"/>
+  <text x="67" y="711" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="11">3</text>
+  <text x="1240" y="710" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="sans-serif" font-size="11">Mon 2026-04-27 21:32</text>
+  <text x="1080" y="710" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="monospace" font-size="11">▲ 1.2 MiB</text>
+  <text x="970" y="710" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="monospace" font-size="11">RAM: 3.6 GiB</text>
+</svg>
