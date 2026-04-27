@@ -308,7 +308,7 @@ const DE_LABELS = {
 // DE brief descriptions shown under the screenshot
 const DE_DESCRIPTIONS = {
   gnome:    'Modern, touch-friendly shell focused on simplicity (Wayland/X11)',
-  kde:      'Feature-rich, highly customisable Plasma desktop (Wayland/X11)',
+  kde:      'Feature-rich, highly customizable Plasma desktop (Wayland/X11)',
   cinnamon: 'Traditional desktop forked from GNOME 3, comfortable on X11',
   xfce:     'Lightweight, fast and modular GTK desktop environment',
   lxqt:     'Lightweight Qt-based desktop environment',
@@ -333,8 +333,8 @@ const DE_SCREENSHOTS = {
   budgie:   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Budgie-Desktop-10.9.png/1280px-Budgie-Desktop-10.9.png',
   i3:       'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/I3_tiling_WM.png/1280px-I3_tiling_WM.png',
   sway:     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Sway_1.0_screenshot.png/1280px-Sway_1.0_screenshot.png',
-  openbox:  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Openbox_3.6_with_Cairo-Dock.png/1280px-Openbox_3.6_with_Cairo-Dock.png',
   labwc:    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Labwc_0.7_screenshot.png/1280px-Labwc_0.7_screenshot.png',
+  openbox:  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Openbox_3.6_with_Cairo-Dock.png/1280px-Openbox_3.6_with_Cairo-Dock.png',
 };
 
 // ── Per-package compatibility ────────────────────────────────
@@ -749,10 +749,9 @@ function renderStepDE() {
   const captionHtml = screenshotLabel
     ? `<strong>${esc(screenshotLabel)}</strong>${screenshotDesc ? ` — ${esc(screenshotDesc)}` : ''}`
     : '';
-  html += `<div class="de-screenshot-wrap"${screenshotUrl ? '' : ' hidden'} id="de-screenshot-wrap">
+  html += `<div class="de-screenshot-wrap"${screenshotUrl ? '' : ' hidden=""'} id="de-screenshot-wrap">
     <img class="de-screenshot-img" id="de-screenshot-img"
-      src="${esc(screenshotUrl)}" alt="${esc(screenshotLabel)} desktop screenshot"
-      onerror="this.closest('.de-screenshot-wrap').hidden=true" />
+      src="${esc(screenshotUrl)}" alt="${esc(screenshotLabel)} desktop screenshot" />
     <p class="de-screenshot-caption" id="de-screenshot-caption">${captionHtml}</p>
   </div>`;
 
@@ -1072,6 +1071,15 @@ function attachStepListeners(stepId) {
           wrap.hidden = true;
         }
       };
+
+      // Hide the screenshot panel if the image fails to load
+      const screenshotImg = document.getElementById('de-screenshot-img');
+      if (screenshotImg) {
+        screenshotImg.addEventListener('error', () => {
+          const wrap = document.getElementById('de-screenshot-wrap');
+          if (wrap) wrap.hidden = true;
+        });
+      }
 
       const activateDe = (el) => { state.de = el.dataset.de; renderAll(); };
       deTiles.forEach(el => {
