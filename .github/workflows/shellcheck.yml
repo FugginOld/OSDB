@@ -1,0 +1,32 @@
+name: ShellCheck
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/examples/**'
+      - '.github/workflows/shellcheck.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'scripts/examples/**'
+      - '.github/workflows/shellcheck.yml'
+
+jobs:
+  shellcheck:
+    name: Lint example scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck on all example scripts
+        run: |
+          echo "Running ShellCheck on scripts/examples/..."
+          find scripts/examples -name '*.sh' | sort | while read -r script; do
+            echo "  Checking: $script"
+            shellcheck --severity=warning --shell=bash "$script"
+          done
+          echo "All scripts passed ShellCheck."
