@@ -751,8 +751,8 @@ function renderStepDE() {
     : '';
   html += `<div class="de-screenshot-wrap"${screenshotUrl ? '' : ' hidden=""'} id="de-screenshot-wrap">
     <img class="de-screenshot-img" id="de-screenshot-img"
-      src="${esc(screenshotUrl)}" alt="${esc(screenshotLabel)} desktop screenshot"
-      loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+      ${screenshotUrl ? `src="${esc(screenshotUrl)}"` : ''} alt="${esc(screenshotLabel)} desktop screenshot"
+      decoding="async" referrerpolicy="no-referrer" />
     <p class="de-screenshot-caption" id="de-screenshot-caption">${captionHtml}</p>
   </div>`;
 
