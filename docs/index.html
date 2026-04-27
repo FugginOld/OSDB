@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Linux Distro Builder Wizard</title>
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    // Apply saved or system theme before first paint to avoid flash
+    (function () {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -15,6 +25,7 @@
       <label for="distro-name">Name:</label>
       <input type="text" id="distro-name" placeholder="MyDistro" maxlength="40" autocomplete="off" />
     </div>
+    <button class="theme-btn" id="theme-toggle" aria-label="Switch to dark theme" title="Toggle theme">🌙</button>
   </div>
   <div id="progress-bar" role="list" aria-label="Wizard steps"></div>
 </header>
@@ -28,5 +39,36 @@
 </main>
 
 <script src="wizard.js"></script>
+<script>
+  (function () {
+    const btn = document.getElementById('theme-toggle');
+    const root = document.documentElement;
+
+    function getTheme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function updateUI(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        btn.textContent = '☀️';
+        btn.setAttribute('aria-label', 'Switch to light theme');
+      } else {
+        root.removeAttribute('data-theme');
+        btn.textContent = '🌙';
+        btn.setAttribute('aria-label', 'Switch to dark theme');
+      }
+    }
+
+    // Sync button icon/label with already-applied theme (no localStorage write)
+    updateUI(getTheme());
+
+    btn.addEventListener('click', function () {
+      const next = getTheme() === 'dark' ? 'light' : 'dark';
+      updateUI(next);
+      localStorage.setItem('theme', next);
+    });
+  })();
+</script>
 </body>
 </html>
