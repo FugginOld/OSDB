@@ -10,6 +10,39 @@ OUTPUT_DIR="${OUTPUT_DIR:-/tmp/distro-output}"
 log() { printf '\033[1;34m[%s]\033[0m %s\n' "$(date +%T)" "$*"; }
 die() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 
+# ── Container self-re-launch ──────────────────────────────────
+# If this script is not already running inside a container it
+# re-execs itself inside the correct build environment using
+# Docker or Podman, so it works on any host OS (e.g. building a
+# Debian ISO from an Arch Linux host).  The finished ISO / IMG is
+# written to OUTPUT_DIR on the host via a bind-mount.
+# --privileged is required for loop-device and chroot operations.
+CONTAINER_IMAGE="debian:bookworm"
+
+if [ ! -f /.dockerenv ] && [ -z "${container:-}" ]; then
+  if command -v docker >/dev/null 2>&1; then
+    _RUNTIME=docker
+  elif command -v podman >/dev/null 2>&1; then
+    _RUNTIME=podman
+  else
+    die "Docker or Podman is required to build on a non-native host. Install Docker: https://docs.docker.com/engine/install/ -- or Podman: https://podman.io/docs/installation"
+  fi
+  _SCRIPT_SOURCE="${BASH_SOURCE[0]:-$0}"
+  if [[ "${_SCRIPT_SOURCE}" != */* ]]; then
+    _SCRIPT_SOURCE="$(command -v -- "${_SCRIPT_SOURCE}" || true)"
+  fi
+  [ -n "${_SCRIPT_SOURCE}" ] || die "Unable to resolve script path for container re-exec"
+  _SCRIPT_PATH="$(realpath "${_SCRIPT_SOURCE}")" || die "Unable to canonicalize script path: ${_SCRIPT_SOURCE}"
+  log "Re-launching inside ${CONTAINER_IMAGE} via ${_RUNTIME}..."
+  mkdir -p "${OUTPUT_DIR}"
+  exec "${_RUNTIME}" run --rm --privileged \
+    -v "$(realpath "${OUTPUT_DIR}"):/out" \
+    -v "${_SCRIPT_PATH}:/build.sh:ro" \
+    -e BUILD_DIR=/tmp/distro-build \
+    -e OUTPUT_DIR=/out \
+    "${CONTAINER_IMAGE}" bash /build.sh
+fi
+
 if [ "${EUID:-$(id -u)}" -ne 0 ]; then
   die "This script must be run as root. Re-run with: sudo $0"
 fi

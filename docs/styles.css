@@ -264,6 +264,28 @@ main {
   gap: 0.5rem;
 }
 
+/* ── Info banner ──────────────────────────────────────────── */
+.info-banner {
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.84rem;
+  color: var(--text);
+  margin-top: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.info-banner code {
+  background: var(--bg);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: 'Cascadia Code', 'Fira Mono', monospace;
+}
+
 /* ── Family group header ──────────────────────────────────── */
 .family-group { margin-bottom: 1.5rem; }
 
