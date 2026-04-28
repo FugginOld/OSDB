@@ -106,6 +106,30 @@ header {
   box-shadow: 0 1px 4px rgba(0,0,0,.08);
 }
 
+.header-top-bar {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0.35rem 0 0;
+  display: flex;
+  align-items: center;
+}
+
+.home-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color var(--transition);
+}
+
+.home-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .header-inner {
   max-width: 900px;
   margin: 0 auto;
@@ -269,13 +293,19 @@ main {
   background: var(--primary-light);
   border: 1px solid var(--primary);
   border-radius: 8px;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.1rem;
   font-size: 0.84rem;
+  line-height: 1.6;
   color: var(--text);
   margin-top: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+}
+
+.info-banner p {
+  margin: 0 0 0.4rem;
+}
+
+.info-banner p:last-child {
+  margin-bottom: 0;
 }
 
 .info-banner code {
@@ -658,6 +688,17 @@ button {
 button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+#btn-cancel {
+  background: var(--surface);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+#btn-cancel:hover {
+  background: var(--danger);
+  color: #fff;
 }
 
 .btn-download {

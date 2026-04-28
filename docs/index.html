@@ -23,6 +23,9 @@
 <body>
 
 <header>
+  <div class="header-top-bar">
+    <a href="https://github.com/FugginOld/OSDB" class="home-link" target="_blank" rel="noopener" aria-label="OSDB GitHub repository">🏠 OSDB on GitHub</a>
+  </div>
   <div class="header-inner">
     <h1>🐧 Distro Builder Wizard</h1>
     <div class="distro-name-wrap">
@@ -38,6 +41,7 @@
   <div id="step-container" role="region" aria-live="polite"></div>
   <div class="nav-buttons">
     <button id="btn-prev" aria-label="Go to previous step">← Back</button>
+    <button id="btn-cancel" aria-label="Cancel and return to first step" style="display:none">✕ Cancel</button>
     <button id="btn-next" aria-label="Go to next step">Next →</button>
   </div>
 </main>

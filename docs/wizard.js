@@ -558,8 +558,13 @@ function updateNav() {
   const steps = getSteps();
   const prevBtn = document.getElementById('btn-prev');
   const nextBtn = document.getElementById('btn-next');
+  const cancelBtn = document.getElementById('btn-cancel');
 
   prevBtn.disabled = currentStepIndex === 0;
+
+  if (cancelBtn) {
+    cancelBtn.style.display = currentStepIndex > 0 ? '' : 'none';
+  }
 
   const step = currentStep();
   if (step.id === 'summary') {
@@ -962,14 +967,17 @@ function renderStepSummary() {
     rows += `<tr><td>config.txt ${editLink('services')}</td><td>${esc(flagSummary)}</td></tr>`;
   }
 
+  const dlSafeName = (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+
   let html = `<h2 class="step-heading">Summary &amp; Download</h2>
     <p class="step-sub">Review your choices, then download the generated build script.</p>
     <table class="summary-table"><tbody>${rows}</tbody></table>
     <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
-      <button class="btn-download" id="btn-download">⬇ Download build-distro.sh</button>
+      <button class="btn-download" id="btn-download">⬇ Download build-${esc(dlSafeName)}.sh</button>
     </div>
     <div class="info-banner">
-      ℹ️ If your host OS differs from the build environment, the generated script will automatically use Docker or Podman to create the correct environment. The ISO or IMG will be saved to your <code>OUTPUT_DIR</code> on the host. Requires Docker (<a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">install</a>) or Podman (<a href="https://podman.io/docs/installation" target="_blank" rel="noopener">install</a>).
+      <p>ℹ️ If your host OS differs from the build environment, the generated script will automatically use Docker or Podman to create the correct environment. The ISO or IMG will be saved to your <code>OUTPUT_DIR</code> on the host.</p>
+      <p>Requires <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">Docker</a> or <a href="https://podman.io/docs/installation" target="_blank" rel="noopener">Podman</a>.</p>
     </div>
     <div class="script-preview-wrap">
       <button class="preview-toggle" id="btn-preview">▶ Preview script</button>
@@ -1168,7 +1176,17 @@ function attachStepListeners(stepId) {
     case 'summary':
       {
         const dlBtn = document.getElementById('btn-download');
-        if (dlBtn) dlBtn.addEventListener('click', downloadScript);
+        if (dlBtn) {
+          dlBtn.addEventListener('click', downloadScript);
+          // Keep button label in sync with the distro name input
+          const nameInput = document.getElementById('distro-name');
+          if (nameInput) {
+            nameInput.addEventListener('input', () => {
+              const safe = (nameInput.value.trim() || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+              dlBtn.textContent = `⬇ Download build-${safe}.sh`;
+            });
+          }
+        }
 
         const previewBtn = document.getElementById('btn-preview');
         const previewContent = document.getElementById('script-preview-content');
@@ -2144,6 +2162,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-prev').addEventListener('click', prevStep);
   document.getElementById('btn-next').addEventListener('click', () => {
     if (canAdvance()) nextStep();
+  });
+  document.getElementById('btn-cancel').addEventListener('click', () => {
+    currentStepIndex = 0;
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   // Initial render
