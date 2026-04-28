@@ -642,6 +642,85 @@ main {
   margin-top: 1.5rem;
 }
 
+/* ── Curl / one-liner run command panel ─────────────────────── */
+.curl-cmd-wrap {
+  margin-top: 1.25rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1.1rem;
+}
+
+.curl-cmd-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.curl-cmd-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.curl-cmd-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.curl-cmd-hint code {
+  font-family: 'Cascadia Code', 'Fira Mono', monospace;
+  font-size: 0.9em;
+}
+
+.curl-cmd-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.curl-cmd-field {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.75rem;
+  font-family: 'Cascadia Code', 'Fira Mono', 'Consolas', monospace;
+  font-size: 0.78rem;
+  background: #1e2030;
+  color: #c0caf5;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+
+.curl-cmd-field:focus {
+  border-color: var(--primary);
+}
+
+.btn-copy-cmd {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-copy-cmd:hover {
+  background: var(--primary-dark);
+}
+
 .preview-toggle {
   background: none;
   border: 1px solid var(--border);

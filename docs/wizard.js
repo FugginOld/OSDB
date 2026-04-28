@@ -997,6 +997,17 @@ function renderStepSummary() {
     <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
       <button class="btn-download" id="btn-download">⬇ Download build-${esc(dlSafeName)}.sh</button>
     </div>
+    <div class="curl-cmd-wrap">
+      <div class="curl-cmd-header">
+        <span class="curl-cmd-title">⚡ One-liner run command</span>
+        <span class="curl-cmd-hint">Paste into your terminal to download, <code>chmod +x</code>, and run in one step — no manual download needed</span>
+      </div>
+      <div class="curl-cmd-row">
+        <input type="text" id="curl-cmd-field" class="curl-cmd-field" readonly
+               placeholder="Generating command…" aria-label="One-liner run command" />
+        <button class="btn-copy-cmd" id="btn-copy-cmd" aria-label="Copy run command">📋 Copy</button>
+      </div>
+    </div>
     <div class="info-banner">
       <p>ℹ️ If your host OS differs from the build environment, the generated script will automatically use Docker or Podman to create the correct environment. The ISO or IMG will be saved to your <code>OUTPUT_DIR</code> on the host.</p>
       <p>Requires <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">Docker</a> or <a href="https://podman.io/docs/installation" target="_blank" rel="noopener">Podman</a>.</p>
@@ -1207,6 +1218,34 @@ function attachStepListeners(stepId) {
         const dlBtn = document.getElementById('btn-download');
         if (dlBtn) {
           dlBtn.addEventListener('click', downloadScript);
+        }
+
+        // Populate and wire the one-liner run command field
+        const cmdField = document.getElementById('curl-cmd-field');
+        if (cmdField) {
+          cmdField.value = buildRunCommand();
+        }
+
+        const copyBtn = document.getElementById('btn-copy-cmd');
+        if (copyBtn && cmdField) {
+          copyBtn.addEventListener('click', () => {
+            if (!cmdField.value) return;
+            const doCopy = () => {
+              copyBtn.textContent = '✓ Copied!';
+              setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(cmdField.value).then(doCopy).catch(() => {
+                cmdField.select();
+                document.execCommand('copy');
+                doCopy();
+              });
+            } else {
+              cmdField.select();
+              document.execCommand('copy');
+              doCopy();
+            }
+          });
         }
 
         const previewBtn = document.getElementById('btn-preview');
@@ -2153,7 +2192,7 @@ sha256sum "\${OUTPUT_DIR}"/*.iso > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256" 2
 `;
 }
 
-// ── Download ──────────────────────────────────────────────────
+// ── Download / Run command ─────────────────────────────────────
 function safeScriptName() {
   return (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
 }
@@ -2172,6 +2211,27 @@ function downloadScript() {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
+// Build the base64 one-liner run command for the summary page.
+// The command mirrors the "curl | bash" idiom without requiring a hosted URL:
+//   curl -fsSL <URL> -o script.sh && chmod +x script.sh && sudo ./script.sh
+// is equivalent to:
+//   echo '<base64>' | base64 -d > script.sh && chmod +x script.sh && sudo ./script.sh
+function buildRunCommand() {
+  const script = generateScript();
+  const safeName = safeScriptName();
+  // Encode script to base64; TextEncoder handles any UTF-8 content without
+  // the deprecated unescape() + encodeURIComponent() workaround.
+  const bytes = new TextEncoder().encode(script);
+  const b64 = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''));
+  return `echo '${b64}' | base64 -d > build-${safeName}.sh && chmod +x build-${safeName}.sh && sudo ./build-${safeName}.sh`;
+}
+
+// Update the run-command field if it is currently visible (summary step).
+function refreshRunCommand() {
+  const field = document.getElementById('curl-cmd-field');
+  if (field) field.value = buildRunCommand();
+}
+
 // ============================================================
 // INITIALISATION
 // ============================================================
@@ -2183,6 +2243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.distroName = nameInput.value.trim() || 'MyDistro';
     const dlBtn = document.getElementById('btn-download');
     if (dlBtn) dlBtn.textContent = `⬇ Download build-${safeScriptName()}.sh`;
+    refreshRunCommand();
   });
 
   // Navigation buttons

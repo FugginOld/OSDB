@@ -13,9 +13,12 @@ A self-contained, static WebUI that walks you through building a custom Linux di
 3. Select a **desktop environment** (GNOME, KDE, XFCE, headless, …)
 4. Toggle **packages** and **services**
 5. Pick a **repository type** and **installer**
-6. Review the **summary** and download your customised build script
+6. Review the **summary**, download your customised build script, and copy the **one-liner run command**
 
 The generated script is a complete, commented bash script ready to run on a matching host system.
+The **⚡ One-liner run command** on the summary page encodes the script as base64, so you can
+paste a single command into any terminal to download, `chmod +x`, and execute it in one step — no
+separate download needed.
 
 ---
 
