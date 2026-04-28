@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="de-title de-desc">
+  <title id="de-title">COSMIC desktop environment preview</title>
+  <desc id="de-desc">COSMIC by System76 with top panel, left dock, COSMIC Files and COSMIC Terminal.</desc>
+  <defs>
+    <linearGradient id="cos_bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b1b2e"/>
+      <stop offset="100%" stop-color="#111120"/>
+    </linearGradient>
+  </defs>
+  <!-- Wallpaper -->
+  <rect width="1280" height="720" fill="url(#cos_bg)"/>
+  <!-- Subtle nebula hint -->
+  <ellipse cx="800" cy="360" rx="480" ry="280" fill="rgba(231,104,0,0.06)"/>
+  <ellipse cx="400" cy="500" rx="320" ry="200" fill="rgba(100,80,200,0.05)"/>
+
+  <!-- Top panel -->
+  <rect width="1280" height="36" fill="#1e1e30"/>
+  <!-- Workspaces indicator -->
+  <rect x="8" y="9" width="18" height="18" rx="4" fill="#e76800"/>
+  <rect x="30" y="9" width="18" height="18" rx="4" fill="rgba(255,255,255,0.12)"/>
+  <rect x="52" y="9" width="18" height="18" rx="4" fill="rgba(255,255,255,0.12)"/>
+  <!-- Clock (center) -->
+  <text x="640" y="23" text-anchor="middle" fill="white" font-family="sans-serif" font-size="13">Monday, 28 April   14:07</text>
+  <!-- Right tray -->
+  <text x="1100" y="23" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="12">100%</text>
+  <rect x="1125" y="11" width="24" height="13" rx="3" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+  <rect x="1126" y="12" width="20" height="11" rx="2" fill="#33d17a"/>
+  <rect x="1149" y="14" width="3" height="7" rx="1" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="1175" cy="18" r="7" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+  <circle cx="1175" cy="18" r="3" fill="rgba(255,255,255,0.6)"/>
+  <text x="1200" y="23" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="12">EN</text>
+  <circle cx="1240" cy="18" r="9" fill="#e76800"/>
+  <text x="1240" y="23" text-anchor="middle" fill="white" font-family="sans-serif" font-size="11" font-weight="700">U</text>
+
+  <!-- Left dock -->
+  <rect x="0" y="36" width="64" height="684" fill="#16162a"/>
+  <!-- Dock icons -->
+  <!-- Files -->
+  <rect x="10" y="52" width="44" height="44" rx="10" fill="#e76800"/>
+  <rect x="16" y="60" width="32" height="22" rx="3" fill="rgba(255,255,255,0.15)"/>
+  <rect x="16" y="60" width="14" height="8" rx="2" fill="rgba(255,255,255,0.35)"/>
+  <text x="32" y="108" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="8">Files</text>
+  <!-- Terminal -->
+  <rect x="10" y="108" width="44" height="44" rx="10" fill="#2a1a2e"/>
+  <text x="32" y="136" text-anchor="middle" fill="#e76800" font-family="monospace" font-size="15" font-weight="700">&gt;_</text>
+  <text x="32" y="164" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="8">Terminal</text>
+  <!-- Browser -->
+  <rect x="10" y="170" width="44" height="44" rx="10" fill="#1c3a5e"/>
+  <circle cx="32" cy="192" r="12" fill="none" stroke="#4a9eff" stroke-width="3"/>
+  <line x1="32" y1="180" x2="32" y2="204" stroke="#4a9eff" stroke-width="2"/>
+  <line x1="20" y1="192" x2="44" y2="192" stroke="#4a9eff" stroke-width="2"/>
+  <text x="32" y="226" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="8">Firefox</text>
+  <!-- Settings -->
+  <rect x="10" y="232" width="44" height="44" rx="10" fill="#1e2030"/>
+  <circle cx="32" cy="254" r="10" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+  <circle cx="32" cy="254" r="4" fill="rgba(255,255,255,0.6)"/>
+  <text x="32" y="288" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="8">Settings</text>
+  <!-- Divider -->
+  <rect x="12" y="300" width="40" height="1" fill="rgba(255,255,255,0.1)"/>
+  <!-- App launcher -->
+  <rect x="10" y="310" width="44" height="44" rx="10" fill="rgba(231,104,0,0.15)"/>
+  <text x="32" y="338" text-anchor="middle" fill="#e76800" font-family="sans-serif" font-size="22" font-weight="300">⋮⋮</text>
+  <text x="32" y="366" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="8">Apps</text>
+  <!-- Workspace switcher at bottom -->
+  <rect x="10" y="620" width="44" height="44" rx="10" fill="rgba(255,255,255,0.05)"/>
+  <rect x="16" y="626" width="14" height="10" rx="2" fill="#e76800"/>
+  <rect x="34" y="626" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+  <rect x="16" y="640" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+  <rect x="34" y="640" width="14" height="10" rx="2" fill="rgba(255,255,255,0.2)"/>
+
+  <!-- COSMIC Files window -->
+  <rect x="68" y="54" width="700" height="490" rx="10" fill="rgba(0,0,0,0.5)"/>
+  <rect x="64" y="50" width="700" height="490" rx="10" fill="#1e1e30"/>
+  <!-- Title bar -->
+  <rect x="64" y="50" width="700" height="34" rx="10" fill="#28283e"/>
+  <rect x="64" y="60" width="700" height="24" fill="#28283e"/>
+  <text x="414" y="72" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">COSMIC Files — Home</text>
+  <circle cx="80" cy="67" r="6" fill="#e01b24"/>
+  <circle cx="98" cy="67" r="6" fill="#febc2e"/>
+  <circle cx="116" cy="67" r="6" fill="#33d17a"/>
+  <!-- Toolbar -->
+  <rect x="64" y="84" width="700" height="32" fill="#222236"/>
+  <rect x="80" y="90" width="220" height="20" rx="4" fill="#16162a"/>
+  <text x="190" y="104" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="sans-serif" font-size="11">/home/user</text>
+  <!-- Sidebar -->
+  <rect x="64" y="116" width="155" height="424" fill="#1a1a2c"/>
+  <text x="80" y="138" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="10">PLACES</text>
+  <rect x="70" y="143" width="141" height="24" rx="4" fill="rgba(231,104,0,0.2)"/>
+  <text x="82" y="160" fill="white" font-family="sans-serif" font-size="12">🏠  Home</text>
+  <text x="82" y="185" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">🖥  Desktop</text>
+  <text x="82" y="208" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">📄  Documents</text>
+  <text x="82" y="231" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">⬇  Downloads</text>
+  <text x="82" y="254" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">🎵  Music</text>
+  <text x="82" y="277" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">🖼  Pictures</text>
+  <text x="82" y="300" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">🎬  Videos</text>
+  <text x="80" y="330" fill="rgba(255,255,255,0.4)" font-family="sans-serif" font-size="10">DEVICES</text>
+  <text x="82" y="350" fill="rgba(255,255,255,0.55)" font-family="sans-serif" font-size="12">💾  sda1</text>
+  <!-- File grid -->
+  <rect x="219" y="116" width="545" height="424" fill="#181828"/>
+  <!-- Row of folder icons -->
+  <rect x="236" y="132" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="249" y="147" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="249" y="144" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="272" y="218" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Desktop</text>
+  <rect x="334" y="132" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="347" y="147" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="347" y="144" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="370" y="218" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Documents</text>
+  <rect x="432" y="132" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="445" y="147" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="445" y="144" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="468" y="218" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Downloads</text>
+  <rect x="530" y="132" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="543" y="147" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="543" y="144" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="566" y="218" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Music</text>
+  <rect x="628" y="132" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="641" y="147" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="641" y="144" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="664" y="218" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Pictures</text>
+  <!-- Second row -->
+  <rect x="236" y="234" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="249" y="249" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="249" y="246" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="272" y="320" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Videos</text>
+  <rect x="334" y="234" width="72" height="72" rx="6" fill="rgba(231,104,0,0.1)"/>
+  <rect x="347" y="249" width="44" height="32" rx="3" fill="#e76800"/>
+  <rect x="347" y="246" width="22" height="9" rx="3" fill="#e76800"/>
+  <text x="370" y="320" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">Projects</text>
+  <rect x="432" y="234" width="72" height="62" rx="6" fill="rgba(255,255,255,0.05)"/>
+  <text x="468" y="265" text-anchor="middle" fill="rgba(231,104,0,0.8)" font-family="monospace" font-size="11">txt</text>
+  <text x="468" y="310" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">notes.txt</text>
+  <rect x="530" y="234" width="72" height="62" rx="6" fill="rgba(255,255,255,0.05)"/>
+  <text x="566" y="265" text-anchor="middle" fill="rgba(100,150,255,0.8)" font-family="monospace" font-size="11">jpg</text>
+  <text x="566" y="310" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="10">photo.jpg</text>
+
+  <!-- COSMIC Terminal window -->
+  <rect x="800" y="80" width="430" height="310" rx="10" fill="rgba(0,0,0,0.5)"/>
+  <rect x="796" y="76" width="430" height="310" rx="10" fill="#0d0d1a"/>
+  <rect x="796" y="76" width="430" height="34" rx="10" fill="#1e1e30"/>
+  <rect x="796" y="86" width="430" height="24" fill="#1e1e30"/>
+  <text x="1011" y="98" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">COSMIC Terminal</text>
+  <circle cx="812" cy="93" r="6" fill="#e01b24"/>
+  <circle cx="830" cy="93" r="6" fill="#febc2e"/>
+  <circle cx="848" cy="93" r="6" fill="#33d17a"/>
+  <text x="812" y="136" fill="#e76800" font-family="monospace" font-size="12">user@cosmic:~$</text>
+  <text x="812" y="154" fill="white" font-family="monospace" font-size="12">neofetch</text>
+  <text x="812" y="174" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">       OS: Pop!_OS 24.04</text>
+  <text x="812" y="192" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">       DE: COSMIC 1.0</text>
+  <text x="812" y="210" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">       WM: cosmic-comp (Wayland)</text>
+  <text x="812" y="228" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">   Shell: fish 3.7</text>
+  <text x="812" y="246" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">  Kernel: 6.9.0-76060900-generic</text>
+  <text x="812" y="264" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">      CPU: AMD Ryzen 9 7950X</text>
+  <text x="812" y="282" fill="rgba(255,255,255,0.65)" font-family="monospace" font-size="11">      GPU: NVIDIA RTX 4080</text>
+  <text x="812" y="346" fill="#e76800" font-family="monospace" font-size="12">user@cosmic:~$</text>
+  <rect x="950" y="333" width="8" height="14" fill="#e76800"/>
+
+  <!-- COSMIC Settings panel (floating) -->
+  <rect x="812" y="420" width="380" height="230" rx="10" fill="rgba(0,0,0,0.4)"/>
+  <rect x="808" y="416" width="380" height="230" rx="10" fill="#1a1a2c"/>
+  <rect x="808" y="416" width="380" height="34" rx="10" fill="#24243a"/>
+  <rect x="808" y="426" width="380" height="24" fill="#24243a"/>
+  <text x="998" y="438" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-size="13">COSMIC Settings</text>
+  <circle cx="824" cy="433" r="6" fill="#e01b24"/>
+  <circle cx="842" cy="433" r="6" fill="#febc2e"/>
+  <circle cx="860" cy="433" r="6" fill="#33d17a"/>
+  <text x="824" y="474" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Appearance</text>
+  <text x="824" y="494" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Displays</text>
+  <text x="824" y="514" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Network</text>
+  <rect x="814" y="520" width="365" height="1" fill="rgba(255,255,255,0.08)"/>
+  <text x="824" y="540" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Sound</text>
+  <text x="824" y="560" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Keyboard &amp; Mouse</text>
+  <text x="824" y="580" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Power</text>
+  <text x="824" y="600" fill="rgba(255,255,255,0.5)" font-family="sans-serif" font-size="11">Accessibility</text>
+  <!-- Accent dot -->
+  <circle cx="1166" cy="474" r="4" fill="#e76800"/>
+
+  <!-- System76 branding watermark -->
+  <text x="640" y="700" text-anchor="middle" fill="rgba(231,104,0,0.18)" font-family="sans-serif" font-size="11" font-weight="600">COSMIC by System76</text>
+</svg>

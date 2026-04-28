@@ -71,7 +71,7 @@ const BASES = {
     track: 'lts', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
@@ -81,7 +81,7 @@ const BASES = {
     track: 'lts-current', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
@@ -91,7 +91,7 @@ const BASES = {
     track: 'current', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
@@ -101,7 +101,7 @@ const BASES = {
     track: 'beta', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd', unstable: true,
@@ -112,7 +112,7 @@ const BASES = {
     label: 'Arch Linux (rolling)', family: 'arch', suite: 'rolling',
     track: 'rolling', builder: 'archiso', pkg: 'pacman',
     mirror: 'https://mirror.rackspace.com/archlinux/$repo/os/$arch',
-    des: ['kde','gnome','xfce','cinnamon','lxqt','i3','sway','none'],
+    des: ['kde','gnome','xfce','cinnamon','lxqt','i3','sway','cosmic','none'],
     installers: ['calamares','archinstall','none'],
     repoTypes: ['official','aur','custom'],
     serviceManager: 'systemd',
@@ -139,7 +139,7 @@ const BASES = {
   'fedora-40': {
     label: 'Fedora 40', family: 'fedora', suite: 'f40',
     track: 'stable', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','xfce','lxqt','mate','cosmic','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr','custom'],
     serviceManager: 'systemd',
@@ -147,7 +147,7 @@ const BASES = {
   'fedora-41': {
     label: 'Fedora 41', family: 'fedora', suite: 'f41',
     track: 'current', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','xfce','lxqt','mate','cosmic','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr','custom'],
     serviceManager: 'systemd',
@@ -155,7 +155,7 @@ const BASES = {
   'fedora-42': {
     label: 'Fedora 42 (beta)', family: 'fedora', suite: 'f42',
     track: 'beta', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','none'],
+    des: ['gnome','kde','xfce','cosmic','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr'],
     serviceManager: 'systemd', unstable: true,
@@ -282,6 +282,7 @@ const DE_PACKAGES = {
   lxde:     { apt: 'lxde lightdm lightdm-gtk-greeter', pacman: 'lxde lightdm lightdm-gtk-greeter', dnf: 'lxde-desktop lightdm', zypper: 'lxde lightdm' },
   mate:     { apt: 'mate-desktop-environment lightdm lightdm-gtk-greeter', pacman: 'mate mate-extra lightdm lightdm-gtk-greeter', dnf: 'mate-desktop lightdm', zypper: 'mate lightdm' },
   budgie:   { apt: 'budgie-desktop lightdm lightdm-gtk-greeter', pacman: 'budgie-desktop lightdm lightdm-gtk-greeter', dnf: 'budgie-desktop lightdm', zypper: 'budgie-desktop lightdm' },
+  cosmic:   { apt: 'cosmic-session cosmic-greeter', pacman: 'cosmic-session sddm', dnf: 'cosmic-session sddm', zypper: '' },
   i3:       { apt: 'i3 i3status dmenu xterm lightdm lightdm-gtk-greeter', pacman: 'i3-wm i3status dmenu xterm lightdm lightdm-gtk-greeter', dnf: 'i3 i3status dmenu xterm lightdm', zypper: 'i3 i3status dmenu xterm lightdm' },
   sway:     { apt: 'sway swaybar swaybg swayidle swaylock', pacman: 'sway swaybar swaybg swayidle swaylock', dnf: 'sway', zypper: 'sway' },
   labwc:    { apt: 'labwc waybar wlopm wlr-randr', pacman: 'labwc waybar', dnf: 'labwc waybar', zypper: 'labwc' },
@@ -294,6 +295,7 @@ const DE_DM = {
   gnome: 'gdm', kde: 'sddm', lxqt: 'sddm',
   cinnamon: 'lightdm', xfce: 'lightdm', lxde: 'lightdm',
   mate: 'lightdm', budgie: 'lightdm', i3: 'lightdm',
+  cosmic: 'cosmic-greeter',
   openbox: 'lightdm', sway: null, labwc: null, none: null,
 };
 
@@ -302,7 +304,7 @@ const DE_LABELS = {
   gnome: 'GNOME', kde: 'KDE Plasma', cinnamon: 'Cinnamon',
   xfce: 'XFCE', lxqt: 'LXQt', lxde: 'LXDE', mate: 'MATE',
   budgie: 'Budgie', i3: 'i3 (tiling)', sway: 'Sway (Wayland)',
-  labwc: 'labwc (Wayland)', openbox: 'Openbox', none: 'Headless / None',
+  labwc: 'labwc (Wayland)', openbox: 'Openbox', cosmic: 'COSMIC', none: 'Headless / None',
 };
 
 // DE brief descriptions shown under the screenshot
@@ -319,6 +321,7 @@ const DE_DESCRIPTIONS = {
   sway:     'i3-compatible tiling compositor for Wayland',
   labwc:    'Lightweight stacking Wayland compositor (used on Raspberry Pi OS)',
   openbox:  'Minimalist, highly configurable floating window manager',
+  cosmic:   'Next-generation Wayland desktop by System76, built in Rust',
 };
 
 // DE screenshots — repository-hosted assets
@@ -335,6 +338,7 @@ const DE_SCREENSHOTS = {
   sway:     'assets/de-screenshots/sway.svg',
   labwc:    'assets/de-screenshots/labwc.svg',
   openbox:  'assets/de-screenshots/openbox.svg',
+  cosmic:   'assets/de-screenshots/cosmic.svg',
 };
 
 // ── Per-package compatibility ────────────────────────────────
