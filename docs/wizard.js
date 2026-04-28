@@ -1647,7 +1647,7 @@ lb config \\
 ${ubuntuMirrorArgs}  --mirror-chroot "${mirror}" \\
   --binary-images iso-hybrid \\
   --bootloader "grub-efi,syslinux" \\
-  --debian-installer none \\
+  --debian-installer false \\
   --apt-recommends false \\
   --memtest none
 
