@@ -17,6 +17,7 @@ start_logging() {
   log "Logging to ${LOG_FILE}"
   log "Build directory: ${BUILD_DIR}"
   log "Output directory: ${OUTPUT_DIR}"
+  # shellcheck disable=SC2154
   trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT
 }
 
@@ -131,8 +132,8 @@ sudo ./build.sh
 
 LATEST_XZ=$(find deploy -name '*.img.xz' | head -1)
 LATEST_IMG=$(find deploy -name '*.img' -not -name '*.img.xz' | head -1)
-[ -n "${LATEST_XZ}"  ] && cp "${LATEST_XZ}"  "${OUTPUT_DIR}/${DISTRO_NAME}.img.xz" || true
-[ -n "${LATEST_IMG}" ] && cp "${LATEST_IMG}" "${OUTPUT_DIR}/${DISTRO_NAME}.img"    || true
+[ -n "${LATEST_XZ}" ] && cp "${LATEST_XZ}" "${OUTPUT_DIR}/${DISTRO_NAME}.img.xz" || true
+[ -n "${LATEST_IMG}" ] && cp "${LATEST_IMG}" "${OUTPUT_DIR}/${DISTRO_NAME}.img" || true
 
 log "Build complete! Output: ${OUTPUT_DIR}"
 log ""

@@ -17,6 +17,7 @@ start_logging() {
   log "Logging to ${LOG_FILE}"
   log "Build directory: ${BUILD_DIR}"
   log "Output directory: ${OUTPUT_DIR}"
+  # shellcheck disable=SC2154
   trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT
 }
 
@@ -74,7 +75,7 @@ ensure_live_build_workdir() {
   mount_opts="$(findmnt -T "${path}" -no OPTIONS 2>/dev/null || true)"
   case ",${mount_opts}," in
     *,nodev,*|*,noexec,*)
-      die "BUILD_DIR '${path}' is on a filesystem mounted with ${mount_opts}. live-build/debootstrap needs device nodes and executable scripts. Re-run with BUILD_DIR=/var/tmp/distro-build or another path on a dev,exec filesystem."
+      die "BUILD_DIR '${path}' is on a filesystem mounted with ${mount_opts}. live-build/debootstrap needs device nodes and executable scripts. Re-run with BUILD_DIR=/var/tmp/distro-build or another directory on a normal filesystem (ext4/xfs)."
       ;;
   esac
 }
