@@ -1632,7 +1632,7 @@ ${ubiquityNote}
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing live-build..."
 apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates
+DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates syslinux-utils
 
 mkdir -p "\${LB_DIR}"
 cd "\${LB_DIR}"
