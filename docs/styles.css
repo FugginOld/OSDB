@@ -111,9 +111,27 @@ header {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0.85rem 0;
   gap: 1rem;
+}
+
+.home-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  flex: 1;
+  transition: color var(--transition);
+}
+
+.home-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
 }
 
 header h1 {
@@ -128,6 +146,7 @@ header h1 {
   align-items: center;
   gap: 0.5rem;
   flex: 0 1 260px;
+  margin-left: auto;
 }
 
 .distro-name-wrap label {
@@ -250,6 +269,39 @@ main {
   margin-bottom: 1.5rem;
 }
 
+/* ── Base release filter pills ────────────────────────────── */
+.base-filter-bar {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 0.28rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text-muted);
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  line-height: 1.4;
+}
+
+.filter-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.filter-pill.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
 /* ── Warning banner ───────────────────────────────────────── */
 .warn-banner {
   background: var(--warn-bg);
@@ -269,13 +321,19 @@ main {
   background: var(--primary-light);
   border: 1px solid var(--primary);
   border-radius: 8px;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.1rem;
   font-size: 0.84rem;
+  line-height: 1.6;
   color: var(--text);
   margin-top: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+}
+
+.info-banner p {
+  margin: 0 0 0.4rem;
+}
+
+.info-banner p:last-child {
+  margin-bottom: 0;
 }
 
 .info-banner code {
@@ -658,6 +716,17 @@ button {
 button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+#btn-cancel {
+  background: var(--surface);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+#btn-cancel:hover {
+  background: var(--danger);
+  color: #fff;
 }
 
 .btn-download {

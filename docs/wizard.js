@@ -18,7 +18,7 @@ const BASES = {
     track: 'legacy', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.debian.org/debian',
     areas: 'main contrib non-free',
-    des: ['gnome','kde','cinnamon','xfce','lxde','mate','none'],
+    des: ['gnome','kde','cinnamon','xfce','lxde','mate','qtile','none'],
     installers: ['calamares','none'],
     repoTypes: ['official','custom'],
     serviceManager: 'systemd',
@@ -29,30 +29,30 @@ const BASES = {
     track: 'oldstable', builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free',
-    des: ['gnome','kde','cinnamon','xfce','lxde','mate','none'],
+    des: ['gnome','kde','cinnamon','xfce','lxde','mate','qtile','none'],
     installers: ['calamares','none'],
     repoTypes: ['official','custom'],
     serviceManager: 'systemd',
   },
   'debian-12': {
     label: 'Debian 12 Bookworm', family: 'debian', suite: 'bookworm',
-    track: 'stable', builder: 'live-build', pkg: 'apt',
+    track: 'oldstable', builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free non-free-firmware',
-    des: ['gnome','kde','cinnamon','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','cinnamon','xfce','lxqt','mate','qtile','none'],
     installers: ['calamares','none'],
     repoTypes: ['official','custom'],
     serviceManager: 'systemd',
   },
   'debian-13': {
-    label: 'Debian 13 Trixie (testing)', family: 'debian', suite: 'trixie',
-    track: 'beta', builder: 'live-build', pkg: 'apt',
+    label: 'Debian 13 Trixie', family: 'debian', suite: 'trixie',
+    track: 'testing', unstable: true, builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free non-free-firmware',
-    des: ['gnome','kde','cinnamon','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','cinnamon','xfce','lxqt','mate','qtile','none'],
     installers: ['calamares','none'],
     repoTypes: ['official','custom'],
-    serviceManager: 'systemd', unstable: true,
+    serviceManager: 'systemd',
   },
 
   // ── Ubuntu ──────────────────────────────────────────────────
@@ -61,7 +61,7 @@ const BASES = {
     track: 'lts-legacy', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxde','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxde','budgie','qtile','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
@@ -71,7 +71,7 @@ const BASES = {
     track: 'lts', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','qtile','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
@@ -81,7 +81,7 @@ const BASES = {
     track: 'lts-current', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','qtile','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
@@ -91,20 +91,20 @@ const BASES = {
     track: 'current', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','qtile','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
   },
   'ubuntu-2504': {
-    label: 'Ubuntu 25.04 Plucky (beta)', family: 'ubuntu', suite: 'plucky',
-    track: 'beta', builder: 'live-build', pkg: 'apt',
+    label: 'Ubuntu 25.04 Plucky', family: 'ubuntu', suite: 'plucky',
+    track: 'current', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','none'],
+    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','qtile','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
-    serviceManager: 'systemd', unstable: true,
+    serviceManager: 'systemd',
   },
 
   // ── Arch ────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ const BASES = {
     label: 'Arch Linux (rolling)', family: 'arch', suite: 'rolling',
     track: 'rolling', builder: 'archiso', pkg: 'pacman',
     mirror: 'https://mirror.rackspace.com/archlinux/$repo/os/$arch',
-    des: ['kde','gnome','xfce','cinnamon','lxqt','i3','sway','none'],
+    des: ['kde','gnome','xfce','cinnamon','lxqt','qtile','i3','sway','cosmic','none'],
     installers: ['calamares','archinstall','none'],
     repoTypes: ['official','aur','custom'],
     serviceManager: 'systemd',
@@ -131,7 +131,7 @@ const BASES = {
   'fedora-39': {
     label: 'Fedora 39', family: 'fedora', suite: 'f39',
     track: 'legacy', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','xfce','lxqt','mate','qtile','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr','custom'],
     serviceManager: 'systemd',
@@ -139,7 +139,7 @@ const BASES = {
   'fedora-40': {
     label: 'Fedora 40', family: 'fedora', suite: 'f40',
     track: 'stable', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','xfce','lxqt','mate','cosmic','qtile','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr','custom'],
     serviceManager: 'systemd',
@@ -147,18 +147,18 @@ const BASES = {
   'fedora-41': {
     label: 'Fedora 41', family: 'fedora', suite: 'f41',
     track: 'current', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','lxqt','mate','none'],
+    des: ['gnome','kde','xfce','lxqt','mate','cosmic','qtile','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr','custom'],
     serviceManager: 'systemd',
   },
   'fedora-42': {
-    label: 'Fedora 42 (beta)', family: 'fedora', suite: 'f42',
-    track: 'beta', builder: 'lorax', pkg: 'dnf',
-    des: ['gnome','kde','xfce','none'],
+    label: 'Fedora 42', family: 'fedora', suite: 'f42',
+    track: 'current', builder: 'lorax', pkg: 'dnf',
+    des: ['gnome','kde','xfce','cosmic','qtile','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr'],
-    serviceManager: 'systemd', unstable: true,
+    serviceManager: 'systemd',
   },
 
   // ── Raspberry Pi OS ─────────────────────────────────────────
@@ -282,6 +282,8 @@ const DE_PACKAGES = {
   lxde:     { apt: 'lxde lightdm lightdm-gtk-greeter', pacman: 'lxde lightdm lightdm-gtk-greeter', dnf: 'lxde-desktop lightdm', zypper: 'lxde lightdm' },
   mate:     { apt: 'mate-desktop-environment lightdm lightdm-gtk-greeter', pacman: 'mate mate-extra lightdm lightdm-gtk-greeter', dnf: 'mate-desktop lightdm', zypper: 'mate lightdm' },
   budgie:   { apt: 'budgie-desktop lightdm lightdm-gtk-greeter', pacman: 'budgie-desktop lightdm lightdm-gtk-greeter', dnf: 'budgie-desktop lightdm', zypper: 'budgie-desktop lightdm' },
+  cosmic:   { apt: 'cosmic-session cosmic-greeter', pacman: 'cosmic-session sddm', dnf: 'cosmic-session sddm', zypper: '' },
+  qtile:    { apt: 'qtile python3-xcffib python3-cairocffi lightdm lightdm-gtk-greeter', pacman: 'qtile lightdm lightdm-gtk-greeter', dnf: 'qtile lightdm', zypper: '' },
   i3:       { apt: 'i3 i3status dmenu xterm lightdm lightdm-gtk-greeter', pacman: 'i3-wm i3status dmenu xterm lightdm lightdm-gtk-greeter', dnf: 'i3 i3status dmenu xterm lightdm', zypper: 'i3 i3status dmenu xterm lightdm' },
   sway:     { apt: 'sway swaybar swaybg swayidle swaylock', pacman: 'sway swaybar swaybg swayidle swaylock', dnf: 'sway', zypper: 'sway' },
   labwc:    { apt: 'labwc waybar wlopm wlr-randr', pacman: 'labwc waybar', dnf: 'labwc waybar', zypper: 'labwc' },
@@ -293,7 +295,8 @@ const DE_PACKAGES = {
 const DE_DM = {
   gnome: 'gdm', kde: 'sddm', lxqt: 'sddm',
   cinnamon: 'lightdm', xfce: 'lightdm', lxde: 'lightdm',
-  mate: 'lightdm', budgie: 'lightdm', i3: 'lightdm',
+  mate: 'lightdm', budgie: 'lightdm', qtile: 'lightdm', i3: 'lightdm',
+  cosmic: 'cosmic-greeter',
   openbox: 'lightdm', sway: null, labwc: null, none: null,
 };
 
@@ -301,8 +304,8 @@ const DE_DM = {
 const DE_LABELS = {
   gnome: 'GNOME', kde: 'KDE Plasma', cinnamon: 'Cinnamon',
   xfce: 'XFCE', lxqt: 'LXQt', lxde: 'LXDE', mate: 'MATE',
-  budgie: 'Budgie', i3: 'i3 (tiling)', sway: 'Sway (Wayland)',
-  labwc: 'labwc (Wayland)', openbox: 'Openbox', none: 'Headless / None',
+  budgie: 'Budgie', qtile: 'Qtile (tiling)', i3: 'i3 (tiling)', sway: 'Sway (Wayland)',
+  labwc: 'labwc (Wayland)', openbox: 'Openbox', cosmic: 'COSMIC', none: 'Headless / None',
 };
 
 // DE brief descriptions shown under the screenshot
@@ -315,26 +318,30 @@ const DE_DESCRIPTIONS = {
   lxde:     'Extremely lightweight GTK2 desktop environment',
   mate:     'Traditional desktop, continuation of GNOME 2',
   budgie:   'Modern, elegant desktop developed by the Solus project',
+  qtile:    'Hackable, Python-configured tiling window manager (X11/Wayland)',
   i3:       'Minimalist keyboard-driven tiling window manager (X11)',
   sway:     'i3-compatible tiling compositor for Wayland',
   labwc:    'Lightweight stacking Wayland compositor (used on Raspberry Pi OS)',
   openbox:  'Minimalist, highly configurable floating window manager',
+  cosmic:   'Next-generation Wayland desktop by System76, built in Rust',
 };
 
-// DE screenshots — repository-hosted assets
+// DE screenshots
 const DE_SCREENSHOTS = {
-  gnome:    'assets/de-screenshots/gnome.svg',
-  kde:      'assets/de-screenshots/kde.svg',
-  cinnamon: 'assets/de-screenshots/cinnamon.svg',
-  xfce:     'assets/de-screenshots/xfce.svg',
-  lxqt:     'assets/de-screenshots/lxqt.svg',
+  gnome:    'assets/de-screenshots/gnome.png',
+  kde:      'assets/de-screenshots/kde.png',
+  cinnamon: 'assets/de-screenshots/cinnamon.png',
+  xfce:     'assets/de-screenshots/xfce.png',
+  lxqt:     'assets/de-screenshots/lxqt.png',
   lxde:     'assets/de-screenshots/lxde.svg',
-  mate:     'assets/de-screenshots/mate.svg',
-  budgie:   'assets/de-screenshots/budgie.svg',
-  i3:       'assets/de-screenshots/i3.svg',
-  sway:     'assets/de-screenshots/sway.svg',
+  mate:     'assets/de-screenshots/mate.png',
+  budgie:   'assets/de-screenshots/budgie.png',
+  qtile:    'assets/de-screenshots/qtile.png',
+  i3:       'assets/de-screenshots/i3.png',
+  sway:     'assets/de-screenshots/sway.png',
   labwc:    'assets/de-screenshots/labwc.svg',
   openbox:  'assets/de-screenshots/openbox.svg',
+  cosmic:   'assets/de-screenshots/cosmic.svg',
 };
 
 // ── Per-package compatibility ────────────────────────────────
@@ -450,6 +457,10 @@ let state = {
 };
 
 let currentStepIndex = 0;
+let baseFilter = 'stable'; // 'stable' | 'all'
+
+// Tracks considered "stable" for the base-filter pill
+const STABLE_TRACKS = new Set(['stable', 'oldstable', 'lts', 'lts-current', 'lts-legacy']);
 
 // ============================================================
 // STEP COMPUTATION
@@ -558,8 +569,15 @@ function updateNav() {
   const steps = getSteps();
   const prevBtn = document.getElementById('btn-prev');
   const nextBtn = document.getElementById('btn-next');
+  const cancelBtn = document.getElementById('btn-cancel');
 
-  prevBtn.disabled = currentStepIndex === 0;
+  if (prevBtn) {
+    prevBtn.disabled = currentStepIndex === 0;
+  }
+
+  if (cancelBtn) {
+    cancelBtn.style.display = currentStepIndex > 0 ? '' : 'none';
+  }
 
   const step = currentStep();
   if (step.id === 'summary') {
@@ -668,11 +686,19 @@ function renderCurrentStep() {
 
 // ── Step 1: Base ─────────────────────────────────────────────
 function renderStepBase() {
+  const stableActive = baseFilter === 'stable';
   let html = `<h2 class="step-heading">Step 1 — Choose Base System</h2>
-    <p class="step-sub">Select the Linux distribution and build toolchain. All subsequent options are derived from this choice.</p>`;
+    <p class="step-sub">Select the Linux distribution and build toolchain. All subsequent options are derived from this choice.</p>
+    <div class="base-filter-bar" role="group" aria-label="Release filter">
+      <button class="filter-pill${stableActive ? ' active' : ''}" data-base-filter="stable">Stable Releases</button>
+      <button class="filter-pill${!stableActive ? ' active' : ''}" data-base-filter="all">All (incl. Beta / Testing)</button>
+    </div>`;
 
   for (const group of FAMILY_GROUPS) {
-    const keys = group.keys.filter(k => BASES[k]);
+    let keys = group.keys.filter(k => BASES[k]);
+    if (stableActive) {
+      keys = keys.filter(k => STABLE_TRACKS.has(BASES[k].track));
+    }
     if (!keys.length) continue;
     html += `<div class="family-group">
       <div class="family-header">${esc(group.label)}</div>
@@ -681,7 +707,8 @@ function renderStepBase() {
       const b = BASES[key];
       const sel = state.base === key ? 'selected' : '';
       const eolCls = b.eol ? 'eol' : '';
-      const warn = (b.eol || b.unstable)
+      const isUnstable = b.unstable || !STABLE_TRACKS.has(b.track);
+      const warn = (b.eol || isUnstable)
         ? `<span title="${b.eol ? 'End of Life' : 'Unstable/Testing'}">⚠️</span>` : '';
       const imgBadge = b.imageType === 'img'
         ? `<span class="badge badge-img">img</span>`
@@ -962,14 +989,17 @@ function renderStepSummary() {
     rows += `<tr><td>config.txt ${editLink('services')}</td><td>${esc(flagSummary)}</td></tr>`;
   }
 
+  const dlSafeName = safeScriptName();
+
   let html = `<h2 class="step-heading">Summary &amp; Download</h2>
     <p class="step-sub">Review your choices, then download the generated build script.</p>
     <table class="summary-table"><tbody>${rows}</tbody></table>
     <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
-      <button class="btn-download" id="btn-download">⬇ Download build-distro.sh</button>
+      <button class="btn-download" id="btn-download">⬇ Download build-${esc(dlSafeName)}.sh</button>
     </div>
     <div class="info-banner">
-      ℹ️ If your host OS differs from the build environment, the generated script will automatically use Docker or Podman to create the correct environment. The ISO or IMG will be saved to your <code>OUTPUT_DIR</code> on the host. Requires Docker (<a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">install</a>) or Podman (<a href="https://podman.io/docs/installation" target="_blank" rel="noopener">install</a>).
+      <p>ℹ️ If your host OS differs from the build environment, the generated script will automatically use Docker or Podman to create the correct environment. The ISO or IMG will be saved to your <code>OUTPUT_DIR</code> on the host.</p>
+      <p>Requires <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">Docker</a> or <a href="https://podman.io/docs/installation" target="_blank" rel="noopener">Podman</a>.</p>
     </div>
     <div class="script-preview-wrap">
       <button class="preview-toggle" id="btn-preview">▶ Preview script</button>
@@ -1034,6 +1064,13 @@ function attachStepListeners(stepId) {
       const activateBase = (el) => { onBaseSelected(el.dataset.base); };
       baseTiles.forEach(el => el.addEventListener('click', () => activateBase(el)));
       attachTileKeys(baseTiles, activateBase);
+
+      container.querySelectorAll('[data-base-filter]').forEach(pill => {
+        pill.addEventListener('click', () => {
+          baseFilter = pill.dataset.baseFilter;
+          renderCurrentStep();
+        });
+      });
       break;
     }
 
@@ -1168,7 +1205,9 @@ function attachStepListeners(stepId) {
     case 'summary':
       {
         const dlBtn = document.getElementById('btn-download');
-        if (dlBtn) dlBtn.addEventListener('click', downloadScript);
+        if (dlBtn) {
+          dlBtn.addEventListener('click', downloadScript);
+        }
 
         const previewBtn = document.getElementById('btn-preview');
         const previewContent = document.getElementById('script-preview-content');
@@ -2115,9 +2154,13 @@ sha256sum "\${OUTPUT_DIR}"/*.iso > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256" 2
 }
 
 // ── Download ──────────────────────────────────────────────────
+function safeScriptName() {
+  return (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+}
+
 function downloadScript() {
   const script = generateScript();
-  const safeName = (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+  const safeName = safeScriptName();
   const blob = new Blob([script], { type: 'text/x-shellscript' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2134,16 +2177,23 @@ function downloadScript() {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Sync distro name input → state
+  // Sync distro name input → state and download button label
   const nameInput = document.getElementById('distro-name');
   nameInput.addEventListener('input', () => {
     state.distroName = nameInput.value.trim() || 'MyDistro';
+    const dlBtn = document.getElementById('btn-download');
+    if (dlBtn) dlBtn.textContent = `⬇ Download build-${safeScriptName()}.sh`;
   });
 
   // Navigation buttons
   document.getElementById('btn-prev').addEventListener('click', prevStep);
   document.getElementById('btn-next').addEventListener('click', () => {
     if (canAdvance()) nextStep();
+  });
+  document.getElementById('btn-cancel').addEventListener('click', () => {
+    currentStepIndex = 0;
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   // Initial render
