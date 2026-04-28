@@ -101,11 +101,13 @@ By default the finished image and build logs are written to `/tmp/distro-output`
 OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
 ```
 
-Similarly, the intermediate build tree defaults to `/tmp/distro-build` and can be changed with `BUILD_DIR`:
+Similarly, the intermediate build tree defaults to `/var/tmp/distro-build` and can be changed with `BUILD_DIR`:
 
 ```bash
 BUILD_DIR=~/build-workspace OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
 ```
+
+For Debian and Ubuntu live-build images, choose a `BUILD_DIR` on a filesystem mounted with device nodes and executable scripts enabled. Hardened `/tmp` mounts often use `nodev` or `noexec`, which makes `debootstrap` fail with errors such as `mknod ... Operation not permitted`.
 
 > **Note:** The `alarm-rpi` builder writes directly to the SD card device. `OUTPUT_DIR` and `BUILD_DIR` control the working directory for the downloaded tarball only.
 
@@ -184,6 +186,7 @@ sync
 |---------|-------------|-----|
 | `Docker or Podman is required…` error | Neither container runtime is installed | Install [Docker](https://docs.docker.com/engine/install/) or [Podman](https://podman.io/docs/installation) |
 | `This script must be run as root` error | Script was not invoked with root privileges | Re-run with `sudo ./build-MyDistro.sh` (or `sudo ./build-MyDistro.sh /dev/sdX` for `alarm-rpi`) |
+| `debootstrap` fails with `mknod ... Operation not permitted` or says the target is mounted with `noexec`/`nodev` | `BUILD_DIR` is on a restricted filesystem, commonly `/tmp` | Re-run with `sudo BUILD_DIR=/var/tmp/distro-build ./build-MyDistro.sh` or another build path on a `dev,exec` filesystem |
 | Build fails partway through | Network issue or package mirror outage | Check `build.log` in `OUTPUT_DIR`, retry after a few minutes |
 | No ISO/IMG in output directory | Build error before the copy step | Review `build.log` for the first `ERROR` line |
 | Slow build on first run | Container image being pulled | Subsequent runs reuse the cached image and are faster |
@@ -195,7 +198,7 @@ sync
 To start a completely fresh build, remove the intermediate build directory:
 
 ```bash
-rm -rf /tmp/distro-build
+rm -rf /var/tmp/distro-build
 ```
 
 To free up Docker/Podman disk space after building:

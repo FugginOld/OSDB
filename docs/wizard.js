@@ -1397,7 +1397,7 @@ if [ ! -f /.dockerenv ] && [ -z "\${container:-}" ]; then
   exec "\${_RUNTIME}" run --rm --privileged \\
     -v "\$(realpath "\${OUTPUT_DIR}"):/out" \\
     -v "\${_SCRIPT_PATH}:/build.sh:ro" \\
-    -e BUILD_DIR=/tmp/distro-build \\
+    -e BUILD_DIR=/var/tmp/distro-build \\
     -e OUTPUT_DIR=/out \\
     "\${CONTAINER_IMAGE}" bash /build.sh
 fi
@@ -1414,7 +1414,7 @@ function scriptHeader(name, builder, containerImage) {
 set -euo pipefail
 
 DISTRO_NAME="${name}"
-BUILD_DIR="\${BUILD_DIR:-/tmp/distro-build}"
+BUILD_DIR="\${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="\${OUTPUT_DIR:-/tmp/distro-output}"
 
 log() { printf '\\033[1;34m[%s]\\033[0m %s\\n' "\$(date +%T)" "\$*"; }
@@ -1508,6 +1508,24 @@ SVC_EOF
 
   return `${scriptHeader(name, 'live-build', containerImage)}
 LB_DIR="\${BUILD_DIR}/lb"
+ensure_live_build_workdir() {
+  local path="$1"
+  local mount_opts
+
+  mkdir -p "\${path}"
+  if ! command -v findmnt >/dev/null 2>&1; then
+    return 0
+  fi
+
+  mount_opts="\$(findmnt -T "\${path}" -no OPTIONS 2>/dev/null || true)"
+  case ",\${mount_opts}," in
+    *,nodev,*|*,noexec,*)
+      die "BUILD_DIR '\${path}' is on a filesystem mounted with \${mount_opts}. live-build/debootstrap needs device nodes and executable scripts. Re-run with BUILD_DIR=/var/tmp/distro-build or another path on a dev,exec filesystem."
+      ;;
+  esac
+}
+
+ensure_live_build_workdir "\${BUILD_DIR}"
 ${ubiquityNote}
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing live-build..."

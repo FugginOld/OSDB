@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DISTRO_NAME="MyDistro"
-BUILD_DIR="${BUILD_DIR:-/tmp/distro-build}"
+BUILD_DIR="${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="${OUTPUT_DIR:-/tmp/distro-output}"
 
 log() { printf '\033[1;34m[%s]\033[0m %s\n' "$(date +%T)" "$*"; }
@@ -38,7 +38,7 @@ if [ ! -f /.dockerenv ] && [ -z "${container:-}" ]; then
   exec "${_RUNTIME}" run --rm --privileged \
     -v "$(realpath "${OUTPUT_DIR}"):/out" \
     -v "${_SCRIPT_PATH}:/build.sh:ro" \
-    -e BUILD_DIR=/tmp/distro-build \
+    -e BUILD_DIR=/var/tmp/distro-build \
     -e OUTPUT_DIR=/out \
     "${CONTAINER_IMAGE}" bash /build.sh
 fi
