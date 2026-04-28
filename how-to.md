@@ -107,6 +107,12 @@ Similarly, the intermediate build tree defaults to `/var/tmp/distro-build` and c
 BUILD_DIR=~/build-workspace OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
 ```
 
+Failed builds automatically remove their marked build workspace so downloaded packages and temporary build files do not pile up. To keep a failed workspace for debugging, set `CLEANUP_ON_FAILURE=false`:
+
+```bash
+CLEANUP_ON_FAILURE=false sudo -E ./build-MyDistro.sh
+```
+
 For Debian and Ubuntu live-build images, choose a `BUILD_DIR` on a filesystem mounted with device nodes and executable scripts enabled. Hardened `/tmp` mounts often use `nodev` or `noexec`, which makes `debootstrap` fail with errors such as `mknod ... Operation not permitted`.
 
 > **Note:** The `alarm-rpi` builder writes directly to the SD card device. `OUTPUT_DIR` and `BUILD_DIR` control the working directory for the downloaded tarball only.
@@ -203,6 +209,8 @@ To start a completely fresh build, remove the intermediate build directory:
 ```bash
 rm -rf /var/tmp/distro-build
 ```
+
+Generated scripts do this automatically after a failed build unless `CLEANUP_ON_FAILURE=false` is set.
 
 To also remove the finished images and build log from the output directory:
 

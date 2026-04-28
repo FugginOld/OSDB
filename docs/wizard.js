@@ -1434,9 +1434,50 @@ DISTRO_NAME="${name}"
 BUILD_DIR="\${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="\${OUTPUT_DIR:-/tmp/distro-output}"
 LOG_FILE="\${OUTPUT_DIR}/build.log"
+CLEANUP_ON_FAILURE="\${CLEANUP_ON_FAILURE:-true}"
+BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
+SCRIPT_START_DIR="\$(pwd -P)"
 
 log() { printf '\\033[1;34m[%s]\\033[0m %s\\n' "\$(date +%T)" "\$*"; }
 die() { printf '\\033[1;31m[ERROR]\\033[0m %s\\n' "\$*" >&2; exit 1; }
+cleanup_build_dir() {
+  case "\${CLEANUP_ON_FAILURE}" in
+    1|true|TRUE|yes|YES) ;;
+    *) log "Leaving build directory in place because CLEANUP_ON_FAILURE=\${CLEANUP_ON_FAILURE}"; return 0 ;;
+  esac
+
+  if [ ! -f "\${BUILD_MARKER}" ]; then
+    log "Skipping cleanup; build marker not found in \${BUILD_DIR}"
+    return 0
+  fi
+
+  local cleanup_path output_path
+  cleanup_path="\$(cd "\$(dirname "\${BUILD_DIR}")" && pwd -P)/\$(basename "\${BUILD_DIR}")" || return 0
+  output_path="\$(cd "\$(dirname "\${OUTPUT_DIR}")" && pwd -P)/\$(basename "\${OUTPUT_DIR}")" || output_path="\${OUTPUT_DIR}"
+
+  case "\${cleanup_path}" in
+    /|/tmp|/var|/var/tmp|/home|"\${HOME:-}") log "Refusing to clean unsafe BUILD_DIR: \${cleanup_path}"; return 0 ;;
+  esac
+  if [ "\${cleanup_path}" = "\${SCRIPT_START_DIR}" ]; then
+    log "Refusing to clean BUILD_DIR because it is the launch directory: \${cleanup_path}"
+    return 0
+  fi
+  case "\${output_path}" in
+    "\${cleanup_path}"|"\${cleanup_path}"/*) log "Refusing to clean BUILD_DIR because it contains OUTPUT_DIR: \${output_path}"; return 0 ;;
+  esac
+
+  log "Removing failed build workspace: \${cleanup_path}"
+  rm -rf --one-file-system -- "\${cleanup_path}"
+}
+finish_build() {
+  local status=$?
+  if [ "\${status}" -ne 0 ]; then
+    log "Build failed with exit code \${status}. See \${LOG_FILE}"
+    cleanup_build_dir
+  else
+    log "Build log saved to \${LOG_FILE}"
+  fi
+}
 start_logging() {
   mkdir -p "\${OUTPUT_DIR}"
   : > "\${LOG_FILE}"
@@ -1444,7 +1485,8 @@ start_logging() {
   log "Logging to \${LOG_FILE}"
   log "Build directory: \${BUILD_DIR}"
   log "Output directory: \${OUTPUT_DIR}"
-  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See \${LOG_FILE}"; else log "Build log saved to \${LOG_FILE}"; fi' EXIT
+  log "Cleanup on failure: \${CLEANUP_ON_FAILURE}"
+  trap finish_build EXIT
 }
 ${containerImage ? containerPreamble(containerImage) : ''}
 if [ "\${EUID:-\$(id -u)}" -ne 0 ]; then
@@ -1452,6 +1494,11 @@ if [ "\${EUID:-\$(id -u)}" -ne 0 ]; then
 fi
 
 mkdir -p "\${BUILD_DIR}" "\${OUTPUT_DIR}"
+BUILD_DIR="\$(cd "\${BUILD_DIR}" && pwd -P)"
+OUTPUT_DIR="\$(cd "\${OUTPUT_DIR}" && pwd -P)"
+LOG_FILE="\${OUTPUT_DIR}/build.log"
+BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
+: > "\${BUILD_MARKER}"
 start_logging
 `;
 }
