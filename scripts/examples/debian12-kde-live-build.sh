@@ -107,6 +107,7 @@ log "Writing package lists..."
 mkdir -p config/package-lists
 printf '%s\n' \
   "kde-plasma-desktop" "plasma-nm" "plasma-pa" "kscreen" "sddm" \
+  "network-manager" "bluez" \
   > config/package-lists/desktop.list.chroot
 
 printf '%s\n' \
@@ -126,9 +127,13 @@ mkdir -p config/hooks/live
 cat > config/hooks/live/0010-services.hook.chroot << 'HOOK_EOF'
 #!/bin/sh
 set -e
-systemctl enable "NetworkManager.service"
-systemctl enable "cups.service"
-systemctl enable "bluetooth.service"
+enable_if_exists() {
+  systemctl list-unit-files --quiet "$1" 2>/dev/null | grep -q "^$1" && \
+    systemctl enable "$1" || echo "Skipping $1 (unit not found)"
+}
+enable_if_exists "NetworkManager.service"
+enable_if_exists "cups.service"
+enable_if_exists "bluetooth.service"
 HOOK_EOF
 chmod +x config/hooks/live/0010-services.hook.chroot
 

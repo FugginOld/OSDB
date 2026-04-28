@@ -369,18 +369,18 @@ const PACKAGES = [
 // ── Services ─────────────────────────────────────────────────
 const SERVICES = [
   // Base services (all families)
-  { id: 'NetworkManager', label: 'NetworkManager', unit: 'NetworkManager.service', families: null, defaultOn: true,  desc: 'Automatic network management' },
-  { id: 'cups',           label: 'CUPS',           unit: 'cups.service',           families: null, defaultOn: true,  desc: 'Printing support' },
-  { id: 'bluetooth',      label: 'Bluetooth',      unit: 'bluetooth.service',      families: null, defaultOn: true,  desc: 'Bluetooth daemon' },
-  { id: 'ufw',            label: 'UFW firewall',   unit: 'ufw.service',            families: null, defaultOn: false, desc: 'Uncomplicated firewall' },
-  { id: 'sshd',           label: 'SSH server',     unit: 'ssh.service',            families: null, defaultOn: false, desc: 'OpenSSH daemon (remote access)' },
-  { id: 'docker',         label: 'Docker',         unit: 'docker.service',         families: null, defaultOn: false, desc: 'Container runtime' },
-  { id: 'auto-update',    label: 'Auto-updates',   unit: 'unattended-upgrades.service', families: ['debian','ubuntu','rpi','rpi-ubuntu'], defaultOn: true, desc: 'Automatic security updates (apt)' },
+  { id: 'NetworkManager', label: 'NetworkManager', unit: 'NetworkManager.service', families: null, defaultOn: true,  desc: 'Automatic network management',    pkgName: { apt: 'network-manager',   pacman: 'networkmanager', dnf: 'NetworkManager',   zypper: 'NetworkManager'   } },
+  { id: 'cups',           label: 'CUPS',           unit: 'cups.service',           families: null, defaultOn: true,  desc: 'Printing support',                pkgName: { apt: 'cups',              pacman: 'cups',           dnf: 'cups',             zypper: 'cups'             } },
+  { id: 'bluetooth',      label: 'Bluetooth',      unit: 'bluetooth.service',      families: null, defaultOn: true,  desc: 'Bluetooth daemon',                pkgName: { apt: 'bluez',             pacman: 'bluez',          dnf: 'bluez',            zypper: 'bluez'            } },
+  { id: 'ufw',            label: 'UFW firewall',   unit: 'ufw.service',            families: null, defaultOn: false, desc: 'Uncomplicated firewall',          pkgName: { apt: 'ufw',               pacman: 'ufw',            dnf: 'ufw',              zypper: 'ufw'              } },
+  { id: 'sshd',           label: 'SSH server',     unit: 'ssh.service',            families: null, defaultOn: false, desc: 'OpenSSH daemon (remote access)',  pkgName: { apt: 'openssh-server',    pacman: 'openssh',        dnf: 'openssh-server',   zypper: 'openssh'          } },
+  { id: 'docker',         label: 'Docker',         unit: 'docker.service',         families: null, defaultOn: false, desc: 'Container runtime',               pkgName: { apt: 'docker.io',         pacman: 'docker',         dnf: 'docker',           zypper: 'docker'           } },
+  { id: 'auto-update',    label: 'Auto-updates',   unit: 'unattended-upgrades.service', families: ['debian','ubuntu','rpi','rpi-ubuntu'], defaultOn: true, desc: 'Automatic security updates (apt)', pkgName: { apt: 'unattended-upgrades' } },
   // RPi-specific services
-  { id: 'rpi-eeprom-update', label: 'RPi EEPROM update', unit: 'rpi-eeprom-update.service', families: ['rpi','rpi-ubuntu'], defaultOn: true,  desc: 'Pi 4/5 firmware updater' },
-  { id: 'raspi-config-svc',  label: 'raspi-config',      unit: 'raspi-config.service',      families: ['rpi'],             defaultOn: true,  desc: 'First-boot configuration tool' },
-  { id: 'rpi-connect-svc',   label: 'RPi Connect',       unit: 'rpi-connect.service',       families: ['rpi'],             defaultOn: false, desc: 'Raspberry Pi remote access cloud' },
-  { id: 'pigpiod',           label: 'pigpiod',           unit: 'pigpiod.service',            families: ['rpi','rpi-ubuntu'], defaultOn: false, desc: 'GPIO daemon for Python' },
+  { id: 'rpi-eeprom-update', label: 'RPi EEPROM update', unit: 'rpi-eeprom-update.service', families: ['rpi','rpi-ubuntu'], defaultOn: true,  desc: 'Pi 4/5 firmware updater',         pkgName: { apt: 'rpi-eeprom'        } },
+  { id: 'raspi-config-svc',  label: 'raspi-config',      unit: 'raspi-config.service',      families: ['rpi'],             defaultOn: true,  desc: 'First-boot configuration tool',   pkgName: { apt: 'raspi-config'      } },
+  { id: 'rpi-connect-svc',   label: 'RPi Connect',       unit: 'rpi-connect.service',       families: ['rpi'],             defaultOn: false, desc: 'Raspberry Pi remote access cloud', pkgName: { apt: 'rpi-connect'       } },
+  { id: 'pigpiod',           label: 'pigpiod',           unit: 'pigpiod.service',            families: ['rpi','rpi-ubuntu'], defaultOn: false, desc: 'GPIO daemon for Python',           pkgName: { apt: 'pigpio', pacman: 'pigpio' } },
 ];
 
 // ── RPi hardware targets ─────────────────────────────────────
@@ -1340,6 +1340,15 @@ function enabledServicesList() {
     .join(' ');
 }
 
+function enabledServicePkgList(base) {
+  return SERVICES
+    .filter(s => state.services[s.id])
+    .filter(s => s.families === null || s.families.includes(base.family))
+    .map(s => (s.pkgName && s.pkgName[base.pkg]) || '')
+    .filter(Boolean)
+    .join(' ');
+}
+
 function dePkgs(base) {
   if (!state.de || state.de === 'none') return '';
   return (DE_PACKAGES[state.de] || {})[base.pkg] || '';
@@ -1362,7 +1371,15 @@ function autologinHook(base) {
 
 function serviceEnableBlock(units) {
   if (!units) return '';
-  return units.split(' ').filter(Boolean).map(u => `systemctl enable "${u}"`).join('\n');
+  const enables = units.split(' ').filter(Boolean).map(u => `enable_if_exists "${u}"`).join('\n');
+  return `enable_if_exists() {
+  if systemctl list-unit-files "$1" 2>/dev/null | grep -q "^$1"; then
+    systemctl enable "$1"
+  else
+    echo "Skipping $1 (unit not found — package may not be installed)"
+  fi
+}
+${enables}`;
 }
 
 // ─ Docker/Podman container self-re-launch preamble ───────────
@@ -1444,6 +1461,7 @@ function generateLiveBuild(base, name) {
   const de = state.de || 'none';
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
+  const servicePkgs = enabledServicePkgList(base);
   const allPkgs = [dePackages, userPkgs].filter(Boolean).join(' ');
   const mirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
     ? state.customMirrorUrl.trim() : base.mirror;
@@ -1564,6 +1582,7 @@ log "Writing package lists..."
 mkdir -p config/package-lists
 ${dePackages ? `printf '%s\\n' ${dePackages.split(' ').map(p => `"${p}"`).join(' ')} > config/package-lists/desktop.list.chroot` : '# No desktop packages (headless)'}
 ${userPkgs ? `printf '%s\\n' ${userPkgs.split(' ').map(p => `"${p}"`).join(' ')} > config/package-lists/user.list.chroot` : '# No extra user packages selected'}
+${servicePkgs ? `printf '%s\\n' ${servicePkgs.split(' ').map(p => `"${p}"`).join(' ')} > config/package-lists/services.list.chroot` : '# No extra service packages needed'}
 printf '%s\\n' "live-boot" "live-config" "live-config-systemd" > config/package-lists/live.list.chroot
 ${state.installer === 'calamares' ? 'printf \'%s\\n\' "calamares" "calamares-settings-debian" > config/package-lists/installer.list.chroot' : ''}
 ${state.installer === 'ubiquity'  ? 'printf \'%s\\n\' "ubiquity" "ubiquity-frontend-gtk" > config/package-lists/installer.list.chroot' : ''}
@@ -1621,7 +1640,8 @@ log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 function generateArchiso(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
-  const allPkgs = [dePackages, userPkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
+  const servicePkgs = enabledServicePkgList(base);
+  const allPkgs = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
   const services = enabledServicesList();
   const containerImage = 'archlinux:latest';
 
@@ -1716,6 +1736,7 @@ log "Build complete! Output: \${OUTPUT_DIR}"
 function generateLorax(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
+  const servicePkgs = enabledServicePkgList(base);
   const services = enabledServicesList();
   const suite = base.suite; // f40, f41 …
   const version = suite.replace('f', '');
@@ -1760,6 +1781,7 @@ autopart
 ${ksGroups}
 ${dePackages.split(' ').filter(Boolean).join('\n')}
 ${userPkgs.split(' ').filter(Boolean).join('\n')}
+${servicePkgs.split(' ').filter(Boolean).join('\n')}
 %end
 
 %services
@@ -1804,6 +1826,7 @@ log "Build complete! Output: \${OUTPUT_DIR}"
 function generatePiGen(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
+  const servicePkgs = enabledServicePkgList(base);
   const services = enabledServicesList();
   const tier = base.piGenTier || 'lite';
   const hw = state.rpiHardware || 'rpi4';
@@ -1865,7 +1888,7 @@ ${skipStages}
 # ── Custom stage: packages ────────────────────────────────────
 log "Writing custom stage..."
 mkdir -p stage-custom/01-packages
-EXTRA_PKGS="${[dePackages, userPkgs].filter(Boolean).join(' ')}"
+EXTRA_PKGS="${[dePackages, userPkgs, servicePkgs].filter(Boolean).join(' ')}"
 printf '%s' "\${EXTRA_PKGS}" > stage-custom/01-packages/packages
 
 # ── Custom stage: services + config.txt ──────────────────────
@@ -1923,6 +1946,7 @@ function buildConfigTxt(is64) {
 function generateUbuntuRpi(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
+  const servicePkgs = enabledServicePkgList(base);
   const services = enabledServicesList();
   const hw = state.rpiHardware || 'rpi4';
   const hwObj = RPI_HARDWARE.find(h => h.id === hw) || { arch: 'aarch64' };
@@ -1993,9 +2017,9 @@ log "Installing core packages..."
 chroot "\${ROOTFS}" apt-get update -qq
 chroot "\${ROOTFS}" apt-get install -y \\
   linux-raspi raspi-firmware u-boot-rpi flash-kernel \\
-  systemd-sysv sudo adduser locales network-manager \\
+  systemd-sysv sudo adduser locales \\
   ${needsEeprom ? 'rpi-eeprom' : ''} \\
-  ${dePackages} ${userPkgs}
+  ${dePackages} ${userPkgs} ${servicePkgs}
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."
@@ -2155,6 +2179,7 @@ log "  usermod -l pi alarm"
 function generateKiwi(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
+  const servicePkgs = enabledServicePkgList(base);
   const services = enabledServicesList();
   const suite = base.suite;
   const leapVersion = (base.label.match(/\d+\.\d+/) || ['15.6'])[0];
@@ -2193,6 +2218,7 @@ cat > "\${KIWI_DESC}/config.xml" << 'XML_EOF'
     <package name="patterns-openSUSE-base"/>
     ${dePackages.split(' ').filter(Boolean).map(p => `<package name="${p}"/>`).join('\n    ')}
     ${userPkgs.split(' ').filter(Boolean).map(p => `<package name="${p}"/>`).join('\n    ')}
+    ${servicePkgs.split(' ').filter(Boolean).map(p => `<package name="${p}"/>`).join('\n    ')}
   </packages>
   <packages type="bootstrap">
     <package name="glibc-locale"/>
