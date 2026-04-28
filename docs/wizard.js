@@ -46,7 +46,7 @@ const BASES = {
   },
   'debian-13': {
     label: 'Debian 13 Trixie', family: 'debian', suite: 'trixie',
-    track: 'stable', builder: 'live-build', pkg: 'apt',
+    track: 'testing', unstable: true, builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free non-free-firmware',
     des: ['gnome','kde','cinnamon','xfce','lxqt','mate','qtile','none'],
@@ -459,6 +459,9 @@ let state = {
 let currentStepIndex = 0;
 let baseFilter = 'stable'; // 'stable' | 'all'
 
+// Tracks considered "stable" for the base-filter pill
+const STABLE_TRACKS = new Set(['stable', 'oldstable', 'lts', 'lts-current', 'lts-legacy']);
+
 // ============================================================
 // STEP COMPUTATION
 // ============================================================
@@ -694,7 +697,7 @@ function renderStepBase() {
   for (const group of FAMILY_GROUPS) {
     let keys = group.keys.filter(k => BASES[k]);
     if (stableActive) {
-      keys = keys.filter(k => !BASES[k].unstable);
+      keys = keys.filter(k => STABLE_TRACKS.has(BASES[k].track));
     }
     if (!keys.length) continue;
     html += `<div class="family-group">
@@ -704,7 +707,8 @@ function renderStepBase() {
       const b = BASES[key];
       const sel = state.base === key ? 'selected' : '';
       const eolCls = b.eol ? 'eol' : '';
-      const warn = (b.eol || b.unstable)
+      const isUnstable = b.unstable || !STABLE_TRACKS.has(b.track);
+      const warn = (b.eol || isUnstable)
         ? `<span title="${b.eol ? 'End of Life' : 'Unstable/Testing'}">⚠️</span>` : '';
       const imgBadge = b.imageType === 'img'
         ? `<span class="badge badge-img">img</span>`
@@ -1203,13 +1207,6 @@ function attachStepListeners(stepId) {
         const dlBtn = document.getElementById('btn-download');
         if (dlBtn) {
           dlBtn.addEventListener('click', downloadScript);
-          // Keep button label in sync with the distro name input
-          const nameInput = document.getElementById('distro-name');
-          if (nameInput) {
-            nameInput.addEventListener('input', () => {
-              dlBtn.textContent = `⬇ Download build-${safeScriptName()}.sh`;
-            });
-          }
         }
 
         const previewBtn = document.getElementById('btn-preview');
@@ -2180,10 +2177,12 @@ function downloadScript() {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Sync distro name input → state
+  // Sync distro name input → state and download button label
   const nameInput = document.getElementById('distro-name');
   nameInput.addEventListener('input', () => {
     state.distroName = nameInput.value.trim() || 'MyDistro';
+    const dlBtn = document.getElementById('btn-download');
+    if (dlBtn) dlBtn.textContent = `⬇ Download build-${safeScriptName()}.sh`;
   });
 
   // Navigation buttons
