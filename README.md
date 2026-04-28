@@ -62,6 +62,21 @@ scripts/
     shellcheck.yml  ← Lint example scripts with ShellCheck
 ```
 
+## Screenshots
+
+| Step | Screenshot |
+|---|---|
+| **Step 1 — Choose Base System** | ![Step 1 – Base](docs/assets/screenshots/step1-base.png) |
+| **Hardware Target** *(Raspberry Pi only)* | ![Step 1b – RPi Hardware](docs/assets/screenshots/step1b-rpi-hardware.png) |
+| **Step 2 — Desktop Environment** | ![Step 2 – Desktop](docs/assets/screenshots/step2-desktop.png) |
+| **Step 3 — Packages** | ![Step 3 – Packages](docs/assets/screenshots/step3-packages.png) |
+| **Step 4 — Repository** | ![Step 4 – Repository](docs/assets/screenshots/step4-repository.png) |
+| **Step 5 — Installer** | ![Step 5 – Installer](docs/assets/screenshots/step5-installer.png) |
+| **Step 6 — Services** | ![Step 6 – Services](docs/assets/screenshots/step6-services.png) |
+| **Step 7 — Summary** | ![Step 7 – Summary](docs/assets/screenshots/step7-summary.png) |
+
+---
+
 ## Running locally
 
 No build step needed — just open `docs/index.html` in a browser:
