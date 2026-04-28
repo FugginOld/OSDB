@@ -1523,12 +1523,8 @@ function generateLiveBuild(base, name) {
   --parent-mirror-binary "${mirror}" \\
   --parent-mirror-chroot-security "http://security.ubuntu.com/ubuntu" \\
   --parent-mirror-binary-security "http://security.ubuntu.com/ubuntu" \\
-  --parent-mirror-chroot-updates "${mirror}" \\
-  --parent-mirror-binary-updates "${mirror}" \\
   --mirror-chroot-security "http://security.ubuntu.com/ubuntu" \\
   --mirror-binary-security "http://security.ubuntu.com/ubuntu" \\
-  --mirror-chroot-updates "${mirror}" \\
-  --mirror-binary-updates "${mirror}" \\
 `
     : '';
 
