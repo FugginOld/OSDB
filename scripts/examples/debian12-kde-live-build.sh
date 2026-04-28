@@ -103,6 +103,26 @@ lb config \
   --apt-recommends false \
   --memtest none
 
+# ── Chroot environment ──────────────────────────────
+log "Setting noninteractive environment for chroot..."
+mkdir -p config
+printf '%s\n' \
+  'DEBIAN_FRONTEND=noninteractive' \
+  'DEBCONF_NONINTERACTIVE_SEEN=true' > config/environment.chroot
+
+# ── Debconf preseed ──────────────────────────────
+log "Writing debconf preseed..."
+mkdir -p config/preseed
+cat > config/preseed/live.cfg.chroot << 'PRESEED_EOF'
+console-setup console-setup/charmap47 select UTF-8
+console-setup console-setup/codeset47 select # Guess optimal character set
+console-setup console-setup/fontface47 select Fixed
+console-setup console-setup/fontsize-fb47 select 8x16
+console-setup console-setup/store_defaults_in_debconf_db boolean true
+keyboard-configuration keyboard-configuration/layoutcode string us
+keyboard-configuration keyboard-configuration/variant select
+PRESEED_EOF
+
 # ── Package lists ──────────────────────────────────────────────
 log "Writing package lists..."
 mkdir -p config/package-lists

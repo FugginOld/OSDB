@@ -1577,6 +1577,26 @@ lb config \\
   --apt-recommends false \\
   --memtest none
 
+# ── Chroot environment ──────────────────────────────────────────────
+log "Setting noninteractive environment for chroot..."
+mkdir -p config
+printf '%s\\n' \\
+  'DEBIAN_FRONTEND=noninteractive' \\
+  'DEBCONF_NONINTERACTIVE_SEEN=true' > config/environment.chroot
+
+# ── Debconf preseed ──────────────────────────────────────────────
+log "Writing debconf preseed..."
+mkdir -p config/preseed
+cat > config/preseed/live.cfg.chroot << 'PRESEED_EOF'
+console-setup console-setup/charmap47 select UTF-8
+console-setup console-setup/codeset47 select # Guess optimal character set
+console-setup console-setup/fontface47 select Fixed
+console-setup console-setup/fontsize-fb47 select 8x16
+console-setup console-setup/store_defaults_in_debconf_db boolean true
+keyboard-configuration keyboard-configuration/layoutcode string us
+keyboard-configuration keyboard-configuration/variant select
+PRESEED_EOF
+
 # ── Package lists ──────────────────────────────────────────────
 log "Writing package lists..."
 mkdir -p config/package-lists
@@ -1727,8 +1747,11 @@ mkarchiso -v -w "\${WORK_DIR}" -o "\${OUTPUT_DIR}" "\${PROFILE_DIR}"
 # ── Checksum ───────────────────────────────────────────────────
 log "Generating SHA256 checksum..."
 find "\${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \\; > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
 
-log "Build complete! Output: \${OUTPUT_DIR}"
+log "Build complete!"
+log "ISO:      \${BUILT_ISO}"
+log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 
@@ -1818,7 +1841,9 @@ log "Generating checksum..."
 find . -maxdepth 1 -name '*.iso' -exec mv {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" \\;
 sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 
-log "Build complete! Output: \${OUTPUT_DIR}"
+log "Build complete!"
+log "ISO:      \${OUTPUT_DIR}/\${DISTRO_NAME}.iso"
+log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 
@@ -1919,7 +1944,8 @@ LATEST_IMG=\$(find deploy -name '*.img' -not -name '*.img.xz' | head -1)
 [ -n "\${LATEST_XZ}"  ] && cp "\${LATEST_XZ}"  "\${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz" || true
 [ -n "\${LATEST_IMG}" ] && cp "\${LATEST_IMG}" "\${OUTPUT_DIR}/\${DISTRO_NAME}.img"    || true
 
-log "Build complete! Output: \${OUTPUT_DIR}"
+log "Build complete!"
+log "Image:    \${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz"
 log ""
 log "# Flash to SD card (replace /dev/sdX with your device):"
 log "# xzcat \${OUTPUT_DIR}/\${DISTRO_NAME}.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync"
@@ -2065,7 +2091,8 @@ xz -T0 -z -k "\${IMG_FILE}"
 sha256sum "\${IMG_FILE}.xz" > "\${IMG_FILE}.xz.sha256"
 
 log "Build complete!"
-log "Image: \${IMG_FILE}.xz"
+log "Image:    \${IMG_FILE}.xz"
+log "Checksum: \${IMG_FILE}.xz.sha256"
 log ""
 log "# Flash to SD card:"
 log "# xzcat \${IMG_FILE}.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync"
@@ -2242,8 +2269,13 @@ kiwi-ng --profile Standard system build \\
   --description "\${KIWI_DESC}" \\
   --target-dir "\${OUTPUT_DIR}"
 
-log "Build complete! Output: \${OUTPUT_DIR}"
+log "Generating SHA256 checksum..."
 sha256sum "\${OUTPUT_DIR}"/*.iso > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256" 2>/dev/null || true
+KIWI_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
+
+log "Build complete!"
+log "ISO:      \${KIWI_ISO}"
+log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 

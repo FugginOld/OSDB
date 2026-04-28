@@ -117,6 +117,9 @@ mkarchiso -v -w "${WORK_DIR}" -o "${OUTPUT_DIR}" "${PROFILE_DIR}"
 log "Generating SHA256 checksum..."
 find "${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \; \
   > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+BUILT_ISO=$(find "${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
 
-log "Build complete! Output: ${OUTPUT_DIR}"
+log "Build complete!"
+log "ISO:      ${BUILT_ISO}"
+log "Checksum: ${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
 

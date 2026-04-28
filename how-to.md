@@ -201,6 +201,12 @@ To start a completely fresh build, remove the intermediate build directory:
 rm -rf /var/tmp/distro-build
 ```
 
+To also remove the finished images and build log from the output directory:
+
+```bash
+rm -rf /tmp/distro-output
+```
+
 To free up Docker/Podman disk space after building:
 
 ```bash
