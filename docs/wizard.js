@@ -1431,6 +1431,7 @@ if [ ! -f /.dockerenv ] && [ -z "\${container:-}" ]; then
     -v "\${_SCRIPT_PATH}:/build.sh:ro" \\
     -e BUILD_DIR=/var/tmp/distro-build \\
     -e OUTPUT_DIR=/out \\
+    -e HOST_OUTPUT_DIR="\$(realpath "\${OUTPUT_DIR}")" \\
     "\${CONTAINER_IMAGE}" bash /build.sh
 fi
 `;
@@ -1448,7 +1449,10 @@ set -euo pipefail
 DISTRO_NAME="${name}"
 BUILD_DIR="\${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="\${OUTPUT_DIR:-/tmp/distro-output}"
+HOST_OUTPUT_DIR="\${HOST_OUTPUT_DIR:-}"
 LOG_FILE="\${OUTPUT_DIR}/build.log"
+DISPLAY_OUTPUT_DIR=""
+DISPLAY_LOG_FILE=""
 CLEANUP_ON_FAILURE="\${CLEANUP_ON_FAILURE:-true}"
 BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
 SCRIPT_START_DIR="\$(pwd -P)"
@@ -1487,19 +1491,19 @@ cleanup_build_dir() {
 finish_build() {
   local status=$?
   if [ "\${status}" -ne 0 ]; then
-    log "Build failed with exit code \${status}. See \${LOG_FILE}"
+    log "Build failed with exit code \${status}. See \${DISPLAY_LOG_FILE}"
     cleanup_build_dir
   else
-    log "Build log saved to \${LOG_FILE}"
+    log "Build log saved to \${DISPLAY_LOG_FILE}"
   fi
 }
 start_logging() {
   mkdir -p "\${OUTPUT_DIR}"
   : > "\${LOG_FILE}"
   exec > >(tee -a "\${LOG_FILE}") 2>&1
-  log "Logging to \${LOG_FILE}"
+  log "Logging to \${DISPLAY_LOG_FILE}"
   log "Build directory: \${BUILD_DIR}"
-  log "Output directory: \${OUTPUT_DIR}"
+  log "Output directory: \${DISPLAY_OUTPUT_DIR}"
   log "Cleanup on failure: \${CLEANUP_ON_FAILURE}"
   trap finish_build EXIT
 }
@@ -1512,6 +1516,12 @@ mkdir -p "\${BUILD_DIR}" "\${OUTPUT_DIR}"
 BUILD_DIR="\$(cd "\${BUILD_DIR}" && pwd -P)"
 OUTPUT_DIR="\$(cd "\${OUTPUT_DIR}" && pwd -P)"
 LOG_FILE="\${OUTPUT_DIR}/build.log"
+if [ -n "\${HOST_OUTPUT_DIR}" ]; then
+  DISPLAY_OUTPUT_DIR="\${HOST_OUTPUT_DIR}"
+else
+  DISPLAY_OUTPUT_DIR="\${OUTPUT_DIR}"
+fi
+DISPLAY_LOG_FILE="\${DISPLAY_OUTPUT_DIR}/build.log"
 BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
 : > "\${BUILD_MARKER}"
 start_logging
@@ -1743,8 +1753,8 @@ log "Generating SHA256 checksum..."
 sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 
 log "Build complete!"
-log "ISO:      \${OUTPUT_DIR}/\${DISTRO_NAME}.iso"
-log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+log "ISO:      \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso"
+log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 
@@ -1843,7 +1853,7 @@ BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
 
 log "Build complete!"
 log "ISO:      \${BUILT_ISO}"
-log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 
@@ -1934,8 +1944,8 @@ find . -maxdepth 1 -name '*.iso' -exec mv {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso
 sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 
 log "Build complete!"
-log "ISO:      \${OUTPUT_DIR}/\${DISTRO_NAME}.iso"
-log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+log "ISO:      \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso"
+log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 
@@ -2367,7 +2377,7 @@ KIWI_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
 
 log "Build complete!"
 log "ISO:      \${KIWI_ISO}"
-log "Checksum: \${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
 
@@ -2439,3 +2449,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render
   renderAll();
 });
+
