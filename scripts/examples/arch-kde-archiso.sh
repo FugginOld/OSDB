@@ -17,7 +17,8 @@ start_logging() {
   log "Logging to ${LOG_FILE}"
   log "Build directory: ${BUILD_DIR}"
   log "Output directory: ${OUTPUT_DIR}"
-  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT # shellcheck disable=SC2154
+  # shellcheck disable=SC2154
+  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT
 }
 
 # ── Container self-re-launch ─────────────────────────────────────────────
@@ -62,7 +63,7 @@ start_logging
 PROFILE_DIR="${BUILD_DIR}/profile"
 WORK_DIR="${BUILD_DIR}/work"
 
-# ── Prerequisites ────────────────────────────────────────────────────────
+# ── Prerequisites ─────────────────────────────────────────────────────────
 log "Installing archiso..."
 pacman -Syu --noconfirm --needed archiso calamares
 
@@ -118,3 +119,4 @@ find "${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \; \
   > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
 
 log "Build complete! Output: ${OUTPUT_DIR}"
+
