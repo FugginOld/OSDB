@@ -1,38 +1,51 @@
-# How to Run Your Generated `build-distro.sh`
+# How to Run Your Generated Build Script
 
-After using the [OSDB wizard](https://fugginold.github.io/OSDB/) to configure your custom Linux distribution, you will download a `build-distro.sh` script. This guide walks you through everything you need to do to turn that script into a bootable ISO or SD-card image.
+After using the [OSDB wizard](https://fugginold.github.io/OSDB/) to configure your custom Linux distribution, you will download a script named **`build-<DistroName>.sh`** (e.g. `build-MyDistro.sh`). This guide walks you through everything you need to do to turn that script into a bootable ISO or SD-card image.
 
 ---
 
 ## 1. Prerequisites
 
-The script is fully self-contained: if it detects it is **not** already running inside a container it will automatically re-launch itself inside the correct build environment via **Docker** or **Podman**. You only need one of these installed on your host machine.
+Prerequisites depend on the builder selected in the wizard:
+
+### Most builders (live-build, archiso, lorax, pi-gen, ubuntu-rpi, kiwi)
+
+These scripts are fully self-contained: if they detect they are **not** already running inside a container they will automatically re-launch themselves inside the correct build environment via **Docker** or **Podman**. You only need one of these installed on your host machine.
 
 | Tool | Install guide |
 |------|--------------|
 | Docker | <https://docs.docker.com/engine/install/> |
 | Podman | <https://podman.io/docs/installation> |
 
-> **Note:** If you are already running on a native host that matches the target distribution (e.g. building a Debian ISO on a Debian machine) a container runtime is still required because the build tools need root-level access to loop devices and chroot environments.
+### Arch Linux ARM for Raspberry Pi (alarm-rpi)
+
+This builder writes directly to an SD card — **no container runtime is needed**. Instead it requires:
+
+- A **Linux host** (any distro)
+- **Root access** (`sudo` or root shell)
+- An **SD card reader** with the target card inserted
+- Standard tools: `curl`, `bsdtar`, `sfdisk`, `mkfs.vfat`, `mkfs.ext4`
 
 ---
 
 ## 2. Make the Script Executable
 
-Open a terminal, navigate to where you saved the script, and grant it execute permission:
+Open a terminal, navigate to where you saved the script, and grant it execute permission (replace `MyDistro` with the name you entered in the wizard):
 
 ```bash
-chmod +x build-distro.sh
+chmod +x build-MyDistro.sh
 ```
 
 ---
 
 ## 3. Run the Build
 
-Simply execute the script:
+### Most builders
+
+Simply execute the script with `sudo`:
 
 ```bash
-./build-distro.sh
+sudo ./build-MyDistro.sh
 ```
 
 The script will:
@@ -42,6 +55,16 @@ The script will:
 3. Install the required build toolchain (e.g. `live-build`, `archiso`, `pi-gen`).
 4. Apply all your wizard selections (desktop environment, packages, services, installer).
 5. Produce a finished ISO or IMG file.
+
+### Arch Linux ARM for Raspberry Pi (alarm-rpi)
+
+Pass the SD card device path as the first argument:
+
+```bash
+sudo ./build-MyDistro.sh /dev/sdX
+```
+
+Replace `/dev/sdX` with your actual SD card device (check with `lsblk`). The script partitions, formats, and populates the card directly — no intermediate image file is created.
 
 Build times vary by base distribution:
 
@@ -59,35 +82,34 @@ Build times vary by base distribution:
 By default the finished image and build logs are written to `/tmp/distro-output` on your host. Override this with the `OUTPUT_DIR` environment variable before running:
 
 ```bash
-OUTPUT_DIR=~/my-builds ./build-distro.sh
+OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
 ```
 
 Similarly, the intermediate build tree defaults to `/tmp/distro-build` and can be changed with `BUILD_DIR`:
 
 ```bash
-BUILD_DIR=~/build-workspace OUTPUT_DIR=~/my-builds ./build-distro.sh
+BUILD_DIR=~/build-workspace OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
 ```
+
+> **Note:** The `alarm-rpi` builder writes directly to the SD card device. `OUTPUT_DIR` and `BUILD_DIR` control the working directory for the downloaded tarball only.
 
 ---
 
 ## 5. Find Your Output
 
-When the build completes successfully you will see a summary like:
+Output artifacts differ by builder:
 
-```
-[12:34:56] Build complete!
-[12:34:56] ISO:      /tmp/distro-output/MyDistro.iso
-[12:34:56] Checksum: /tmp/distro-output/MyDistro.iso.sha256
-```
+| Builder | Output files | Checksum file | Build log |
+|---------|-------------|---------------|-----------|
+| **live-build** (Debian / Ubuntu) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
+| **archiso** (Arch Linux) | ISO named by `mkarchiso` (e.g. `archlinux-YYYY.MM.DD-x86_64.iso`) | `MyDistro.iso.sha256` | *(none)* |
+| **lorax** (Fedora) | `MyDistro.iso` | `MyDistro.iso.sha256` | *(none)* |
+| **pi-gen** (Raspberry Pi OS) | `MyDistro.img` and/or `MyDistro.img.xz` | *(none)* | `build.log` |
+| **ubuntu-rpi** (Ubuntu for Pi) | `MyDistro.img.xz` | `MyDistro.img.xz.sha256` | *(none)* |
+| **kiwi** (openSUSE) | ISO file(s) in `OUTPUT_DIR` | `MyDistro.iso.sha256` | *(none)* |
+| **alarm-rpi** (Arch ARM for Pi) | *(written directly to SD card)* | *(none)* | *(none)* |
 
-The output directory will contain:
-
-| File | Description |
-|------|-------------|
-| `MyDistro.iso` | Bootable hybrid ISO (x86-64 distributions) |
-| `MyDistro.img` / `MyDistro.img.xz` | Bootable SD-card image (Raspberry Pi distributions) |
-| `MyDistro.iso.sha256` | SHA-256 checksum for integrity verification |
-| `build.log` | Full build output for troubleshooting |
+All files are placed in `OUTPUT_DIR` (default: `/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device.
 
 ---
 
@@ -145,7 +167,7 @@ sync
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | `Docker or Podman is required…` error | Neither container runtime is installed | Install [Docker](https://docs.docker.com/engine/install/) or [Podman](https://podman.io/docs/installation) |
-| `This script must be run as root` error | Running inside container without root | The container re-launch adds `--privileged`; ensure Docker/Podman daemon is accessible |
+| `This script must be run as root` error | Script was not invoked with root privileges | Re-run with `sudo ./build-MyDistro.sh` (or `sudo ./build-MyDistro.sh /dev/sdX` for `alarm-rpi`) |
 | Build fails partway through | Network issue or package mirror outage | Check `build.log` in `OUTPUT_DIR`, retry after a few minutes |
 | No ISO/IMG in output directory | Build error before the copy step | Review `build.log` for the first `ERROR` line |
 | Slow build on first run | Container image being pulled | Subsequent runs reuse the cached image and are faster |
