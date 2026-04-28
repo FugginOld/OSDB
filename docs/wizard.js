@@ -1326,9 +1326,24 @@ function generateScript() {
 // ─ Helpers used across generators ────────────────────────────
 
 function enabledPkgList(base) {
+  const resolvePkgName = (pkg) => {
+    // firefox-esr is Debian-specific; Ubuntu uses firefox.
+    if (pkg.id === 'firefox' && base.pkg === 'apt') {
+      return base.family === 'debian' ? 'firefox-esr' : 'firefox';
+    }
+
+    // VS Code ("code") is not in Ubuntu's default apt repos.
+    // Keep it for distros where the package is expected natively.
+    if (pkg.id === 'vscode' && base.pkg === 'apt' && base.family === 'ubuntu') {
+      return '';
+    }
+
+    return pkg.pkgName[base.pkg] || pkg.id;
+  };
+
   return PACKAGES
     .filter(p => p.families.includes(base.family) && state.pkgs[p.id])
-    .map(p => p.pkgName[base.pkg] || p.id)
+    .map(resolvePkgName)
     .filter(Boolean)
     .join(' ');
 }
