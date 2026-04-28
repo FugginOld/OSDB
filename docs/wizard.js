@@ -1632,7 +1632,7 @@ ${ubiquityNote}
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing live-build..."
 apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates
+DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates xz-utils
 DEBIAN_FRONTEND=noninteractive apt-get install -y syslinux-utils || DEBIAN_FRONTEND=noninteractive apt-get install -y syslinux isolinux
 
 if ! command -v isohybrid >/dev/null 2>&1; then
