@@ -1880,9 +1880,13 @@ FEDORA_VERSION="${version}"
 log "Installing lorax and livecd-tools..."
 dnf install -y lorax livecd-tools pykickstart
 
-# ── User password (required) ──────────────────────────────────
-# Set LORAX_USER_PASSWORD before running to define the default user password.
-: "\${LORAX_USER_PASSWORD:?Set LORAX_USER_PASSWORD to the desired default user password before running this script.}"
+# ── User password ─────────────────────────────────────────────
+# Set LORAX_USER_PASSWORD before running; defaults to "fedora" if omitted.
+# WARNING: default credentials are insecure for production images.
+: "\${LORAX_USER_PASSWORD:=fedora}"
+if [ "\${LORAX_USER_PASSWORD}" = "fedora" ]; then
+  log "WARNING: Using default Fedora live user password ('fedora'). Set LORAX_USER_PASSWORD to override."
+fi
 USER_PASSWORD_HASH=\$(openssl passwd -6 "\${LORAX_USER_PASSWORD}")
 
 # ── Kickstart file ─────────────────────────────────────────────
