@@ -188,7 +188,7 @@ sync
 | `This script must be run as root` error | Script was not invoked with root privileges | Re-run with `sudo ./build-MyDistro.sh` (or `sudo ./build-MyDistro.sh /dev/sdX` for `alarm-rpi`) |
 | `debootstrap` fails with `mknod ... Operation not permitted` or says the target is mounted with `noexec`/`nodev` | `BUILD_DIR` is on a restricted filesystem, commonly `/tmp` | Re-run with `sudo BUILD_DIR=/var/tmp/distro-build ./build-MyDistro.sh` or another build path on a `dev,exec` filesystem |
 | `console-setup`, `ubiquity`, or `ubiquity-frontend-gtk` fails during an Ubuntu build | An older generated script installed Ubiquity into the build container before live-build configured the image | Regenerate the build script with the latest wizard, then retry |
-| `lb config: unrecognized option '--bootloaders'` | The distro's `live-build` package expects the older singular `--bootloader` option | Regenerate the build script with the latest wizard, then retry |
+| `lb config: unrecognized option '--bootloaders'` | An older generated script used a live-build option not accepted by Ubuntu's package | Regenerate the build script with the latest wizard, then retry |
 | Build fails partway through | Network issue or package mirror outage | Check `build.log` in `OUTPUT_DIR`, retry after a few minutes |
 | No ISO/IMG in output directory | Build error before the copy step | Review `build.log` for the first `ERROR` line |
 | Slow build on first run | Container image being pulled | Subsequent runs reuse the cached image and are faster |
