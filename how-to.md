@@ -11,6 +11,9 @@ The one-liner encodes the full script as base64 and runs it in a single step —
 echo '<base64-encoded-script>' | base64 -d > build-MyDistro.sh && chmod +x build-MyDistro.sh && sudo ./build-MyDistro.sh
 ```
 
+> ⚠️ **Security tip:** Before running any script as root, review its contents first.  
+> Decode and inspect the command with `echo '<base64>' | base64 -d | less` before executing it.
+
 This guide covers everything you need to turn either approach into a bootable ISO or SD-card image.
 
 ---

@@ -2215,12 +2215,14 @@ function downloadScript() {
 // The command mirrors the "curl | bash" idiom without requiring a hosted URL:
 //   curl -fsSL <URL> -o script.sh && chmod +x script.sh && sudo ./script.sh
 // is equivalent to:
-//   echo '<base64>' | base64 -d -o script.sh && chmod +x script.sh && sudo ./script.sh
+//   echo '<base64>' | base64 -d > script.sh && chmod +x script.sh && sudo ./script.sh
 function buildRunCommand() {
   const script = generateScript();
   const safeName = safeScriptName();
-  // Encode script to base64 (handles any UTF-8 content)
-  const b64 = btoa(unescape(encodeURIComponent(script)));
+  // Encode script to base64; TextEncoder handles any UTF-8 content without
+  // the deprecated unescape() + encodeURIComponent() workaround.
+  const bytes = new TextEncoder().encode(script);
+  const b64 = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(''));
   return `echo '${b64}' | base64 -d > build-${safeName}.sh && chmod +x build-${safeName}.sh && sudo ./build-${safeName}.sh`;
 }
 
