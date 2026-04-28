@@ -1659,7 +1659,7 @@ lb config \\
   --mirror-bootstrap "${mirror}" \\
   --mirror-binary "${mirror}" \\
 ${ubuntuMirrorArgs}  --mirror-chroot "${mirror}" \\
-  --binary-images iso-hybrid \\
+  --binary-images iso \\
   --bootloader "grub-efi,syslinux" \\
   --debian-installer false \\
   --apt-recommends false \\
