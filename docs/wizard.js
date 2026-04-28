@@ -560,7 +560,9 @@ function updateNav() {
   const nextBtn = document.getElementById('btn-next');
   const cancelBtn = document.getElementById('btn-cancel');
 
-  prevBtn.disabled = currentStepIndex === 0;
+  if (prevBtn) {
+    prevBtn.disabled = currentStepIndex === 0;
+  }
 
   if (cancelBtn) {
     cancelBtn.style.display = currentStepIndex > 0 ? '' : 'none';
@@ -967,7 +969,7 @@ function renderStepSummary() {
     rows += `<tr><td>config.txt ${editLink('services')}</td><td>${esc(flagSummary)}</td></tr>`;
   }
 
-  const dlSafeName = (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+  const dlSafeName = safeScriptName();
 
   let html = `<h2 class="step-heading">Summary &amp; Download</h2>
     <p class="step-sub">Review your choices, then download the generated build script.</p>
@@ -1182,8 +1184,7 @@ function attachStepListeners(stepId) {
           const nameInput = document.getElementById('distro-name');
           if (nameInput) {
             nameInput.addEventListener('input', () => {
-              const safe = (nameInput.value.trim() || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
-              dlBtn.textContent = `⬇ Download build-${safe}.sh`;
+              dlBtn.textContent = `⬇ Download build-${safeScriptName()}.sh`;
             });
           }
         }
@@ -2133,9 +2134,13 @@ sha256sum "\${OUTPUT_DIR}"/*.iso > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256" 2
 }
 
 // ── Download ──────────────────────────────────────────────────
+function safeScriptName() {
+  return (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+}
+
 function downloadScript() {
   const script = generateScript();
-  const safeName = (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
+  const safeName = safeScriptName();
   const blob = new Blob([script], { type: 'text/x-shellscript' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
