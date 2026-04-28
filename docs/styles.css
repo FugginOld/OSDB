@@ -269,6 +269,39 @@ main {
   margin-bottom: 1.5rem;
 }
 
+/* ── Base release filter pills ────────────────────────────── */
+.base-filter-bar {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 0.28rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text-muted);
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  line-height: 1.4;
+}
+
+.filter-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.filter-pill.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
 /* ── Warning banner ───────────────────────────────────────── */
 .warn-banner {
   background: var(--warn-bg);

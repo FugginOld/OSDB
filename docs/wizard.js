@@ -36,7 +36,7 @@ const BASES = {
   },
   'debian-12': {
     label: 'Debian 12 Bookworm', family: 'debian', suite: 'bookworm',
-    track: 'stable', builder: 'live-build', pkg: 'apt',
+    track: 'oldstable', builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free non-free-firmware',
     des: ['gnome','kde','cinnamon','xfce','lxqt','mate','none'],
@@ -45,14 +45,14 @@ const BASES = {
     serviceManager: 'systemd',
   },
   'debian-13': {
-    label: 'Debian 13 Trixie (testing)', family: 'debian', suite: 'trixie',
-    track: 'beta', builder: 'live-build', pkg: 'apt',
+    label: 'Debian 13 Trixie', family: 'debian', suite: 'trixie',
+    track: 'stable', builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free non-free-firmware',
     des: ['gnome','kde','cinnamon','xfce','lxqt','mate','none'],
     installers: ['calamares','none'],
     repoTypes: ['official','custom'],
-    serviceManager: 'systemd', unstable: true,
+    serviceManager: 'systemd',
   },
 
   // ── Ubuntu ──────────────────────────────────────────────────
@@ -97,14 +97,14 @@ const BASES = {
     serviceManager: 'systemd',
   },
   'ubuntu-2504': {
-    label: 'Ubuntu 25.04 Plucky (beta)', family: 'ubuntu', suite: 'plucky',
-    track: 'beta', builder: 'live-build', pkg: 'apt',
+    label: 'Ubuntu 25.04 Plucky', family: 'ubuntu', suite: 'plucky',
+    track: 'current', builder: 'live-build', pkg: 'apt',
     mirror: 'http://archive.ubuntu.com/ubuntu',
     areas: 'main restricted universe multiverse',
     des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','none'],
     installers: ['calamares','ubiquity','none'],
     repoTypes: ['official','ppa','custom'],
-    serviceManager: 'systemd', unstable: true,
+    serviceManager: 'systemd',
   },
 
   // ── Arch ────────────────────────────────────────────────────
@@ -153,12 +153,12 @@ const BASES = {
     serviceManager: 'systemd',
   },
   'fedora-42': {
-    label: 'Fedora 42 (beta)', family: 'fedora', suite: 'f42',
-    track: 'beta', builder: 'lorax', pkg: 'dnf',
+    label: 'Fedora 42', family: 'fedora', suite: 'f42',
+    track: 'current', builder: 'lorax', pkg: 'dnf',
     des: ['gnome','kde','xfce','cosmic','none'],
     installers: ['anaconda','none'],
     repoTypes: ['official','copr'],
-    serviceManager: 'systemd', unstable: true,
+    serviceManager: 'systemd',
   },
 
   // ── Raspberry Pi OS ─────────────────────────────────────────
@@ -454,6 +454,7 @@ let state = {
 };
 
 let currentStepIndex = 0;
+let baseFilter = 'stable'; // 'stable' | 'all'
 
 // ============================================================
 // STEP COMPUTATION
@@ -679,11 +680,19 @@ function renderCurrentStep() {
 
 // ── Step 1: Base ─────────────────────────────────────────────
 function renderStepBase() {
+  const stableActive = baseFilter === 'stable';
   let html = `<h2 class="step-heading">Step 1 — Choose Base System</h2>
-    <p class="step-sub">Select the Linux distribution and build toolchain. All subsequent options are derived from this choice.</p>`;
+    <p class="step-sub">Select the Linux distribution and build toolchain. All subsequent options are derived from this choice.</p>
+    <div class="base-filter-bar" role="group" aria-label="Release filter">
+      <button class="filter-pill${stableActive ? ' active' : ''}" data-base-filter="stable">Stable Releases</button>
+      <button class="filter-pill${!stableActive ? ' active' : ''}" data-base-filter="all">All (incl. Beta / Testing)</button>
+    </div>`;
 
   for (const group of FAMILY_GROUPS) {
-    const keys = group.keys.filter(k => BASES[k]);
+    let keys = group.keys.filter(k => BASES[k]);
+    if (stableActive) {
+      keys = keys.filter(k => !BASES[k].unstable);
+    }
     if (!keys.length) continue;
     html += `<div class="family-group">
       <div class="family-header">${esc(group.label)}</div>
@@ -1048,6 +1057,13 @@ function attachStepListeners(stepId) {
       const activateBase = (el) => { onBaseSelected(el.dataset.base); };
       baseTiles.forEach(el => el.addEventListener('click', () => activateBase(el)));
       attachTileKeys(baseTiles, activateBase);
+
+      container.querySelectorAll('[data-base-filter]').forEach(pill => {
+        pill.addEventListener('click', () => {
+          baseFilter = pill.dataset.baseFilter;
+          renderCurrentStep();
+        });
+      });
       break;
     }
 
