@@ -92,13 +92,17 @@ cd "${LB_DIR}"
 
 # ── lb config ─────────────────────────────────────────────────
 log "Configuring live-build..."
+BOOTLOADER_OPT="--bootloaders"
+if ! lb config --help 2>&1 | grep -q -- '--bootloaders'; then
+  BOOTLOADER_OPT="--bootloader"
+fi
 lb config \
   --distribution "bookworm" \
   --archive-areas "main contrib non-free non-free-firmware" \
   --mirror-bootstrap "http://deb.debian.org/debian" \
   --mirror-binary "http://deb.debian.org/debian" \
   --binary-images iso-hybrid \
-  --bootloaders "grub-efi,syslinux" \
+  "${BOOTLOADER_OPT}" "grub-efi,syslinux" \
   --debian-installer none \
   --apt-recommends false \
   --memtest none
