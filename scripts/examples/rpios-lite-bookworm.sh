@@ -6,9 +6,19 @@ set -euo pipefail
 DISTRO_NAME="MyDistro"
 BUILD_DIR="${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="${OUTPUT_DIR:-/tmp/distro-output}"
+LOG_FILE="${OUTPUT_DIR}/build.log"
 
 log() { printf '\033[1;34m[%s]\033[0m %s\n' "$(date +%T)" "$*"; }
 die() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
+start_logging() {
+  mkdir -p "${OUTPUT_DIR}"
+  : > "${LOG_FILE}"
+  exec > >(tee -a "${LOG_FILE}") 2>&1
+  log "Logging to ${LOG_FILE}"
+  log "Build directory: ${BUILD_DIR}"
+  log "Output directory: ${OUTPUT_DIR}"
+  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT
+}
 
 # ── Container self-re-launch ──────────────────────────────────
 # If this script is not already running inside a container it
@@ -47,6 +57,7 @@ fi
 # Privileged operations (apt-get, build.sh) use sudo explicitly.
 
 mkdir -p "${BUILD_DIR}" "${OUTPUT_DIR}"
+start_logging
 
 PIGEN_DIR="${BUILD_DIR}/pi-gen"
 
@@ -116,7 +127,7 @@ chmod +x stage-custom/03-run/01-run.sh
 
 # ── Build ──────────────────────────────────────────────────────
 log "Starting pi-gen build (this may take 30–90 minutes)..."
-sudo ./build.sh 2>&1 | tee "${OUTPUT_DIR}/build.log"
+sudo ./build.sh
 
 LATEST_XZ=$(find deploy -name '*.img.xz' | head -1)
 LATEST_IMG=$(find deploy -name '*.img' -not -name '*.img.xz' | head -1)

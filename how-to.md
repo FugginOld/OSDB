@@ -120,14 +120,14 @@ Output artifacts differ by builder:
 | Builder | Output files | Checksum file | Build log |
 |---------|-------------|---------------|-----------|
 | **live-build** (Debian / Ubuntu) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
-| **archiso** (Arch Linux) | ISO named by `mkarchiso` (e.g. `archlinux-YYYY.MM.DD-x86_64.iso`) | `MyDistro.iso.sha256` | *(none)* |
-| **lorax** (Fedora) | `MyDistro.iso` | `MyDistro.iso.sha256` | *(none)* |
+| **archiso** (Arch Linux) | ISO named by `mkarchiso` (e.g. `archlinux-YYYY.MM.DD-x86_64.iso`) | `MyDistro.iso.sha256` | `build.log` |
+| **lorax** (Fedora) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
 | **pi-gen** (Raspberry Pi OS) | `MyDistro.img` and/or `MyDistro.img.xz` | *(none)* | `build.log` |
-| **ubuntu-rpi** (Ubuntu for Pi) | `MyDistro.img.xz` | `MyDistro.img.xz.sha256` | *(none)* |
-| **kiwi** (openSUSE) | ISO file(s) in `OUTPUT_DIR` | `MyDistro.iso.sha256` | *(none)* |
-| **alarm-rpi** (Arch ARM for Pi) | *(written directly to SD card)* | *(none)* | *(none)* |
+| **ubuntu-rpi** (Ubuntu for Pi) | `MyDistro.img.xz` | `MyDistro.img.xz.sha256` | `build.log` |
+| **kiwi** (openSUSE) | ISO file(s) in `OUTPUT_DIR` | `MyDistro.iso.sha256` | `build.log` |
+| **alarm-rpi** (Arch ARM for Pi) | *(written directly to SD card)* | *(none)* | `build.log` |
 
-All files are placed in `OUTPUT_DIR` (default: `/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device.
+All files are placed in `OUTPUT_DIR` (default: `/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device. The generated script streams build output to the terminal and saves the same output to `build.log`.
 
 ---
 

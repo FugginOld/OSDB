@@ -6,9 +6,19 @@ set -euo pipefail
 DISTRO_NAME="MyDistro"
 BUILD_DIR="${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="${OUTPUT_DIR:-/tmp/distro-output}"
+LOG_FILE="${OUTPUT_DIR}/build.log"
 
 log() { printf '\033[1;34m[%s]\033[0m %s\n' "$(date +%T)" "$*"; }
 die() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
+start_logging() {
+  mkdir -p "${OUTPUT_DIR}"
+  : > "${LOG_FILE}"
+  exec > >(tee -a "${LOG_FILE}") 2>&1
+  log "Logging to ${LOG_FILE}"
+  log "Build directory: ${BUILD_DIR}"
+  log "Output directory: ${OUTPUT_DIR}"
+  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT
+}
 
 # ── Container self-re-launch ──────────────────────────────────
 # If this script is not already running inside a container it
@@ -48,6 +58,7 @@ if [ "${EUID:-$(id -u)}" -ne 0 ]; then
 fi
 
 mkdir -p "${BUILD_DIR}" "${OUTPUT_DIR}"
+start_logging
 
 LB_DIR="${BUILD_DIR}/lb"
 
@@ -163,7 +174,7 @@ USERS_EOF
 
 # ── Build ──────────────────────────────────────────────────────
 log "Starting live-build (this may take 30–60 minutes)..."
-lb build 2>&1 | tee "${OUTPUT_DIR}/build.log"
+lb build
 
 find . -maxdepth 1 -name '*.iso' -exec mv {} "${OUTPUT_DIR}/${DISTRO_NAME}.iso" \;
 
