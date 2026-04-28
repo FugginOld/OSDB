@@ -17,10 +17,10 @@ start_logging() {
   log "Logging to ${LOG_FILE}"
   log "Build directory: ${BUILD_DIR}"
   log "Output directory: ${OUTPUT_DIR}"
-  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT
+  trap 'status=$?; if [ "$status" -ne 0 ]; then log "Build failed with exit code $status. See ${LOG_FILE}"; else log "Build log saved to ${LOG_FILE}"; fi' EXIT # shellcheck disable=SC2154
 }
 
-# ── Container self-re-launch ──────────────────────────────────
+# ── Container self-re-launch ─────────────────────────────────────────────
 # If this script is not already running inside a container it
 # re-execs itself inside the correct build environment using
 # Docker or Podman, so it works on any host OS.  The finished ISO
@@ -62,16 +62,16 @@ start_logging
 PROFILE_DIR="${BUILD_DIR}/profile"
 WORK_DIR="${BUILD_DIR}/work"
 
-# ── Prerequisites ─────────────────────────────────────────────
+# ── Prerequisites ────────────────────────────────────────────────────────
 log "Installing archiso..."
 pacman -Syu --noconfirm --needed archiso calamares
 
-# ── Copy baseline profile ──────────────────────────────────────
+# ── Copy baseline profile ────────────────────────────────────────────────
 log "Setting up archiso profile..."
 cp -r /usr/share/archiso/configs/releng "${PROFILE_DIR}"
 cd "${PROFILE_DIR}"
 
-# ── Package list ──────────────────────────────────────────────
+# ── Package list ─────────────────────────────────────────────────────────
 log "Writing package list..."
 cat > packages.x86_64 << 'PKGS_EOF'
 base
@@ -87,7 +87,7 @@ flatpak
 calamares
 PKGS_EOF
 
-# ── Airootfs overlay ───────────────────────────────────────────
+# ── Airootfs overlay ─────────────────────────────────────────────────────
 log "Writing airootfs overlay..."
 mkdir -p airootfs/etc/systemd/system/multi-user.target.wants
 ln -sf "/usr/lib/systemd/system/NetworkManager.service" \
@@ -95,7 +95,7 @@ ln -sf "/usr/lib/systemd/system/NetworkManager.service" \
 ln -sf "/usr/lib/systemd/system/sddm.service" \
   "airootfs/etc/systemd/system/multi-user.target.wants/sddm.service"
 
-# ── Calamares config ──────────────────────────────────────────
+# ── Calamares config ─────────────────────────────────────────────────────
 mkdir -p airootfs/etc/calamares
 cat > airootfs/etc/calamares/settings.conf << 'CALA_EOF'
 ---
@@ -109,7 +109,7 @@ sequence:
 branding: MyDistro
 CALA_EOF
 
-# ── Build ──────────────────────────────────────────────────────
+# ── Build ────────────────────────────────────────────────────────────────
 log "Building Arch ISO (this may take 20–40 minutes)..."
 mkarchiso -v -w "${WORK_DIR}" -o "${OUTPUT_DIR}" "${PROFILE_DIR}"
 
