@@ -27,7 +27,7 @@ Prerequisites depend on the builder selected in the wizard:
 These scripts are fully self-contained: if they detect they are **not** already running inside a container they will automatically re-launch themselves inside the correct build environment via **Docker** or **Podman**. You only need one of these installed on your host machine.
 
 | Tool | Install guide |
-|------|--------------|
+| --- | --- |
 | Docker | <https://docs.docker.com/engine/install/> |
 | Podman | <https://podman.io/docs/installation> |
 
@@ -72,7 +72,7 @@ The script will:
 4. Apply all your wizard selections (desktop environment, packages, services, installer).
 5. Produce a finished ISO or IMG file.
 
-### Arch Linux ARM for Raspberry Pi (alarm-rpi)
+### Run Arch Linux ARM for Raspberry Pi (alarm-rpi)
 
 Pass the SD card device path as the first argument:
 
@@ -85,7 +85,7 @@ Replace `/dev/sdX` with your actual SD card device (check with `lsblk`). The scr
 Build times vary by base distribution:
 
 | Base | Typical time |
-|------|-------------|
+| --- | --- |
 | Debian / Ubuntu (live-build) | 30 – 60 minutes |
 | Arch Linux (archiso) | 20 – 40 minutes |
 | Fedora (lorax) | 30 – 60 minutes |
@@ -118,7 +118,7 @@ For Debian and Ubuntu live-build images, choose a `BUILD_DIR` on a filesystem mo
 Output artifacts differ by builder:
 
 | Builder | Output files | Checksum file | Build log |
-|---------|-------------|---------------|-----------|
+| --- | --- | --- | --- |
 | **live-build** (Debian / Ubuntu) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
 | **archiso** (Arch Linux) | ISO named by `mkarchiso` (e.g. `archlinux-YYYY.MM.DD-x86_64.iso`) | `MyDistro.iso.sha256` | `build.log` |
 | **lorax** (Fedora) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
@@ -141,7 +141,7 @@ sha256sum -c MyDistro.iso.sha256
 
 A successful result looks like:
 
-```
+```text
 MyDistro.iso: OK
 ```
 
@@ -183,10 +183,11 @@ sync
 ## 8. Troubleshooting
 
 | Symptom | Likely cause | Fix |
-|---------|-------------|-----|
+| --- | --- | --- |
 | `Docker or Podman is required…` error | Neither container runtime is installed | Install [Docker](https://docs.docker.com/engine/install/) or [Podman](https://podman.io/docs/installation) |
 | `This script must be run as root` error | Script was not invoked with root privileges | Re-run with `sudo ./build-MyDistro.sh` (or `sudo ./build-MyDistro.sh /dev/sdX` for `alarm-rpi`) |
 | `debootstrap` fails with `mknod ... Operation not permitted` or says the target is mounted with `noexec`/`nodev` | `BUILD_DIR` is on a restricted filesystem, commonly `/tmp` | Re-run with `sudo BUILD_DIR=/var/tmp/distro-build ./build-MyDistro.sh` or another build path on a `dev,exec` filesystem |
+| `console-setup`, `ubiquity`, or `ubiquity-frontend-gtk` fails during an Ubuntu build | An older generated script installed Ubiquity into the build container before live-build configured the image | Regenerate the build script with the latest wizard, then retry |
 | Build fails partway through | Network issue or package mirror outage | Check `build.log` in `OUTPUT_DIR`, retry after a few minutes |
 | No ISO/IMG in output directory | Build error before the copy step | Review `build.log` for the first `ERROR` line |
 | Slow build on first run | Container image being pulled | Subsequent runs reuse the cached image and are faster |

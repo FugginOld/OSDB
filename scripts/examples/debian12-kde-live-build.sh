@@ -85,7 +85,7 @@ ensure_live_build_workdir "${BUILD_DIR}"
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing live-build..."
 apt-get update -qq
-apt-get install -y live-build curl ca-certificates calamares
+DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates
 
 mkdir -p "${LB_DIR}"
 cd "${LB_DIR}"
@@ -115,12 +115,16 @@ log "Writing debconf preseed..."
 mkdir -p config/preseed
 cat > config/preseed/live.cfg.chroot << 'PRESEED_EOF'
 console-setup console-setup/charmap47 select UTF-8
-console-setup console-setup/codeset47 select # Guess optimal character set
+console-setup console-setup/codeset47 select Guess optimal character set
 console-setup console-setup/fontface47 select Fixed
 console-setup console-setup/fontsize-fb47 select 8x16
 console-setup console-setup/store_defaults_in_debconf_db boolean true
+keyboard-configuration keyboard-configuration/modelcode string pc105
+keyboard-configuration keyboard-configuration/layout select English (US)
 keyboard-configuration keyboard-configuration/layoutcode string us
 keyboard-configuration keyboard-configuration/variant select
+keyboard-configuration keyboard-configuration/variantcode string
+keyboard-configuration keyboard-configuration/xkb-keymap select us
 PRESEED_EOF
 
 # ── Package lists ──────────────────────────────────────────────
