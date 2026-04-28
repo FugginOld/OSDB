@@ -1,6 +1,17 @@
 # How to Run Your Generated Build Script
 
-After using the [OSDB wizard](https://fugginold.github.io/OSDB/) to configure your custom Linux distribution, you will download a script named **`build-<DistroName>.sh`** (e.g. `build-MyDistro.sh`). This guide walks you through everything you need to do to turn that script into a bootable ISO or SD-card image.
+After using the [OSDB wizard](https://fugginold.github.io/OSDB/) to configure your custom Linux distribution, you can either:
+
+- **Download** the script (named **`build-<DistroName>.sh`**, e.g. `build-MyDistro.sh`) using the **⬇ Download** button, or  
+- **Copy the ⚡ One-liner run command** from the summary page and paste it directly into your terminal.
+
+The one-liner encodes the full script as base64 and runs it in a single step — no manual download required:
+
+```bash
+echo '<base64-encoded-script>' | base64 -d > build-MyDistro.sh && chmod +x build-MyDistro.sh && sudo ./build-MyDistro.sh
+```
+
+This guide covers everything you need to turn either approach into a bootable ISO or SD-card image.
 
 ---
 
@@ -29,6 +40,8 @@ This builder writes directly to an SD card — **no container runtime is needed*
 ---
 
 ## 2. Make the Script Executable
+
+> **Shortcut:** If you copied the **⚡ One-liner run command** from the summary page, skip this section — the command handles `chmod +x` and execution automatically.
 
 Open a terminal, navigate to where you saved the script, and grant it execute permission (replace `MyDistro` with the name you entered in the wizard):
 
