@@ -336,7 +336,7 @@ const DE_SCREENSHOTS = {
   lxde:     'assets/de-screenshots/lxde.svg',
   mate:     'assets/de-screenshots/mate.svg',
   budgie:   'assets/de-screenshots/budgie.svg',
-  qtile:    'https://static.linuxblog.io/wp-content/uploads/2026/04/qtile-wm-screenshot-868x488.png',
+  qtile:    'assets/de-screenshots/qtile.png',
   i3:       'assets/de-screenshots/i3.svg',
   sway:     'assets/de-screenshots/sway.svg',
   labwc:    'assets/de-screenshots/labwc.svg',
