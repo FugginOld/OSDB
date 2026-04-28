@@ -1469,6 +1469,21 @@ function generateLiveBuild(base, name) {
   const suite = base.suite;
   const services = enabledServicesList();
   const containerImage = base.family === 'ubuntu' ? `ubuntu:${suite}` : `debian:${suite}`;
+  const ubuntuMirrorArgs = base.family === 'ubuntu'
+    ? `  --mode ubuntu \\
+  --parent-mirror-bootstrap "${mirror}" \\
+  --parent-mirror-chroot "${mirror}" \\
+  --parent-mirror-binary "${mirror}" \\
+  --parent-mirror-chroot-security "http://security.ubuntu.com/ubuntu" \\
+  --parent-mirror-binary-security "http://security.ubuntu.com/ubuntu" \\
+  --parent-mirror-chroot-updates "${mirror}" \\
+  --parent-mirror-binary-updates "${mirror}" \\
+  --mirror-chroot-security "http://security.ubuntu.com/ubuntu" \\
+  --mirror-binary-security "http://security.ubuntu.com/ubuntu" \\
+  --mirror-chroot-updates "${mirror}" \\
+  --mirror-binary-updates "${mirror}" \\
+`
+    : '';
 
   const calamaresBlock = state.installer === 'calamares' ? `
 # ── Calamares installer config ────────────────────────────────
@@ -1571,6 +1586,7 @@ lb config \\
   --archive-areas "${areas}" \\
   --mirror-bootstrap "${mirror}" \\
   --mirror-binary "${mirror}" \\
+${ubuntuMirrorArgs}  --mirror-chroot "${mirror}" \\
   --binary-images iso-hybrid \\
   --bootloader "grub-efi,syslinux" \\
   --debian-installer none \\
