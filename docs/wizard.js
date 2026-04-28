@@ -1632,7 +1632,21 @@ ${ubiquityNote}
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing live-build..."
 apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates syslinux-utils
+DEBIAN_FRONTEND=noninteractive apt-get install -y live-build curl ca-certificates
+DEBIAN_FRONTEND=noninteractive apt-get install -y syslinux-utils || DEBIAN_FRONTEND=noninteractive apt-get install -y syslinux isolinux
+
+if ! command -v isohybrid >/dev/null 2>&1; then
+  for cand in /usr/lib/ISOLINUX/isohybrid /usr/lib/syslinux/isohybrid; do
+    if [ -x "$cand" ]; then
+      ln -sf "$cand" /usr/local/bin/isohybrid
+      break
+    fi
+  done
+fi
+
+if ! command -v isohybrid >/dev/null 2>&1; then
+  die "isohybrid is required for iso-hybrid output but is not installed. Install syslinux-utils (or syslinux/isolinux) in the build container."
+fi
 
 mkdir -p "\${LB_DIR}"
 cd "\${LB_DIR}"
