@@ -1433,15 +1433,15 @@ function autologinHook(base) {
 
 function serviceEnableBlock(units) {
   if (!units) return '';
-  const enables = units.split(' ').filter(Boolean).map(u => `enable_if_exists "${u}"`).join('\n');
-  return `enable_if_exists() {
-  if systemctl list-unit-files "\$1" 2>/dev/null | grep -q "^\$1"; then
-    systemctl enable "\$1"
-  else
-    echo "Skipping \$1 (unit not found — package may not be installed)"
-  fi
-}
-${enables}`;
+  return units
+    .split(' ')
+    .filter(Boolean)
+    .map(u => `if systemctl list-unit-files "${u}" 2>/dev/null | grep -q "^${u}"; then
+  systemctl enable "${u}"
+else
+  echo "Skipping ${u} (unit not found - package may not be installed)"
+fi`)
+    .join('\n');
 }
 
 // ─ Docker/Podman container self-re-launch preamble ───────────
@@ -2503,5 +2503,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render
   renderAll();
 });
+
 
 
