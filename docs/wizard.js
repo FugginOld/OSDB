@@ -1433,10 +1433,10 @@ function serviceEnableBlock(units) {
   if (!units) return '';
   const enables = units.split(' ').filter(Boolean).map(u => `enable_if_exists "${u}"`).join('\n');
   return `enable_if_exists() {
-  if systemctl list-unit-files "$1" 2>/dev/null | grep -q "^$1"; then
-    systemctl enable "$1"
+  if systemctl list-unit-files "\$1" 2>/dev/null | grep -q "^\$1"; then
+    systemctl enable "\$1"
   else
-    echo "Skipping $1 (unit not found — package may not be installed)"
+    echo "Skipping \$1 (unit not found — package may not be installed)"
   fi
 }
 ${enables}`;
@@ -2498,4 +2498,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render
   renderAll();
 });
+
 
