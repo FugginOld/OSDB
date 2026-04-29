@@ -1975,7 +1975,7 @@ KS_EOF
 
 # ── Build ──────────────────────────────────────────────────────
 log "Running lorax (this may take 30–60 minutes)..."
-mkdir -p "\${LORAX_OUT}"
+rm -rf "\${LORAX_OUT}"
 lorax \\
   --product "${name}" \\
   --version "\${FEDORA_VERSION}" \\
