@@ -1930,6 +1930,19 @@ FEDORA_VERSION="${version}"
 log "Installing lorax and livecd-tools..."
 dnf install -y lorax livecd-tools pykickstart openssl
 
+# ── Loop device preflight (required by lorax/mkefiboot) ──────
+ensure_loop_devices() {
+  if [ ! -e /dev/loop-control ]; then
+    mknod /dev/loop-control c 10 237 || true
+  fi
+  for i in $(seq 0 7); do
+    if [ ! -e "/dev/loop${i}" ]; then
+      mknod "/dev/loop${i}" b 7 "${i}" || true
+    fi
+  done
+}
+ensure_loop_devices
+
 # ── User password ─────────────────────────────────────────────
 # Set LORAX_USER_PASSWORD before running; defaults to "fedora" if omitted.
 # WARNING: default credentials are insecure for production images.
