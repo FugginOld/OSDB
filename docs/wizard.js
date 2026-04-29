@@ -1967,6 +1967,7 @@ bootloader --location=mbr
 zerombr
 clearpart --all --initlabel
 autopart
+repo --name=fedora --baseurl=https://download.fedoraproject.org/pub/fedora/linux/releases/${version}/Everything/x86_64/os/
 
 %packages
 @core
