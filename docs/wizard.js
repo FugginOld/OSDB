@@ -1976,10 +1976,6 @@ ${userPkgs.split(' ').filter(Boolean).join('\n')}
 ${servicePkgs.split(' ').filter(Boolean).join('\n')}
 %end
 
-%services
-${services.split(' ').filter(Boolean).map(u => `enabled: ${u}`).join('\n')}
-%end
-
 %post
 # Custom post-install script
 ${serviceEnableBlock(services)}
