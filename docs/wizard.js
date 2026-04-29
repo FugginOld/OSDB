@@ -1936,8 +1936,8 @@ ensure_loop_devices() {
     mknod /dev/loop-control c 10 237 || true
   fi
   for i in $(seq 0 7); do
-    if [ ! -e "/dev/loop${i}" ]; then
-      mknod "/dev/loop${i}" b 7 "${i}" || true
+    if [ ! -e "/dev/loop\${i}" ]; then
+      mknod "/dev/loop\${i}" b 7 "\${i}" || true
     fi
   done
 }
