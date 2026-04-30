@@ -1472,13 +1472,15 @@ if [ ! -f /.dockerenv ] && [ -z "\${container:-}" ]; then
   [ -n "\${_SCRIPT_SOURCE}" ] || die "Unable to resolve script path for container re-exec"
   _SCRIPT_PATH="\$(realpath "\${_SCRIPT_SOURCE}")" || die "Unable to canonicalize script path: \${_SCRIPT_SOURCE}"
   log "Re-launching inside \${CONTAINER_IMAGE} via \${_RUNTIME}..."
-  mkdir -p "\${OUTPUT_DIR}"
+  mkdir -p "\${BUILD_DIR}" "\${OUTPUT_DIR}"
   exec "\${_RUNTIME}" run --rm --privileged \\
+    -v "\$(realpath "\${BUILD_DIR}"):/work" \\
     -v "\$(realpath "\${OUTPUT_DIR}"):/out" \\
     -v "\${_SCRIPT_PATH}:/build.sh:ro" \\
-    -e BUILD_DIR=/var/tmp/distro-build \\
+    -e BUILD_DIR=/work \\
     -e OUTPUT_DIR=/out \\
     -e TMPDIR=/var/tmp \\
+    -e HOST_BUILD_DIR="\$(realpath "\${BUILD_DIR}")" \\
     -e HOST_OUTPUT_DIR="\$(realpath "\${OUTPUT_DIR}")" \\
     "\${CONTAINER_IMAGE}" bash /build.sh
 fi
@@ -1502,8 +1504,10 @@ BUILD_DIR="\${BUILD_DIR:-/var/tmp/distro-build}"
 OUTPUT_DIR="\${OUTPUT_DIR:-/var/tmp/distro-output}"
 TMPDIR="\${TMPDIR:-/var/tmp}"
 HOST_OUTPUT_DIR="\${HOST_OUTPUT_DIR:-}"
+HOST_BUILD_DIR="\${HOST_BUILD_DIR:-}"
 LOG_FILE="\${OUTPUT_DIR}/build.log"
 DISPLAY_OUTPUT_DIR=""
+DISPLAY_BUILD_DIR=""
 DISPLAY_LOG_FILE=""
 CLEANUP_ON_FAILURE="\${CLEANUP_ON_FAILURE:-true}"
 BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
@@ -1554,7 +1558,7 @@ start_logging() {
   : > "\${LOG_FILE}"
   exec > >(tee -a "\${LOG_FILE}") 2>&1
   log "Logging to \${DISPLAY_LOG_FILE}"
-  log "Build directory: \${BUILD_DIR}"
+  log "Build directory: \${DISPLAY_BUILD_DIR}"
   log "Output directory: \${DISPLAY_OUTPUT_DIR}"
   log "Temp directory: \${TMPDIR}"
   log "Cleanup on failure: \${CLEANUP_ON_FAILURE}"
@@ -1576,6 +1580,11 @@ if [ -n "\${HOST_OUTPUT_DIR}" ]; then
   DISPLAY_OUTPUT_DIR="\${HOST_OUTPUT_DIR}"
 else
   DISPLAY_OUTPUT_DIR="\${OUTPUT_DIR}"
+fi
+if [ -n "\${HOST_BUILD_DIR}" ]; then
+  DISPLAY_BUILD_DIR="\${HOST_BUILD_DIR}"
+else
+  DISPLAY_BUILD_DIR="\${BUILD_DIR}"
 fi
 DISPLAY_LOG_FILE="\${DISPLAY_OUTPUT_DIR}/build.log"
 BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
