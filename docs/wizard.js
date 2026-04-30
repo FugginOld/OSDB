@@ -1478,6 +1478,7 @@ if [ ! -f /.dockerenv ] && [ -z "\${container:-}" ]; then
     -v "\${_SCRIPT_PATH}:/build.sh:ro" \\
     -e BUILD_DIR=/var/tmp/distro-build \\
     -e OUTPUT_DIR=/out \\
+    -e TMPDIR=/var/tmp \\
     -e HOST_OUTPUT_DIR="\$(realpath "\${OUTPUT_DIR}")" \\
     "\${CONTAINER_IMAGE}" bash /build.sh
 fi
@@ -1498,7 +1499,8 @@ set -euo pipefail
 
 DISTRO_NAME="${name}"
 BUILD_DIR="\${BUILD_DIR:-/var/tmp/distro-build}"
-OUTPUT_DIR="\${OUTPUT_DIR:-/tmp/distro-output}"
+OUTPUT_DIR="\${OUTPUT_DIR:-/var/tmp/distro-output}"
+TMPDIR="\${TMPDIR:-/var/tmp}"
 HOST_OUTPUT_DIR="\${HOST_OUTPUT_DIR:-}"
 LOG_FILE="\${OUTPUT_DIR}/build.log"
 DISPLAY_OUTPUT_DIR=""
@@ -1554,6 +1556,7 @@ start_logging() {
   log "Logging to \${DISPLAY_LOG_FILE}"
   log "Build directory: \${BUILD_DIR}"
   log "Output directory: \${DISPLAY_OUTPUT_DIR}"
+  log "Temp directory: \${TMPDIR}"
   log "Cleanup on failure: \${CLEANUP_ON_FAILURE}"
   trap finish_build EXIT
 }
@@ -1565,6 +1568,9 @@ fi
 mkdir -p "\${BUILD_DIR}" "\${OUTPUT_DIR}"
 BUILD_DIR="\$(cd "\${BUILD_DIR}" && pwd -P)"
 OUTPUT_DIR="\$(cd "\${OUTPUT_DIR}" && pwd -P)"
+mkdir -p "\${TMPDIR}"
+TMPDIR="\$(cd "\${TMPDIR}" && pwd -P)"
+export TMPDIR TMP="\${TMPDIR}" TEMP="\${TMPDIR}"
 LOG_FILE="\${OUTPUT_DIR}/build.log"
 if [ -n "\${HOST_OUTPUT_DIR}" ]; then
   DISPLAY_OUTPUT_DIR="\${HOST_OUTPUT_DIR}"
