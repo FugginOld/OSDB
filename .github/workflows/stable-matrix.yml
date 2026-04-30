@@ -32,6 +32,9 @@ jobs:
       - name: Regenerate stable-base test scripts
         run: node scripts/tests/generate-stable-base-tests.cjs
 
+      - name: Normalize permissions of test scripts
+        run: find scripts/tests/stable -name '*.sh' -exec chmod 644 {} +
+
       - name: Ensure generated test scripts are up to date
         run: git diff --exit-code -- scripts/tests
 
