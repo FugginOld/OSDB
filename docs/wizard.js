@@ -1917,10 +1917,6 @@ function generateLorax(base, name) {
   const version = suite.replace('f', '');
   const containerImage = `fedora:${version}`;
 
-  const ksGroups = state.de && state.de !== 'none'
-    ? `@${state.de}-desktop-environment`
-    : '';
-
   return `${scriptHeader(name, 'lorax', containerImage)}
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
@@ -1971,7 +1967,6 @@ repo --name=fedora --baseurl=https://download.fedoraproject.org/pub/fedora/linux
 
 %packages
 @core
-${ksGroups}
 ${dePackages.split(' ').filter(Boolean).join('\n')}
 ${userPkgs.split(' ').filter(Boolean).join('\n')}
 ${servicePkgs.split(' ').filter(Boolean).join('\n')}
