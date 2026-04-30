@@ -1,0 +1,39 @@
+name: Stable Base Matrix
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/wizard.js'
+      - 'scripts/tests/**'
+      - '.github/workflows/stable-matrix.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/wizard.js'
+      - 'scripts/tests/**'
+      - '.github/workflows/stable-matrix.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  stable-matrix:
+    name: Validate stable base default matrix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Regenerate stable-base test scripts
+        run: node scripts/tests/generate-stable-base-tests.cjs
+
+      - name: Ensure generated test scripts are up to date
+        run: git diff --exit-code -- scripts/tests
+
+      - name: Run stable default matrix tests
+        run: bash scripts/tests/run-stable-default-matrix.sh

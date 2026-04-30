@@ -59,11 +59,23 @@ docs/               ← GitHub Pages root (static site)
   styles.css        ← Styling (badges, cards, progress bar)
 scripts/
   examples/         ← Static reference scripts (ShellCheck CI)
+  tests/            ← Stable-base generator matrix tests
 .github/
   workflows/
     pages.yml       ← Deploy docs/ to GitHub Pages on push
     shellcheck.yml  ← Lint example scripts with ShellCheck
 ```
+
+## Test matrix
+
+Generate and run stable-base default matrix tests:
+
+```bash
+node scripts/tests/generate-stable-base-tests.cjs
+bash scripts/tests/run-stable-default-matrix.sh
+```
+
+The matrix validates, for each stable non-EOL base and each supported DE, that generated scripts include all default packages and default services. The runner prints only failures.
 
 ## Screenshots
 
@@ -93,6 +105,7 @@ python3 -m http.server 8080
 ## CI
 
 - **ShellCheck** — lints all scripts in `scripts/examples/` on every push/PR
+- **Stable Base Matrix** — regenerates and runs `scripts/tests` checks for all stable non-EOL bases/DEs, failing on any mismatch
 - **GitHub Pages** — deploys `docs/` to `https://fugginold.github.io/OSDB/` on every push to `main`
 
 ## License

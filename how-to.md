@@ -95,7 +95,7 @@ Build times vary by base distribution:
 
 ## 4. Customise Output Location (optional)
 
-By default the finished image and build logs are written to `/tmp/distro-output` on your host. Override this with the `OUTPUT_DIR` environment variable before running:
+By default the finished image and build logs are written to `/var/tmp/distro-output` on your host. Override this with the `OUTPUT_DIR` environment variable before running:
 
 ```bash
 OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
@@ -133,7 +133,7 @@ Output artifacts differ by builder:
 | **kiwi** (openSUSE) | ISO file(s) in `OUTPUT_DIR` | `MyDistro.iso.sha256` | `build.log` |
 | **alarm-rpi** (Arch ARM for Pi) | *(written directly to SD card)* | *(none)* | `build.log` |
 
-All files are placed in `OUTPUT_DIR` (default: `/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device. The generated script streams build output to the terminal and saves the same output to `build.log`.
+All files are placed in `OUTPUT_DIR` (default: `/var/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device. The generated script streams build output to the terminal and saves the same output to `build.log`.
 
 ---
 
@@ -160,7 +160,7 @@ MyDistro.iso: OK
 Replace `/dev/sdX` with your USB device (check with `lsblk`):
 
 ```bash
-sudo dd if=/tmp/distro-output/MyDistro.iso of=/dev/sdX bs=4M status=progress conv=fsync
+sudo dd if=/var/tmp/distro-output/MyDistro.iso of=/dev/sdX bs=4M status=progress conv=fsync
 sync
 ```
 
@@ -171,14 +171,14 @@ Alternatively use a graphical tool such as [Balena Etcher](https://etcher.balena
 For a plain `.img` file:
 
 ```bash
-sudo dd if=/tmp/distro-output/MyDistro.img of=/dev/sdX bs=4M status=progress conv=fsync
+sudo dd if=/var/tmp/distro-output/MyDistro.img of=/dev/sdX bs=4M status=progress conv=fsync
 sync
 ```
 
 For a compressed `.img.xz` file:
 
 ```bash
-xzcat /tmp/distro-output/MyDistro.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
+xzcat /var/tmp/distro-output/MyDistro.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 sync
 ```
 
@@ -202,7 +202,42 @@ sync
 
 ---
 
-## 9. Re-running and Cleaning Up
+## 9. Run Generator Matrix Tests
+
+OSDB now includes a generated test matrix for all **stable, non-EOL** bases.  
+Each per-base test runs one check for every DE supported by that base and validates:
+
+- default package selections
+- default service package selections
+- default service units
+
+Generate (or refresh) the tests:
+
+```bash
+node scripts/tests/generate-stable-base-tests.cjs
+```
+
+Run the whole stable matrix:
+
+```bash
+bash scripts/tests/run-stable-default-matrix.sh
+```
+
+Output behavior:
+
+- prints **nothing** when all tests pass
+- prints **only failures** when something is wrong (format: `base/de:reason`)
+- exits with non-zero status on failures
+
+You can also run a single base script:
+
+```bash
+bash scripts/tests/stable/fedora-42.sh
+```
+
+---
+
+## 10. Re-running and Cleaning Up
 
 To start a completely fresh build, remove the intermediate build directory:
 
@@ -215,7 +250,7 @@ Generated scripts do this automatically after a failed build unless `CLEANUP_ON_
 To also remove the finished images and build log from the output directory:
 
 ```bash
-rm -rf /tmp/distro-output
+rm -rf /var/tmp/distro-output
 ```
 
 To free up Docker/Podman disk space after building:
