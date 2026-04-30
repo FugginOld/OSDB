@@ -1416,6 +1416,47 @@ function dePkgs(base) {
   return (DE_PACKAGES[state.de] || {})[base.pkg] || '';
 }
 
+function estimateLoraxImageSizeMb(base, dePackages, userPkgs, servicePkgs) {
+  // Heuristic sizing for Fedora livecd-creator rootfs.
+  // We bias toward safety to avoid late transaction failures.
+  const deSizeMb = {
+    gnome: 3072,
+    kde: 3584,
+    cinnamon: 2560,
+    xfce: 2048,
+    lxqt: 2048,
+    lxde: 1792,
+    mate: 2304,
+    budgie: 2560,
+    cosmic: 3072,
+    qtile: 1536,
+    i3: 1536,
+    sway: 1536,
+    none: 1024,
+  };
+
+  const tokenCount = (s) => s.split(/\s+/).filter(Boolean).length;
+  const deId = state.de || 'none';
+  const selectedPkgCount = tokenCount(dePackages) + tokenCount(userPkgs) + tokenCount(servicePkgs);
+  const selectedServiceCount = SERVICES.filter(s => state.services[s.id]).length;
+
+  let sizeMb = 4096; // baseline Fedora live image overhead
+  sizeMb += deSizeMb[deId] || 2048;
+  sizeMb += selectedPkgCount * 96;
+  sizeMb += selectedServiceCount * 192;
+
+  // Heavy bundles that need additional headroom in practice.
+  if (/\blibreoffice\b/.test(userPkgs)) sizeMb += 1024;
+  if (/\bchromium\b/.test(userPkgs)) sizeMb += 512;
+  if (/\bfirefox\b/.test(userPkgs)) sizeMb += 256;
+
+  // Round to 512MB blocks for predictable sizing.
+  sizeMb = Math.ceil(sizeMb / 512) * 512;
+
+  // Keep safe floor/ceiling for typical builder hosts.
+  return Math.max(8192, Math.min(sizeMb, 24576));
+}
+
 function autologinHook(base) {
   const dm = DE_DM[state.de || 'none'];
   if (!dm) return '';
@@ -1477,7 +1518,7 @@ if [ ! -f /.dockerenv ] && [ -z "\${container:-}" ]; then
     -v "\$(realpath "\${BUILD_DIR}"):/work" \\
     -v "\$(realpath "\${OUTPUT_DIR}"):/out" \\
     -v "\${_SCRIPT_PATH}:/build.sh:ro" \\
-    -e BUILD_DIR=/work \\
+    -e BUILD_DIR=/work/distro-build \\
     -e OUTPUT_DIR=/out \\
     -e TMPDIR=/var/tmp \\
     -e HOST_BUILD_DIR="\$(realpath "\${BUILD_DIR}")" \\
@@ -1531,7 +1572,7 @@ cleanup_build_dir() {
   output_path="\$(cd "\$(dirname "\${OUTPUT_DIR}")" && pwd -P)/\$(basename "\${OUTPUT_DIR}")" || output_path="\${OUTPUT_DIR}"
 
   case "\${cleanup_path}" in
-    /|/tmp|/var|/var/tmp|/home|"\${HOME:-}") log "Refusing to clean unsafe BUILD_DIR: \${cleanup_path}"; return 0 ;;
+    /|/tmp|/var|/var/tmp|/home|/work|/out|"\${HOME:-}") log "Refusing to clean unsafe BUILD_DIR: \${cleanup_path}"; return 0 ;;
   esac
   if [ "\${cleanup_path}" = "\${SCRIPT_START_DIR}" ]; then
     log "Refusing to clean BUILD_DIR because it is the launch directory: \${cleanup_path}"
@@ -1542,7 +1583,7 @@ cleanup_build_dir() {
   esac
 
   log "Removing failed build workspace: \${cleanup_path}"
-  rm -rf --one-file-system -- "\${cleanup_path}"
+  rm -rf --one-file-system -- "\${cleanup_path}" || log "Cleanup skipped for busy path: \${cleanup_path}"
 }
 finish_build() {
   local status=$?
@@ -1928,6 +1969,7 @@ function generateLorax(base, name) {
   const userPkgs = enabledPkgList(base);
   const servicePkgs = enabledServicePkgList(base);
   const services = enabledServicesList();
+  const loraxImageSizeMb = estimateLoraxImageSizeMb(base, dePackages, userPkgs, servicePkgs);
   const suite = base.suite; // f40, f41 …
   const version = suite.replace('f', '');
   const containerImage = `fedora:${version}`;
@@ -1936,6 +1978,7 @@ function generateLorax(base, name) {
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
 FEDORA_VERSION="${version}"
+LORAX_IMAGE_SIZE_MB="\${LORAX_IMAGE_SIZE_MB:-${loraxImageSizeMb}}"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing lorax and livecd-tools..."
@@ -2010,6 +2053,7 @@ livecd-creator \\
   --fslabel="\${DISTRO_NAME}" \\
   --title="\${DISTRO_NAME}" \\
   --product="\${DISTRO_NAME}" \\
+  --image-size="\${LORAX_IMAGE_SIZE_MB}" \\
   -d -v --cache="\${BUILD_DIR}/cache"
 
 # ── Checksum ───────────────────────────────────────────────────
