@@ -9,4 +9,3 @@ while IFS= read -r script; do
 done < <(find "$(cd "$(dirname "$0")/stable" && pwd -P)" -maxdepth 1 -type f -name '*.sh' | sort)
 
 exit "$FAIL"
-
