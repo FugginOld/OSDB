@@ -1511,7 +1511,11 @@ function serviceEnableBlockOpenRC(rcNames) {
   return rcNames
     .split(/\s+/)
     .filter(Boolean)
-    .map(n => `rc-update add "${n}" default`)
+    .map(n => `if [ -x "/etc/init.d/${n}" ]; then
+  rc-update add "${n}" default
+else
+  echo "Skipping ${n} (init script not found - package may not be installed)"
+fi`)
     .join('\n');
 }
 
@@ -2546,16 +2550,21 @@ function generateCatalyst(base, name) {
   const rcServices = enabledServicesRcList();
   const mirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
     ? state.customMirrorUrl.trim() : (base.mirror || 'https://distfiles.gentoo.org');
+  // Single-quote-escape the mirror URL so shell metacharacters in a custom URL
+  // cannot be evaluated when the generated script assigns the variable.
+  const mirrorEscaped = mirror.replace(/'/g, "'\\''");
   const containerImage = 'gentoo/stage3:amd64-openrc';
 
-  // All packages to install in the live environment (deduplicated)
-  const allPkgs = [
-    'app-admin/sudo',
-    'net-misc/dhcpcd',
-    'sys-kernel/gentoo-kernel-bin',
-    'sys-kernel/linux-firmware',
-    dePackages, userPkgs, servicePkgs,
-  ].filter(Boolean).join(' ').split(/\s+/).filter(Boolean);
+  // All packages to install in the live environment (deduplicated via Set)
+  const allPkgs = [...new Set(
+    [
+      'app-admin/sudo',
+      'net-misc/dhcpcd',
+      'sys-kernel/gentoo-kernel-bin',
+      'sys-kernel/linux-firmware',
+      dePackages, userPkgs, servicePkgs,
+    ].filter(Boolean).join(' ').split(/\s+/).filter(Boolean)
+  )];
 
   const rcAddSpecLines = rcServices
     ? rcServices.split(/\s+/).filter(Boolean).map(n => `  ${n}|default`).join('\n')
@@ -2567,7 +2576,7 @@ function generateCatalyst(base, name) {
   return `${scriptHeader(name, 'catalyst', containerImage)}
 STOREDIR="\${BUILD_DIR}/catalyst-store"
 SPECDIR="\${BUILD_DIR}/specs"
-MIRROR="${mirror}"
+MIRROR='${mirrorEscaped}'
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Syncing Portage tree (this may take several minutes)..."
@@ -2622,7 +2631,7 @@ version_stamp: ${name}
 rel_type: default
 profile: default/linux/amd64/17.1/no-multilib
 snapshot_treeish: latest
-source_subpath: default/stage3-amd64-openrc-latest
+source_subpath: default/stage3-amd64-openrc-latest.tar.xz
 
 livecd/packages:
 ${allPkgs.map(p => `  ${p}`).join('\n')}
@@ -2652,8 +2661,13 @@ log "Running catalyst livecd-stage2 (this may take 15–30 minutes)..."
 catalyst -f "\${SPECDIR}/livecd-stage2.spec"
 
 # ── Collect ISO ───────────────────────────────────────────────
+# Catalyst places the stage2 ISO at builds/<rel_type>/<iso-name> as declared in the spec.
 log "Moving ISO to output directory..."
-find "\${STOREDIR}/builds" -name '*.iso' | head -1 | xargs -I{} cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso"
+CATALYST_ISO="\${STOREDIR}/builds/default/${name}.iso"
+if [ ! -f "\${CATALYST_ISO}" ]; then
+  die "Catalyst stage2 ISO not found at \${CATALYST_ISO}. Check the catalyst build log for errors."
+fi
+cp "\${CATALYST_ISO}" "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso"
 
 # ── Checksum ───────────────────────────────────────────────────
 log "Generating SHA256 checksum..."
