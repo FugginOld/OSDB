@@ -24,9 +24,20 @@ function installerFor(base) {
 }
 
 function expectedDefaultPackages(base) {
+  const resolvePkgName = (p) => {
+    // Keep test expectations aligned with wizard.js enabledPkgList().
+    if (p.id === 'firefox' && base.pkg === 'apt') {
+      return base.family === 'debian' ? 'firefox-esr' : 'firefox';
+    }
+    if (p.id === 'vscode' && base.pkg === 'apt' && base.family === 'ubuntu') {
+      return '';
+    }
+    return p.pkgName && p.pkgName[base.pkg] ? p.pkgName[base.pkg] : '';
+  };
+
   return PACKAGES
     .filter((p) => p.defaultOn && p.families.includes(base.family))
-    .map((p) => (p.pkgName && p.pkgName[base.pkg] ? p.pkgName[base.pkg] : ''))
+    .map(resolvePkgName)
     .filter(Boolean)
     .flatMap((name) => String(name).split(/\s+/).filter(Boolean));
 }

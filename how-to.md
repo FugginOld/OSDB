@@ -223,6 +223,14 @@ Run the whole stable matrix:
 bash scripts/tests/run-stable-default-matrix.sh
 ```
 
+Run from Windows PowerShell (no `bash` required):
+
+```powershell
+node .\scripts\tests\run-stable-default-matrix.cjs
+# or:
+.\scripts\tests\run-stable-default-matrix.ps1
+```
+
 Output behavior:
 
 - prints **nothing** when all tests pass

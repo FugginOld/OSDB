@@ -75,6 +75,14 @@ node scripts/tests/generate-stable-base-tests.cjs
 bash scripts/tests/run-stable-default-matrix.sh
 ```
 
+Windows/PowerShell (no `bash` required):
+
+```powershell
+node .\scripts\tests\run-stable-default-matrix.cjs
+# or:
+.\scripts\tests\run-stable-default-matrix.ps1
+```
+
 The matrix validates, for each stable non-EOL base and each supported DE, that generated scripts include all default packages and default services. The runner prints only failures.
 
 ## Screenshots

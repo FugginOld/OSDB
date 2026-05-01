@@ -35,7 +35,7 @@ NODE_EOF
     continue
   fi
 
-  if ! grep -Fq "firefox-esr" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:firefox-esr"); fi
+  if ! grep -Fq "firefox" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:firefox"); fi
   if ! grep -Fq "vlc" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:vlc"); fi
   if ! grep -Fq "git" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:git"); fi
   if ! grep -Fq "cups" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:cups"); fi
