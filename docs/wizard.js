@@ -2429,7 +2429,9 @@ function generateKiwi(base, name) {
   const services = enabledServicesList();
   const suite = base.suite;
   const leapVersion = (base.label.match(/\d+\.\d+/) || ['15.6'])[0];
-  const containerImage = suite === 'leap' ? `opensuse/leap:${leapVersion}` : 'opensuse/tumbleweed';
+  // Use Tumbleweed as the KIWI build environment for both Leap and Tumbleweed
+  // targets to avoid Leap/SLE repository dependency mismatches for kiwi tooling.
+  const containerImage = 'opensuse/tumbleweed';
 
   return `${scriptHeader(name, 'kiwi', containerImage)}
 KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
@@ -2437,6 +2439,7 @@ KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing KIWI..."
 if ! command -v kiwi-ng >/dev/null 2>&1; then
+  zypper --non-interactive refresh
   zypper --non-interactive install -y kiwi-ng || \
     zypper --non-interactive install -y python3-kiwi kiwi-systemdeps-iso-media
 fi
