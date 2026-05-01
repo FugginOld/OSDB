@@ -2549,14 +2549,20 @@ function generateCatalyst(base, name) {
   const servicePkgs = enabledServicePkgList(base);
   const rcServices = enabledServicesRcList();
 
-  // Validate the mirror URL: accept only http(s) URLs with no whitespace or
-  // shell-significant characters, then single-quote-escape for safe embedding.
+  // Validate the mirror URL: only accept strict http(s) URLs composed of
+  // standard URL-safe characters (alphanumeric, dash, dot, underscore, tilde,
+  // colon, slash, percent-encoded sequences, @, =, +, ?) to prevent shell
+  // injection when the value is embedded in the generated script.
   const rawMirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
     ? state.customMirrorUrl.trim() : (base.mirror || 'https://distfiles.gentoo.org');
-  const mirrorIsValid = /^https?:\/\/[^\s'"\\`$;|&<>{}()]+$/.test(rawMirror);
+  const mirrorIsValid = /^https?:\/\/[a-zA-Z0-9\-._~:/?@%=+]+$/.test(rawMirror);
+  // If the custom URL fails validation fall back to the built-in default mirror
+  // (a hardcoded constant that needs no further escaping).
   const mirror = mirrorIsValid ? rawMirror : (base.mirror || 'https://distfiles.gentoo.org');
-  // Escape any remaining single quotes for safe single-quoted shell assignment.
-  const mirrorEscaped = mirror.replace(/'/g, "'\\''");
+  // Single-quote-escape only when the validated custom URL is actually used.
+  const mirrorEscaped = mirrorIsValid
+    ? mirror.replace(/'/g, "'\\''")
+    : mirror; // default mirror is a hardcoded constant; no escaping needed
   const containerImage = 'gentoo/stage3:amd64-openrc';
 
   // All packages to install in the live environment (deduplicated via Set)
@@ -2635,6 +2641,8 @@ version_stamp: ${name}
 rel_type: default
 profile: default/linux/amd64/17.1/no-multilib
 snapshot_treeish: latest
+# source_subpath names the file exactly as stored under storedir/builds/;
+# the .tar.xz extension is explicit to match the symlink created above.
 source_subpath: default/stage3-amd64-openrc-latest.tar.xz
 
 livecd/packages:
