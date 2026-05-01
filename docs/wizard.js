@@ -2548,10 +2548,14 @@ function generateCatalyst(base, name) {
   const userPkgs = enabledPkgList(base);
   const servicePkgs = enabledServicePkgList(base);
   const rcServices = enabledServicesRcList();
-  const mirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
+
+  // Validate the mirror URL: accept only http(s) URLs with no whitespace or
+  // shell-significant characters, then single-quote-escape for safe embedding.
+  const rawMirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
     ? state.customMirrorUrl.trim() : (base.mirror || 'https://distfiles.gentoo.org');
-  // Single-quote-escape the mirror URL so shell metacharacters in a custom URL
-  // cannot be evaluated when the generated script assigns the variable.
+  const mirrorIsValid = /^https?:\/\/[^\s'"\\`$;|&<>{}()]+$/.test(rawMirror);
+  const mirror = mirrorIsValid ? rawMirror : (base.mirror || 'https://distfiles.gentoo.org');
+  // Escape any remaining single quotes for safe single-quoted shell assignment.
   const mirrorEscaped = mirror.replace(/'/g, "'\\''");
   const containerImage = 'gentoo/stage3:amd64-openrc';
 
