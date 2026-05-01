@@ -312,25 +312,37 @@ const BASES = {
     repoTypes: ['official','obs','custom'],
     serviceManager: 'systemd',
   },
+
+  // ── Gentoo ──────────────────────────────────────────────────
+  'gentoo': {
+    label: 'Gentoo Linux', family: 'gentoo', suite: 'rolling',
+    track: 'rolling', builder: 'catalyst', pkg: 'emerge',
+    mirror: 'https://distfiles.gentoo.org',
+    des: ['gnome','kde','xfce','mate','lxqt','cinnamon','qtile','none'],
+    installers: ['none'],
+    repoTypes: ['official','custom'],
+    serviceManager: 'openrc',
+    notes: 'Source-based rolling release. Catalyst build can take 2–4 hours.',
+  },
 };
 
 // ── DE → packages mapping ────────────────────────────────────
 const DE_PACKAGES = {
-  gnome:    { apt: 'gnome-shell gnome-session gdm3 gnome-control-center nautilus', pacman: 'gnome gnome-extra gdm', dnf: 'gnome-shell gdm gnome-control-center nautilus', zypper: 'patterns-gnome-gnome_x11 gdm' },
-  kde:      { apt: 'kde-plasma-desktop plasma-nm plasma-pa kscreen sddm', pacman: 'plasma-meta kde-applications sddm', dnf: 'plasma-workspace plasma-nm sddm', zypper: 'patterns-kde-kde_x11 sddm' },
-  cinnamon: { apt: 'cinnamon cinnamon-l10n lightdm lightdm-gtk-greeter nemo', pacman: 'cinnamon lightdm lightdm-gtk-greeter nemo', dnf: 'cinnamon lightdm', zypper: 'cinnamon lightdm' },
-  xfce:     { apt: 'xfce4 xfce4-goodies lightdm lightdm-gtk-greeter thunar', pacman: 'xfce4 xfce4-goodies lightdm lightdm-gtk-greeter thunar', dnf: 'xfce-desktop lightdm', zypper: 'patterns-xfce-xfce_x11 lightdm' },
-  lxqt:     { apt: 'lxqt sddm', pacman: 'lxqt sddm', dnf: 'lxqt-session sddm', zypper: 'lxqt sddm' },
-  lxde:     { apt: 'lxde lightdm lightdm-gtk-greeter', pacman: 'lxde lightdm lightdm-gtk-greeter', dnf: 'lxde-desktop lightdm', zypper: 'lxde lightdm' },
-  mate:     { apt: 'mate-desktop-environment lightdm lightdm-gtk-greeter', pacman: 'mate mate-extra lightdm lightdm-gtk-greeter', dnf: 'mate-desktop lightdm', zypper: 'mate lightdm' },
-  budgie:   { apt: 'budgie-desktop lightdm lightdm-gtk-greeter', pacman: 'budgie-desktop lightdm lightdm-gtk-greeter', dnf: 'budgie-desktop lightdm', zypper: 'budgie-desktop lightdm' },
-  cosmic:   { apt: 'cosmic-session cosmic-greeter', pacman: 'cosmic-session sddm', dnf: 'cosmic-session sddm', zypper: '' },
-  qtile:    { apt: 'qtile python3-xcffib python3-cairocffi lightdm lightdm-gtk-greeter', pacman: 'qtile lightdm lightdm-gtk-greeter', dnf: 'qtile lightdm', zypper: '' },
-  i3:       { apt: 'i3 i3status dmenu xterm lightdm lightdm-gtk-greeter', pacman: 'i3-wm i3status dmenu xterm lightdm lightdm-gtk-greeter', dnf: 'i3 i3status dmenu xterm lightdm', zypper: 'i3 i3status dmenu xterm lightdm' },
-  sway:     { apt: 'sway swaybar swaybg swayidle swaylock', pacman: 'sway swaybar swaybg swayidle swaylock', dnf: 'sway', zypper: 'sway' },
-  labwc:    { apt: 'labwc waybar wlopm wlr-randr', pacman: 'labwc waybar', dnf: 'labwc waybar', zypper: 'labwc' },
-  openbox:  { apt: 'openbox lightdm lightdm-gtk-greeter obconf', pacman: 'openbox lightdm lightdm-gtk-greeter obconf', dnf: 'openbox lightdm', zypper: 'openbox lightdm' },
-  none:     { apt: '', pacman: '', dnf: '', zypper: '' },
+  gnome:    { apt: 'gnome-shell gnome-session gdm3 gnome-control-center nautilus', pacman: 'gnome gnome-extra gdm', dnf: 'gnome-shell gdm gnome-control-center nautilus', zypper: 'patterns-gnome-gnome_x11 gdm', emerge: 'gnome-base/gnome gnome-base/gdm' },
+  kde:      { apt: 'kde-plasma-desktop plasma-nm plasma-pa kscreen sddm', pacman: 'plasma-meta kde-applications sddm', dnf: 'plasma-workspace plasma-nm sddm', zypper: 'patterns-kde-kde_x11 sddm', emerge: 'kde-plasma/plasma-meta kde-plasma/sddm' },
+  cinnamon: { apt: 'cinnamon cinnamon-l10n lightdm lightdm-gtk-greeter nemo', pacman: 'cinnamon lightdm lightdm-gtk-greeter nemo', dnf: 'cinnamon lightdm', zypper: 'cinnamon lightdm', emerge: 'gnome-extra/cinnamon x11-misc/lightdm' },
+  xfce:     { apt: 'xfce4 xfce4-goodies lightdm lightdm-gtk-greeter thunar', pacman: 'xfce4 xfce4-goodies lightdm lightdm-gtk-greeter thunar', dnf: 'xfce-desktop lightdm', zypper: 'patterns-xfce-xfce_x11 lightdm', emerge: 'xfce-base/xfce4-meta xfce-base/thunar x11-misc/lightdm' },
+  lxqt:     { apt: 'lxqt sddm', pacman: 'lxqt sddm', dnf: 'lxqt-session sddm', zypper: 'lxqt sddm', emerge: 'lxqt-base/lxqt-meta x11-misc/sddm' },
+  lxde:     { apt: 'lxde lightdm lightdm-gtk-greeter', pacman: 'lxde lightdm lightdm-gtk-greeter', dnf: 'lxde-desktop lightdm', zypper: 'lxde lightdm', emerge: 'lxde-base/lxde-common lxde-base/lxpanel x11-misc/lightdm' },
+  mate:     { apt: 'mate-desktop-environment lightdm lightdm-gtk-greeter', pacman: 'mate mate-extra lightdm lightdm-gtk-greeter', dnf: 'mate-desktop lightdm', zypper: 'mate lightdm', emerge: 'mate-base/mate x11-misc/lightdm' },
+  budgie:   { apt: 'budgie-desktop lightdm lightdm-gtk-greeter', pacman: 'budgie-desktop lightdm lightdm-gtk-greeter', dnf: 'budgie-desktop lightdm', zypper: 'budgie-desktop lightdm', emerge: '' },
+  cosmic:   { apt: 'cosmic-session cosmic-greeter', pacman: 'cosmic-session sddm', dnf: 'cosmic-session sddm', zypper: '', emerge: '' },
+  qtile:    { apt: 'qtile python3-xcffib python3-cairocffi lightdm lightdm-gtk-greeter', pacman: 'qtile lightdm lightdm-gtk-greeter', dnf: 'qtile lightdm', zypper: '', emerge: 'x11-wm/qtile x11-misc/lightdm' },
+  i3:       { apt: 'i3 i3status dmenu xterm lightdm lightdm-gtk-greeter', pacman: 'i3-wm i3status dmenu xterm lightdm lightdm-gtk-greeter', dnf: 'i3 i3status dmenu xterm lightdm', zypper: 'i3 i3status dmenu xterm lightdm', emerge: 'x11-wm/i3 x11-misc/i3status x11-misc/dmenu x11-terms/xterm x11-misc/lightdm' },
+  sway:     { apt: 'sway swaybar swaybg swayidle swaylock', pacman: 'sway swaybar swaybg swayidle swaylock', dnf: 'sway', zypper: 'sway', emerge: 'gui-wm/sway gui-apps/swaybar gui-apps/swaybg gui-apps/swayidle gui-apps/swaylock' },
+  labwc:    { apt: 'labwc waybar wlopm wlr-randr', pacman: 'labwc waybar', dnf: 'labwc waybar', zypper: 'labwc', emerge: '' },
+  openbox:  { apt: 'openbox lightdm lightdm-gtk-greeter obconf', pacman: 'openbox lightdm lightdm-gtk-greeter obconf', dnf: 'openbox lightdm', zypper: 'openbox lightdm', emerge: 'x11-wm/openbox x11-misc/obconf x11-misc/lightdm' },
+  none:     { apt: '', pacman: '', dnf: '', zypper: '', emerge: '' },
 };
 
 // Display manager per DE
@@ -388,41 +400,41 @@ const DE_SCREENSHOTS = {
 
 // ── Per-package compatibility ────────────────────────────────
 const PACKAGES = [
-  { id: 'firefox',      label: 'Firefox',           families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'firefox-esr',   pacman: 'firefox',        dnf: 'firefox',         zypper: 'firefox'        }, defaultOn: true  },
+  { id: 'firefox',      label: 'Firefox',           families: ['debian','ubuntu','arch','fedora','opensuse','gentoo','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'firefox-esr',   pacman: 'firefox',        dnf: 'firefox',         zypper: 'firefox',        emerge: 'www-client/firefox'       }, defaultOn: true  },
   // chromium-browser is the apt package name on both RPi OS and Ubuntu for RPi;
   // rpi-arch uses 'chromium' via pacman
-  { id: 'chromium',     label: 'Chromium',           families: ['rpi','rpi-ubuntu','rpi-arch'],                                       pkgName: { apt: 'chromium-browser', pacman: 'chromium'                                                          }, defaultOn: true  },
-  { id: 'vlc',          label: 'VLC',                families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'vlc',           pacman: 'vlc',            dnf: 'vlc',             zypper: 'vlc'            }, defaultOn: true  },
-  { id: 'git',          label: 'Git',                families: ['debian','ubuntu','arch','fedora','opensuse','rpi','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'git',      pacman: 'git',            dnf: 'git',             zypper: 'git'            }, defaultOn: true  },
-  { id: 'cups',         label: 'CUPS (printing)',     families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu'],           pkgName: { apt: 'cups',          pacman: 'cups',           dnf: 'cups',            zypper: 'cups'           }, defaultOn: true  },
-  { id: 'libreoffice',  label: 'LibreOffice',         families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu'],           pkgName: { apt: 'libreoffice',   pacman: 'libreoffice-fresh', dnf: 'libreoffice',  zypper: 'libreoffice'    }, defaultOn: false },
-  { id: 'vscode',       label: 'VS Code',             families: ['debian','ubuntu','arch','fedora'],                                  pkgName: { apt: 'code',          pacman: 'code',           dnf: 'code',            zypper: 'code'           }, defaultOn: false },
-  { id: 'flatpak',      label: 'Flatpak',             families: ['debian','ubuntu','arch','fedora','opensuse','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'flatpak',      pacman: 'flatpak',        dnf: 'flatpak',         zypper: 'flatpak'        }, defaultOn: false },
-  { id: 'snap',         label: 'Snapd',               families: ['ubuntu','rpi-ubuntu'],                                              pkgName: { apt: 'snapd'                                                                                         }, defaultOn: false },
-  { id: 'steam',        label: 'Steam',               families: ['debian','ubuntu','arch'],                                           pkgName: { apt: 'steam',         pacman: 'steam',          dnf: 'steam'                                         }, defaultOn: false },
-  { id: 'aur-helper',   label: 'AUR helper (yay)',    families: ['arch','rpi-arch'],                                                  pkgName: { pacman: 'yay'                                                                                        }, defaultOn: false },
-  { id: 'copr',         label: 'COPR plugin',         families: ['fedora'],                                                           pkgName: { dnf: 'dnf-plugins-core'                                                                              }, defaultOn: false },
-  { id: 'rpi-connect',  label: 'RPi Connect',         families: ['rpi'],                                                              pkgName: { apt: 'rpi-connect'                                                                                   }, defaultOn: false },
-  { id: 'raspi-config', label: 'raspi-config',        families: ['rpi'],                                                              pkgName: { apt: 'raspi-config'                                                                                  }, defaultOn: true  },
-  { id: 'rpi-eeprom',   label: 'RPi EEPROM updater',  families: ['rpi'],                                                              pkgName: { apt: 'rpi-eeprom'                                                                                    }, defaultOn: true  },
-  { id: 'gpio-tools',   label: 'GPIO tools',          families: ['rpi','rpi-ubuntu','rpi-arch'],                                      pkgName: { apt: 'gpiod python3-gpiozero', pacman: 'libgpiod'                                                     }, defaultOn: false },
+  { id: 'chromium',     label: 'Chromium',           families: ['rpi','rpi-ubuntu','rpi-arch'],                                             pkgName: { apt: 'chromium-browser', pacman: 'chromium'                                                                                    }, defaultOn: true  },
+  { id: 'vlc',          label: 'VLC',                families: ['debian','ubuntu','arch','fedora','opensuse','gentoo','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'vlc',           pacman: 'vlc',            dnf: 'vlc',             zypper: 'vlc',            emerge: 'media-video/vlc'          }, defaultOn: true  },
+  { id: 'git',          label: 'Git',                families: ['debian','ubuntu','arch','fedora','opensuse','gentoo','rpi','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'git',      pacman: 'git',            dnf: 'git',             zypper: 'git',            emerge: 'dev-vcs/git'              }, defaultOn: true  },
+  { id: 'cups',         label: 'CUPS (printing)',     families: ['debian','ubuntu','arch','fedora','opensuse','gentoo','rpi-ubuntu'],         pkgName: { apt: 'cups',          pacman: 'cups',           dnf: 'cups',            zypper: 'cups',           emerge: 'net-print/cups'           }, defaultOn: true  },
+  { id: 'libreoffice',  label: 'LibreOffice',         families: ['debian','ubuntu','arch','fedora','opensuse','gentoo','rpi-ubuntu'],         pkgName: { apt: 'libreoffice',   pacman: 'libreoffice-fresh', dnf: 'libreoffice',  zypper: 'libreoffice',    emerge: 'app-office/libreoffice'   }, defaultOn: false },
+  { id: 'vscode',       label: 'VS Code',             families: ['debian','ubuntu','arch','fedora'],                                        pkgName: { apt: 'code',          pacman: 'code',           dnf: 'code',            zypper: 'code'                                                     }, defaultOn: false },
+  { id: 'flatpak',      label: 'Flatpak',             families: ['debian','ubuntu','arch','fedora','opensuse','gentoo','rpi-ubuntu','rpi-arch'], pkgName: { apt: 'flatpak',      pacman: 'flatpak',        dnf: 'flatpak',         zypper: 'flatpak',        emerge: 'sys-apps/flatpak'         }, defaultOn: false },
+  { id: 'snap',         label: 'Snapd',               families: ['ubuntu','rpi-ubuntu'],                                                    pkgName: { apt: 'snapd'                                                                                                                        }, defaultOn: false },
+  { id: 'steam',        label: 'Steam',               families: ['debian','ubuntu','arch'],                                                 pkgName: { apt: 'steam',         pacman: 'steam',          dnf: 'steam'                                                                          }, defaultOn: false },
+  { id: 'aur-helper',   label: 'AUR helper (yay)',    families: ['arch','rpi-arch'],                                                        pkgName: { pacman: 'yay'                                                                                                                       }, defaultOn: false },
+  { id: 'copr',         label: 'COPR plugin',         families: ['fedora'],                                                                 pkgName: { dnf: 'dnf-plugins-core'                                                                                                             }, defaultOn: false },
+  { id: 'rpi-connect',  label: 'RPi Connect',         families: ['rpi'],                                                                    pkgName: { apt: 'rpi-connect'                                                                                                                  }, defaultOn: false },
+  { id: 'raspi-config', label: 'raspi-config',        families: ['rpi'],                                                                    pkgName: { apt: 'raspi-config'                                                                                                                 }, defaultOn: true  },
+  { id: 'rpi-eeprom',   label: 'RPi EEPROM updater',  families: ['rpi'],                                                                    pkgName: { apt: 'rpi-eeprom'                                                                                                                   }, defaultOn: true  },
+  { id: 'gpio-tools',   label: 'GPIO tools',          families: ['rpi','rpi-ubuntu','rpi-arch'],                                            pkgName: { apt: 'gpiod python3-gpiozero', pacman: 'libgpiod'                                                                                    }, defaultOn: false },
 ];
 
 // ── Services ─────────────────────────────────────────────────
 const SERVICES = [
   // Base services (all families)
-  { id: 'NetworkManager', label: 'NetworkManager', unit: 'NetworkManager.service', families: null, defaultOn: true,  desc: 'Automatic network management',    pkgName: { apt: 'network-manager',   pacman: 'networkmanager', dnf: 'NetworkManager',   zypper: 'NetworkManager'   } },
-  { id: 'cups',           label: 'CUPS',           unit: 'cups.service',           families: null, defaultOn: true,  desc: 'Printing support',                pkgName: { apt: 'cups',              pacman: 'cups',           dnf: 'cups',             zypper: 'cups'             } },
-  { id: 'bluetooth',      label: 'Bluetooth',      unit: 'bluetooth.service',      families: null, defaultOn: true,  desc: 'Bluetooth daemon',                pkgName: { apt: 'bluez',             pacman: 'bluez',          dnf: 'bluez',            zypper: 'bluez'            } },
-  { id: 'ufw',            label: 'UFW firewall',   unit: 'ufw.service',            families: null, defaultOn: false, desc: 'Uncomplicated firewall',          pkgName: { apt: 'ufw',               pacman: 'ufw',            dnf: 'ufw',              zypper: 'ufw'              } },
-  { id: 'sshd',           label: 'SSH server',     unit: 'ssh.service',            families: null, defaultOn: false, desc: 'OpenSSH daemon (remote access)',  pkgName: { apt: 'openssh-server',    pacman: 'openssh',        dnf: 'openssh-server',   zypper: 'openssh'          } },
-  { id: 'docker',         label: 'Docker',         unit: 'docker.service',         families: null, defaultOn: false, desc: 'Container runtime',               pkgName: { apt: 'docker.io',         pacman: 'docker',         dnf: 'docker',           zypper: 'docker'           } },
-  { id: 'auto-update',    label: 'Auto-updates',   unit: 'unattended-upgrades.service', families: ['debian','ubuntu','rpi','rpi-ubuntu'], defaultOn: true, desc: 'Automatic security updates (apt)', pkgName: { apt: 'unattended-upgrades' } },
+  { id: 'NetworkManager', label: 'NetworkManager', unit: 'NetworkManager.service', rcName: 'NetworkManager', families: null, defaultOn: true,  desc: 'Automatic network management',    pkgName: { apt: 'network-manager',   pacman: 'networkmanager', dnf: 'NetworkManager',   zypper: 'NetworkManager',   emerge: 'net-misc/networkmanager'  } },
+  { id: 'cups',           label: 'CUPS',           unit: 'cups.service',           rcName: 'cupsd',          families: null, defaultOn: true,  desc: 'Printing support',                pkgName: { apt: 'cups',              pacman: 'cups',           dnf: 'cups',             zypper: 'cups',             emerge: 'net-print/cups'           } },
+  { id: 'bluetooth',      label: 'Bluetooth',      unit: 'bluetooth.service',      rcName: 'bluetooth',      families: null, defaultOn: true,  desc: 'Bluetooth daemon',                pkgName: { apt: 'bluez',             pacman: 'bluez',          dnf: 'bluez',            zypper: 'bluez',            emerge: 'net-wireless/bluez'       } },
+  { id: 'ufw',            label: 'UFW firewall',   unit: 'ufw.service',            rcName: 'ufw',            families: null, defaultOn: false, desc: 'Uncomplicated firewall',          pkgName: { apt: 'ufw',               pacman: 'ufw',            dnf: 'ufw',              zypper: 'ufw',              emerge: 'net-firewall/ufw'         } },
+  { id: 'sshd',           label: 'SSH server',     unit: 'ssh.service',            rcName: 'sshd',           families: null, defaultOn: false, desc: 'OpenSSH daemon (remote access)',  pkgName: { apt: 'openssh-server',    pacman: 'openssh',        dnf: 'openssh-server',   zypper: 'openssh',          emerge: 'net-misc/openssh'         } },
+  { id: 'docker',         label: 'Docker',         unit: 'docker.service',         rcName: 'docker',         families: null, defaultOn: false, desc: 'Container runtime',               pkgName: { apt: 'docker.io',         pacman: 'docker',         dnf: 'docker',           zypper: 'docker',           emerge: 'app-containers/docker'    } },
+  { id: 'auto-update',    label: 'Auto-updates',   unit: 'unattended-upgrades.service', rcName: null,        families: ['debian','ubuntu','rpi','rpi-ubuntu'], defaultOn: true, desc: 'Automatic security updates (apt)', pkgName: { apt: 'unattended-upgrades' } },
   // RPi-specific services
-  { id: 'rpi-eeprom-update', label: 'RPi EEPROM update', unit: 'rpi-eeprom-update.service', families: ['rpi','rpi-ubuntu'], defaultOn: true,  desc: 'Pi 4/5 firmware updater',         pkgName: { apt: 'rpi-eeprom'        } },
-  { id: 'raspi-config-svc',  label: 'raspi-config',      unit: 'raspi-config.service',      families: ['rpi'],             defaultOn: true,  desc: 'First-boot configuration tool',   pkgName: { apt: 'raspi-config'      } },
-  { id: 'rpi-connect-svc',   label: 'RPi Connect',       unit: 'rpi-connect.service',       families: ['rpi'],             defaultOn: false, desc: 'Raspberry Pi remote access cloud', pkgName: { apt: 'rpi-connect'       } },
-  { id: 'pigpiod',           label: 'pigpiod',           unit: 'pigpiod.service',            families: ['rpi','rpi-ubuntu'], defaultOn: false, desc: 'GPIO daemon for Python',           pkgName: { apt: 'pigpio', pacman: 'pigpio' } },
+  { id: 'rpi-eeprom-update', label: 'RPi EEPROM update', unit: 'rpi-eeprom-update.service', rcName: null, families: ['rpi','rpi-ubuntu'], defaultOn: true,  desc: 'Pi 4/5 firmware updater',         pkgName: { apt: 'rpi-eeprom'        } },
+  { id: 'raspi-config-svc',  label: 'raspi-config',      unit: 'raspi-config.service',      rcName: null, families: ['rpi'],             defaultOn: true,  desc: 'First-boot configuration tool',   pkgName: { apt: 'raspi-config'      } },
+  { id: 'rpi-connect-svc',   label: 'RPi Connect',       unit: 'rpi-connect.service',       rcName: null, families: ['rpi'],             defaultOn: false, desc: 'Raspberry Pi remote access cloud', pkgName: { apt: 'rpi-connect'       } },
+  { id: 'pigpiod',           label: 'pigpiod',           unit: 'pigpiod.service',            rcName: null, families: ['rpi','rpi-ubuntu'], defaultOn: false, desc: 'GPIO daemon for Python',           pkgName: { apt: 'pigpio', pacman: 'pigpio' } },
 ];
 
 // ── RPi hardware targets ─────────────────────────────────────
@@ -475,6 +487,7 @@ const FAMILY_GROUPS = [
   { id: 'fedora',    label: 'Fedora',                 keys: ['fedora-39','fedora-40','fedora-41','fedora-42'] },
   { id: 'rpi',       label: 'Raspberry Pi',           keys: ['rpios-lite-bookworm','rpios-desktop-bookworm','rpios-full-bookworm','ubuntu-rpi-2204','ubuntu-rpi-2404','alarm-rpi4','alarm-rpi5'] },
   { id: 'opensuse',  label: 'openSUSE',               keys: ['opensuse-leap-154','opensuse-leap-155','opensuse-leap','opensuse-tumbleweed'] },
+  { id: 'gentoo',    label: 'Gentoo',                 keys: ['gentoo'] },
 ];
 
 // RPi family identifiers
@@ -1366,6 +1379,7 @@ function generateScript() {
     case 'ubuntu-rpi':  return generateUbuntuRpi(base, name);
     case 'alarm-rpi':   return generateAlarmRpi(base, name);
     case 'kiwi':        return generateKiwi(base, name);
+    case 'catalyst':    return generateCatalyst(base, name);
     default:            return `# Builder '${base.builder}' is not yet implemented`;
   }
 }
@@ -1399,6 +1413,13 @@ function enabledServicesList() {
   return SERVICES
     .filter(s => state.services[s.id])
     .map(s => s.unit)
+    .join(' ');
+}
+
+function enabledServicesRcList() {
+  return SERVICES
+    .filter(s => state.services[s.id] && s.rcName)
+    .map(s => s.rcName)
     .join(' ');
 }
 
@@ -1482,6 +1503,15 @@ function serviceEnableBlock(units) {
 else
   echo "Skipping ${u} (unit not found - package may not be installed)"
 fi`)
+    .join('\n');
+}
+
+function serviceEnableBlockOpenRC(rcNames) {
+  if (!rcNames) return '';
+  return rcNames
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(n => `rc-update add "${n}" default`)
     .join('\n');
 }
 
@@ -2504,6 +2534,133 @@ KIWI_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
 
 log "Build complete!"
 log "ISO:      \${KIWI_ISO}"
+log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+`;
+}
+
+// ── catalyst (Gentoo) ─────────────────────────────────────────
+function generateCatalyst(base, name) {
+  const dePackages = dePkgs(base);
+  const userPkgs = enabledPkgList(base);
+  const servicePkgs = enabledServicePkgList(base);
+  const rcServices = enabledServicesRcList();
+  const mirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
+    ? state.customMirrorUrl.trim() : (base.mirror || 'https://distfiles.gentoo.org');
+  const containerImage = 'gentoo/stage3:amd64-openrc';
+
+  // All packages to install in the live environment (deduplicated)
+  const allPkgs = [
+    'app-admin/sudo',
+    'net-misc/dhcpcd',
+    'sys-kernel/gentoo-kernel-bin',
+    'sys-kernel/linux-firmware',
+    dePackages, userPkgs, servicePkgs,
+  ].filter(Boolean).join(' ').split(/\s+/).filter(Boolean);
+
+  const rcAddSpecLines = rcServices
+    ? rcServices.split(/\s+/).filter(Boolean).map(n => `  ${n}|default`).join('\n')
+    : '';
+
+  const autologin = autologinHook(base);
+  const rcEnableBlock = serviceEnableBlockOpenRC(rcServices);
+
+  return `${scriptHeader(name, 'catalyst', containerImage)}
+STOREDIR="\${BUILD_DIR}/catalyst-store"
+SPECDIR="\${BUILD_DIR}/specs"
+MIRROR="${mirror}"
+
+# ── Prerequisites ─────────────────────────────────────────────
+log "Syncing Portage tree (this may take several minutes)..."
+emaint sync -a || emerge --sync
+
+log "Installing catalyst..."
+emerge -q sys-devel/catalyst
+
+# ── Catalyst configuration ────────────────────────────────────
+log "Writing /etc/catalyst/catalyst.conf..."
+mkdir -p /etc/catalyst
+cat > /etc/catalyst/catalyst.conf << CATALYSTCONF_EOF
+storedir="\${STOREDIR}"
+portdir="/var/db/repos/gentoo"
+hash_function="sha512"
+CATALYSTCONF_EOF
+
+mkdir -p "\${STOREDIR}"
+
+# ── Portage snapshot ──────────────────────────────────────────
+log "Creating Portage snapshot for catalyst builds..."
+catalyst --snapshot latest
+
+# ── Stage3 seed tarball ───────────────────────────────────────
+log "Fetching latest amd64 OpenRC stage3..."
+LATEST_TXT="\${MIRROR}/releases/amd64/autobuilds/latest-stage3-amd64-openrc.txt"
+STAGE3_SUBPATH=\$(curl -fsSL "\${LATEST_TXT}" | grep -v '^#' | awk '{print \$1}' | head -1)
+STAGE3_FILENAME=\$(basename "\${STAGE3_SUBPATH}")
+STAGE3_URL="\${MIRROR}/releases/amd64/autobuilds/\${STAGE3_SUBPATH}"
+mkdir -p "\${STOREDIR}/builds/default"
+curl -fSL -o "\${STOREDIR}/builds/default/\${STAGE3_FILENAME}" "\${STAGE3_URL}"
+# Stable symlink so catalyst can reference it by a fixed name
+ln -sf "\${STAGE3_FILENAME}" "\${STOREDIR}/builds/default/stage3-amd64-openrc-latest.tar.xz"
+
+# ── Post-install fsscript ─────────────────────────────────────
+log "Writing post-install fsscript..."
+mkdir -p "\${SPECDIR}"
+cat > /tmp/catalyst-fsscript.sh << 'FSSCRIPT_EOF'
+#!/bin/sh
+set -e
+${rcEnableBlock || '# No OpenRC services to enable'}
+${autologin || '# No display manager autologin configured'}
+FSSCRIPT_EOF
+chmod +x /tmp/catalyst-fsscript.sh
+
+# ── livecd-stage1 spec: customised rootfs ────────────────────
+log "Writing livecd-stage1 spec..."
+cat > "\${SPECDIR}/livecd-stage1.spec" << 'STAGE1_EOF'
+subarch: amd64
+target: livecd-stage1
+version_stamp: ${name}
+rel_type: default
+profile: default/linux/amd64/17.1/no-multilib
+snapshot_treeish: latest
+source_subpath: default/stage3-amd64-openrc-latest
+
+livecd/packages:
+${allPkgs.map(p => `  ${p}`).join('\n')}
+${rcAddSpecLines ? `\nlivecd/rcadd:\n${rcAddSpecLines}` : ''}
+livecd/fsscript: /tmp/catalyst-fsscript.sh
+STAGE1_EOF
+
+# ── livecd-stage2 spec: assemble ISO ─────────────────────────
+log "Writing livecd-stage2 spec..."
+cat > "\${SPECDIR}/livecd-stage2.spec" << 'STAGE2_EOF'
+subarch: amd64
+target: livecd-stage2
+version_stamp: ${name}
+rel_type: default
+snapshot_treeish: latest
+source_subpath: default/livecd-stage1-amd64-${name}
+
+livecd/bootargs: dokeymap
+livecd/iso: ${name}.iso
+STAGE2_EOF
+
+# ── Run catalyst ──────────────────────────────────────────────
+log "Running catalyst livecd-stage1 (this may take 60–120 minutes)..."
+catalyst -f "\${SPECDIR}/livecd-stage1.spec"
+
+log "Running catalyst livecd-stage2 (this may take 15–30 minutes)..."
+catalyst -f "\${SPECDIR}/livecd-stage2.spec"
+
+# ── Collect ISO ───────────────────────────────────────────────
+log "Moving ISO to output directory..."
+find "\${STOREDIR}/builds" -name '*.iso' | head -1 | xargs -I{} cp {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso"
+
+# ── Checksum ───────────────────────────────────────────────────
+log "Generating SHA256 checksum..."
+sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+
+log "Build complete!"
+log "ISO:      \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso"
 log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 `;
 }
