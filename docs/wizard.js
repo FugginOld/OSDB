@@ -2436,7 +2436,10 @@ KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing KIWI..."
-zypper install -y python3-kiwi kiwi-systemdeps-iso-media
+if ! command -v kiwi-ng >/dev/null 2>&1; then
+  zypper --non-interactive install -y kiwi-ng || \
+    zypper --non-interactive install -y python3-kiwi kiwi-systemdeps-iso-media
+fi
 
 # ── KIWI image description ─────────────────────────────────────
 log "Writing KIWI image description..."
