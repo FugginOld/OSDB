@@ -2440,13 +2440,9 @@ KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 log "Installing KIWI..."
 if ! command -v kiwi-ng >/dev/null 2>&1; then
   zypper --non-interactive refresh
-  if zypper --non-interactive search --match-exact kiwi-ng | grep -Eq '^\s*[iv]\s+\|\s+kiwi-ng\s+\|'; then
-    zypper --non-interactive install -y kiwi-ng
-  elif zypper --non-interactive search --match-exact python3-kiwi | grep -Eq '^\s*[iv]\s+\|\s+python3-kiwi\s+\|'; then
-    zypper --non-interactive install -y python3-kiwi
-  elif zypper --non-interactive search --match-exact kiwi | grep -Eq '^\s*[iv]\s+\|\s+kiwi\s+\|'; then
-    zypper --non-interactive install -y kiwi
-  fi
+  zypper --non-interactive install -y kiwi-ng || \
+    zypper --non-interactive install -y python3-kiwi || \
+    zypper --non-interactive install -y kiwi || true
 fi
 if ! command -v kiwi-ng >/dev/null 2>&1; then
   die "kiwi-ng is unavailable after package installation attempts (kiwi-ng/python3-kiwi/kiwi)."
