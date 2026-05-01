@@ -2440,8 +2440,10 @@ KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 log "Installing KIWI..."
 if ! command -v kiwi-ng >/dev/null 2>&1; then
   zypper --non-interactive refresh
-  zypper --non-interactive install -y kiwi-ng || \
-    zypper --non-interactive install -y python3-kiwi kiwi-systemdeps-iso-media
+  zypper --non-interactive install -y kiwi-ng
+fi
+if ! command -v kiwi-ng >/dev/null 2>&1; then
+  die "kiwi-ng is unavailable in the current repositories. Regenerate the build script and ensure it re-launches into opensuse/tumbleweed."
 fi
 
 # ── KIWI image description ─────────────────────────────────────
