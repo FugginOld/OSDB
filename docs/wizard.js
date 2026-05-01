@@ -2440,10 +2440,16 @@ KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 log "Installing KIWI..."
 if ! command -v kiwi-ng >/dev/null 2>&1; then
   zypper --non-interactive refresh
-  zypper --non-interactive install -y kiwi-ng
+  if zypper --non-interactive search --match-exact kiwi-ng | grep -Eq '^\s*[iv]\s+\|\s+kiwi-ng\s+\|'; then
+    zypper --non-interactive install -y kiwi-ng
+  elif zypper --non-interactive search --match-exact python3-kiwi | grep -Eq '^\s*[iv]\s+\|\s+python3-kiwi\s+\|'; then
+    zypper --non-interactive install -y python3-kiwi
+  elif zypper --non-interactive search --match-exact kiwi | grep -Eq '^\s*[iv]\s+\|\s+kiwi\s+\|'; then
+    zypper --non-interactive install -y kiwi
+  fi
 fi
 if ! command -v kiwi-ng >/dev/null 2>&1; then
-  die "kiwi-ng is unavailable in the current repositories. Regenerate the build script and ensure it re-launches into opensuse/tumbleweed."
+  die "kiwi-ng is unavailable after package installation attempts (kiwi-ng/python3-kiwi/kiwi)."
 fi
 
 # ── KIWI image description ─────────────────────────────────────
