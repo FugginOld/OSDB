@@ -1978,7 +1978,7 @@ function generateLorax(base, name) {
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
 FEDORA_VERSION="${version}"
-LORAX_IMAGE_SIZE_MB="\${LORAX_IMAGE_SIZE_MB:-${loraxImageSizeMb}}"
+LORAX_ROOTFS_SIZE_MB="\${LORAX_ROOTFS_SIZE_MB:-${loraxImageSizeMb}}"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing lorax and livecd-tools..."
@@ -2020,7 +2020,7 @@ user --name=user --iscrypted --password="\${USER_PASSWORD_HASH}" --groups=wheel
 bootloader --location=mbr
 zerombr
 clearpart --all --initlabel
-autopart
+part / --fstype=ext4 --size=\${LORAX_ROOTFS_SIZE_MB}
 repo --name=fedora --baseurl=https://download.fedoraproject.org/pub/fedora/linux/releases/${version}/Everything/x86_64/os/
 
 %packages
@@ -2053,7 +2053,6 @@ livecd-creator \\
   --fslabel="\${DISTRO_NAME}" \\
   --title="\${DISTRO_NAME}" \\
   --product="\${DISTRO_NAME}" \\
-  --image-size="\${LORAX_IMAGE_SIZE_MB}" \\
   -d -v --cache="\${BUILD_DIR}/cache"
 
 # ── Checksum ───────────────────────────────────────────────────
