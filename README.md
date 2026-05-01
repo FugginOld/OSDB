@@ -1,6 +1,6 @@
 # OSDB — Linux OS Distro Builder Wizard
 
-**🔗 Live wizard:** https://fugginold.github.io/OSDB/
+**🔗 Live wizard:** <https://fugginold.github.io/OSDB/>
 
 A self-contained, static WebUI that walks you through building a custom Linux distribution and outputs a ready-to-run `build-distro.sh` bash script — no backend required.
 
@@ -25,7 +25,7 @@ separate download needed.
 ## Supported bases
 
 | Distribution | Track | Builder | Output |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Debian 10 Buster | legacy (EOL) | live-build | ISO |
 | Debian 11 Bullseye | oldstable | live-build | ISO |
 | Debian 12 Bookworm | stable | live-build | ISO |
@@ -52,7 +52,7 @@ separate download needed.
 
 ## Repository layout
 
-```
+```text
 docs/               ← GitHub Pages root (static site)
   index.html        ← Single-page wizard shell
   wizard.js         ← All wizard logic + script generators
@@ -80,7 +80,7 @@ The matrix validates, for each stable non-EOL base and each supported DE, that g
 ## Screenshots
 
 | Step | Screenshot |
-|---|---|
+| --- | --- |
 | **Step 1 — Choose Base System** | ![Step 1 – Base](docs/assets/screenshots/step1-base.png) |
 | **Hardware Target** *(Raspberry Pi only)* | ![Step 1b – RPi Hardware](docs/assets/screenshots/step1b-rpi-hardware.png) |
 | **Step 2 — Desktop Environment** | ![Step 2 – Desktop](docs/assets/screenshots/step2-desktop.png) |
