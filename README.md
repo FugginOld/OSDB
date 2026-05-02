@@ -11,7 +11,7 @@ A self-contained, static WebUI that walks you through building a custom Linux di
 1. Open the wizard in your browser
 2. Choose your **base distribution** (Debian, Ubuntu, Arch, Fedora, Raspberry Pi, openSUSE)
 3. Select a **desktop environment** (GNOME, KDE, XFCE, headless, …)
-4. Toggle **packages** and **services**
+4. Choose an **environment preset** (Core Package Set) and configure **services**
 5. Pick a **repository type** and **installer**
 6. Review the **summary**, download your customised build script, and copy the **one-liner run command**
 
@@ -58,6 +58,7 @@ docs/               ← GitHub Pages root (static site)
   index.html        ← Single-page wizard shell
   wizard.js         ← All wizard logic + script generators
   styles.css        ← Styling (badges, cards, progress bar)
+  environments/     ← Per-base environment profiles + Core Package Sets used by Quick Presets
 scripts/
   examples/         ← Static reference scripts (ShellCheck CI)
   tests/            ← Stable-base generator matrix tests
@@ -85,6 +86,14 @@ node .\scripts\tests\run-stable-default-matrix.cjs
 ```
 
 The matrix validates, for each stable non-EOL base and each supported DE, that generated scripts include all default packages and default services. The runner prints only failures.
+
+## Environment Presets
+
+The Packages step now uses **Quick Presets** sourced from `docs/environments/<base>_environment_profiles/.../environment.md`.
+
+- Each preset corresponds to one environment profile (minimum, server, desktop, gaming, education, coding, practical maximum).
+- The wizard parses each profile’s `## Core Package Set`.
+- Selecting a preset expands the tile to show the exact package list and package count.
 
 ## Screenshots
 

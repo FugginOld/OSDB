@@ -18,6 +18,17 @@ This guide covers everything you need to turn either approach into a bootable IS
 
 ---
 
+## Wizard Package Presets
+
+The wizard’s **Packages** step is now preset-driven:
+
+- Quick Presets are loaded from `docs/environments/<base>_environment_profiles/.../environment.md`.
+- Each preset installs that profile’s **Core Package Set**.
+- Selecting a preset shows package count and an expanded package list.
+- Generated scripts install the full Core Package Set for the selected preset.
+
+---
+
 ## 1. Prerequisites
 
 Prerequisites depend on the builder selected in the wizard:

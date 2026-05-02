@@ -8,7 +8,7 @@ Developer workstation or build server profile for coding, automation, containers
 
 Headless allowed for build server; desktop optional for workstation IDE use.
 
-# Common Debian Trixie Rules
+## Common Debian Trixie Rules
 
 - Target OS: Debian 13 “Trixie”.
 - Package manager: `apt`.
@@ -24,10 +24,7 @@ Headless allowed for build server; desktop optional for workstation IDE use.
   - `sudo apt update`
   - `sudo apt install --no-install-recommends <packages>` for lean installs
   - `sudo apt install <packages>` for standard installs
-- Avoid installing every package in Debian. “Full install” here means practical profile maximum, not the full Debian archive.
-
-
-## Debian Task Packages
+- Avoid installing every package in Debian. "Full install" here means practical profile maximum, not the full Debian archive.`r`n`r`n## Debian Task Packages
 
 ```text
 task-standard
@@ -131,10 +128,7 @@ Install **one** of the following when a GUI is requested:
 - LXQt: `task-lxqt-desktop`
 - LXDE: `task-lxde-desktop`
 
-For a generic Debian desktop baseline, pair the chosen DE with `task-desktop` unless the chosen task already pulls the expected desktop stack.
-
-
-## Services / Daemons Expected
+For a generic Debian desktop baseline, pair the chosen DE with `task-desktop` unless the chosen task already pulls the expected desktop stack.`r`n`r`n## Services / Daemons Expected
 
 ```text
 ssh

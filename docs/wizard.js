@@ -420,23 +420,23 @@ const PACKAGES = [
   { id: 'gpio-tools',   label: 'GPIO tools',          families: ['rpi','rpi-ubuntu','rpi-arch'],                                            pkgName: { apt: 'gpiod python3-gpiozero', pacman: 'libgpiod'                                                                                    }, defaultOn: false },
 ];
 
-const PACKAGE_PRESETS = {
-  'debian-12': [
-    { id: 'minimal', label: 'Minimal', pkgIds: ['git'] },
-    { id: 'server',  label: 'Server',  pkgIds: ['git', 'flatpak'] },
-    { id: 'desktop', label: 'Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'] },
-    { id: 'full',    label: 'Full',    pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'] },
-  ],
-  'debian-13': [
-    { id: 'trixie-minimum-headless', label: 'Minimum Headless', pkgIds: ['git'], corePkgs: ['sudo','openssh-server','ca-certificates','apt-transport-https','curl','wget','gnupg','lsb-release','locales','tzdata','nano','vim-tiny','less','man-db','bash-completion','net-tools','iproute2','iputils-ping','dnsutils','traceroute','nftables','ufw','systemd-timesyncd','rsync','tar','gzip','xz-utils','unzip','zip','pciutils','usbutils','lshw','dmidecode','smartmontools','htop','ncdu','cron','logrotate'] },
-    { id: 'trixie-server-headless', label: 'Standard Server Headless', pkgIds: ['git'], corePkgs: ['sudo','openssh-server','ca-certificates','curl','wget','gnupg','lsb-release','vim','nano','tmux','screen','bash-completion','command-not-found','rsync','borgbackup','restic','rclone','logrotate','cron','acl','attr','ufw','nftables','fail2ban','auditd','apparmor','apparmor-utils','iproute2','net-tools','dnsutils','bind9-dnsutils','tcpdump','nmap','mtr-tiny','ethtool','iperf3','lshw','dmidecode','pciutils','usbutils','smartmontools','nvme-cli','hdparm','lm-sensors','mdadm','lvm2','xfsprogs','btrfs-progs','nfs-common','samba','cifs-utils','podman','docker.io','docker-compose','compose-switch','nginx','apache2','mariadb-server','postgresql','redis-server','prometheus-node-exporter'] },
-    { id: 'trixie-desktop', label: 'Standard Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'flatpak'], corePkgs: ['sudo','network-manager','network-manager-gnome','wireless-tools','wpasupplicant','pipewire','pipewire-audio','wireplumber','pavucontrol','alsa-utils','bluetooth','bluez','blueman','cups','system-config-printer','printer-driver-all','sane-airscan','simple-scan','firefox-esr','thunderbird','libreoffice','evince','file-roller','gparted','vlc','celluloid','rhythmbox','shotwell','gimp','inkscape','keepassxc','seahorse','gnome-keyring','flatpak','gnome-software-plugin-flatpak','fonts-dejavu','fonts-liberation','fonts-noto','fonts-noto-color-emoji','timeshift','deja-dup','rsync','curl','wget','git','vim','nano','htop','ncdu'] },
-    { id: 'trixie-gaming', label: 'Standard Gaming', pkgIds: ['steam', 'vlc', 'git'], corePkgs: ['sudo','network-manager','pipewire','pipewire-audio','wireplumber','pavucontrol','steam-installer','lutris','wine','winetricks','protontricks','gamemode','mangohud','vkbasalt','mesa-utils','vulkan-tools','mesa-vulkan-drivers','libgl1-mesa-dri','firmware-linux','firmware-linux-nonfree','firmware-amd-graphics','firmware-misc-nonfree','nvidia-driver','nvidia-settings','gamescope','obs-studio','ffmpeg','vlc','jstest-gtk','joystick','antimicrox','input-remapper','retroarch','pcsxr','dolphin-emu','dosbox','scummvm','p7zip-full','unzip','curl','wget','git','htop','nvtop','lm-sensors'] },
-    { id: 'trixie-education', label: 'Standard Education', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'], corePkgs: ['education-desktop-other','education-common','education-tasks','education-preschool','education-primaryschool','education-secondaryschool','education-highschool','education-mathematics','education-chemistry','education-physics','education-astronomy','education-geography','education-development','education-graphics','education-language','education-music','education-video','libreoffice','firefox-esr','thunderbird','gimp','inkscape','krita','scribus','geogebra','stellarium','kalzium','kstars','gcompris-qt','tuxmath','tuxtype','scratch','idle','thonny','python3','python3-pip','git','vlc','audacity','obs-studio','cups','sane-airscan','simple-scan','fonts-noto','fonts-noto-color-emoji'] },
-    { id: 'trixie-coding', label: 'Standard Coding Environment', pkgIds: ['git', 'vscode'], corePkgs: ['build-essential','devscripts','debhelper','fakeroot','lintian','pkg-config','cmake','meson','ninja-build','make','gcc','g++','gdb','valgrind','git','git-lfs','gh','subversion','mercurial','python3','python3-dev','python3-pip','python3-venv','pipx','python3-poetry','python3-pytest','ruff','mypy','nodejs','npm','yarnpkg','golang','rustc','cargo','default-jdk','maven','gradle','php-cli','composer','ruby','ruby-dev','perl','sqlite3','postgresql-client','mariadb-client','redis-tools','docker.io','docker-compose','compose-switch','podman','buildah','skopeo','ansible','terraform','vagrant','shellcheck','shfmt','jq','yq','xmlstarlet','curl','wget','httpie','nmap','tcpdump','netcat-openbsd','vim','neovim','emacs-nox','tmux','screen','ripgrep','fd-find','fzf','tree','graphviz','plantuml','pandoc','texlive-latex-recommended'] },
-    { id: 'trixie-practical-maximum', label: 'Standard Practical Maximum', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'], corePkgs: ['sudo','openssh-server','task-standard','network-manager','pipewire','pipewire-audio','wireplumber','cups','bluetooth','bluez','firefox-esr','thunderbird','libreoffice','gimp','inkscape','krita','scribus','vlc','obs-studio','ffmpeg','audacity','build-essential','devscripts','debhelper','fakeroot','lintian','pkg-config','cmake','meson','ninja-build','gcc','g++','gdb','valgrind','git','git-lfs','gh','python3','python3-dev','python3-pip','python3-venv','pipx','nodejs','npm','golang','rustc','cargo','default-jdk','maven','gradle','docker.io','docker-compose','podman','buildah','ansible','terraform','vagrant','qemu-system','libvirt-daemon-system','virt-manager','virtinst','nginx','apache2','mariadb-server','postgresql','redis-server','sqlite3','nfs-common','samba','cifs-utils','rsync','borgbackup','restic','rclone','ufw','nftables','fail2ban','auditd','apparmor','apparmor-utils','smartmontools','nvme-cli','hdparm','lshw','dmidecode','pciutils','usbutils','lm-sensors','htop','iotop','iftop','nload','ncdu','steam-installer','lutris','wine','winetricks','gamemode','mangohud','vulkan-tools','mesa-vulkan-drivers','education-desktop-other','education-development','education-mathematics','education-highschool','fonts-dejavu','fonts-liberation','fonts-noto','fonts-noto-color-emoji','flatpak','gnome-software-plugin-flatpak'] },
-  ],
+const QUICK_PRESET_DEFS = [
+  { id: 'minimum-headless', label: 'Minimum Headless', dir: '01_minimum_headless_optional_de' },
+  { id: 'standard-server-headless', label: 'Standard Server Headless', dir: '02_standard_server_headless_optional_de' },
+  { id: 'standard-desktop', label: 'Standard Desktop', dir: '03_standard_desktop_selectable_de' },
+  { id: 'standard-gaming', label: 'Standard Gaming', dir: '04_standard_gaming_selectable_de' },
+  { id: 'standard-education', label: 'Standard Education', dir: '05_standard_education_selectable_de' },
+  { id: 'standard-coding-environment', label: 'Standard Coding Environment', dir: '06_standard_coding_environment_selectable_de' },
+  { id: 'standard-practical-maximum', label: 'Standard Practical Maximum', dir: '07_standard_practical_maximum_selectable_de' },
+];
+
+const ENV_PROFILE_DIR_OVERRIDES = {
+  // Legacy imported folder; prefer canonical base-id folder first.
+  'debian-13': ['debian-13_environment_profiles', 'debian_trixie_environment_profiles/debian_trixie_environment_profiles'],
 };
+
+const PRESET_CACHE = {};
+const PRESET_CACHE_LOADING = new Set();
 
 // ── Services ─────────────────────────────────────────────────
 const SERVICES = [
@@ -590,6 +590,68 @@ function getBase() {
 function isRpiFamily() {
   const b = getBase();
   return b && RPI_FAMILIES.has(b.family);
+}
+
+function profileDirsForBase(baseId) {
+  if (!baseId) return [];
+  const dirs = ENV_PROFILE_DIR_OVERRIDES[baseId];
+  if (Array.isArray(dirs) && dirs.length) return dirs;
+  return [`${baseId}_environment_profiles`];
+}
+
+function parseCorePackagesFromEnvironmentMd(md) {
+  const marker = '## Core Package Set';
+  const idx = md.indexOf(marker);
+  if (idx === -1) return [];
+  const tail = md.slice(idx);
+  const fenceStart = tail.indexOf('```');
+  if (fenceStart === -1) return [];
+  const afterFence = tail.slice(fenceStart + 3);
+  const nl = afterFence.indexOf('\n');
+  const body = nl === -1 ? '' : afterFence.slice(nl + 1);
+  const fenceEnd = body.indexOf('```');
+  const block = fenceEnd === -1 ? body : body.slice(0, fenceEnd);
+  return block
+    .split(/\r?\n/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .filter(s => !s.startsWith('#'));
+}
+
+async function loadPresetsForBase(baseId) {
+  if (!baseId) return [];
+  if (PRESET_CACHE[baseId]) return PRESET_CACHE[baseId];
+  if (PRESET_CACHE_LOADING.has(baseId)) return [];
+  PRESET_CACHE_LOADING.add(baseId);
+  try {
+    const dirs = profileDirsForBase(baseId);
+    const loaded = [];
+    for (const preset of QUICK_PRESET_DEFS) {
+      let corePkgs = [];
+      for (const dir of dirs) {
+        const mdPath = `environments/${dir}/${preset.dir}/environment.md`;
+        try {
+          const resp = await fetch(mdPath, { cache: 'no-store' });
+          if (!resp.ok) continue;
+          const md = await resp.text();
+          corePkgs = parseCorePackagesFromEnvironmentMd(md);
+          if (corePkgs.length) break;
+        } catch (_) {
+          // ignore and try next path variant
+        }
+      }
+      loaded.push({ id: preset.id, label: preset.label, dir: preset.dir, corePkgs });
+    }
+    PRESET_CACHE[baseId] = loaded;
+    return loaded;
+  } finally {
+    PRESET_CACHE_LOADING.delete(baseId);
+  }
+}
+
+function presetsForBase(baseId) {
+  if (!baseId) return [];
+  return PRESET_CACHE[baseId] || QUICK_PRESET_DEFS.map(p => ({ ...p, corePkgs: [] }));
 }
 
 function initDefaultPkgs() {
@@ -870,37 +932,20 @@ function renderStepDE() {
 function renderStepPackages() {
   const base = getBase();
   const avail = base ? PACKAGES.filter(p => p.families.includes(base.family)) : [];
-  const presets = state.base && PACKAGE_PRESETS[state.base] ? PACKAGE_PRESETS[state.base] : [];
-  const isTrixie = state.base === 'debian-13';
+  const presets = presetsForBase(state.base);
   let html = `<h2 class="step-heading">Step 3 — Packages</h2>
-    <p class="step-sub">${isTrixie ? 'Select a Debian Trixie environment preset to install its Core Package Set.' : `Toggle additional packages to include. Package names are shown in <em>${base ? base.pkg : 'pkg'}</em> syntax.`}</p>`;
+    <p class="step-sub">Select an environment preset to install its Core Package Set.</p>`;
   if (presets.length) {
     html += `<p class="step-sub">Quick presets (${base ? base.label : 'selected base'}):</p>
     <div class="tiles single-col" role="radiogroup" aria-label="Package preset">`;
     for (const preset of presets) {
       const sel = state.pkgPreset === preset.id ? 'selected' : '';
       const count = Array.isArray(preset.corePkgs) ? preset.corePkgs.length : 0;
-      const expanded = sel === 'selected' && isTrixie;
+      const expanded = sel === 'selected';
       html += `<div class="tile ${sel}" data-pkg-preset="${esc(preset.id)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
         <div class="tile-title">${esc(preset.label)}</div>
-        <div class="installer-desc">${count} packages from Core Package Set</div>
+        <div class="installer-desc">${count > 0 ? `${count} packages from Core Package Set` : 'Loading package count…'}</div>
         ${expanded ? `<div class="installer-desc" style="margin-top:.6rem; max-height:14rem; overflow:auto; white-space:pre-wrap;">${esc((preset.corePkgs || []).join('\n'))}</div>` : ''}
-      </div>`;
-    }
-    html += '</div>';
-  }
-  if (!isTrixie) {
-    html += `<div class="toggle-list">`;
-    for (const pkg of avail) {
-      const on = state.pkgs[pkg.id] !== undefined ? state.pkgs[pkg.id] : pkg.defaultOn;
-      const cls = on ? 'on' : '';
-      const pkgName = getPkgName(pkg);
-      html += `<div class="toggle-row ${cls}" data-pkg="${esc(pkg.id)}" role="checkbox" tabindex="0" aria-checked="${on}">
-        <div class="toggle-label">
-          <strong>${esc(pkg.label)}</strong>
-          <span>${esc(pkgName)}</span>
-        </div>
-        <div class="toggle-switch"></div>
       </div>`;
     }
     html += '</div>';
@@ -1242,17 +1287,22 @@ function attachStepListeners(stepId) {
     }
 
     case 'packages': {
-      const pkgToggles = [...container.querySelectorAll('[data-pkg]')];
       const base = getBase();
-      const avail = base ? PACKAGES.filter(p => p.families.includes(base.family)) : [];
-      const presets = state.base && PACKAGE_PRESETS[state.base] ? PACKAGE_PRESETS[state.base] : [];
+      const presets = presetsForBase(state.base);
+      const hadCache = !!PRESET_CACHE[state.base];
+      if (!hadCache) {
+        loadPresetsForBase(state.base).then((loadedPresets) => {
+          if (state.pkgPreset) {
+            const selected = loadedPresets.find(p => p.id === state.pkgPreset);
+            if (selected) state.presetCorePkgs = Array.isArray(selected.corePkgs) ? [...selected.corePkgs] : [];
+          }
+          if (currentStep() && currentStep().id === 'packages') renderAll();
+        });
+      }
       const applyPreset = (presetId) => {
         const preset = presets.find(p => p.id === presetId);
         if (!preset) return;
-        const selectedIds = new Set(preset.pkgIds);
-        for (const pkg of avail) {
-          state.pkgs[pkg.id] = selectedIds.has(pkg.id);
-        }
+        state.pkgs = {};
         state.pkgPreset = presetId;
         state.presetCorePkgs = Array.isArray(preset.corePkgs) ? [...preset.corePkgs] : [];
         renderAll();
@@ -1262,17 +1312,6 @@ function attachStepListeners(stepId) {
       if (presetTiles.length) {
         attachTileKeys(presetTiles, (el) => applyPreset(el.dataset.pkgPreset));
       }
-      const togglePkg = (el) => {
-        const id = el.dataset.pkg;
-        state.pkgs[id] = !state.pkgs[id];
-        state.pkgPreset = null;
-        state.presetCorePkgs = [];
-        el.classList.toggle('on', state.pkgs[id]);
-        el.querySelector('.toggle-switch').style.cssText = '';
-        el.setAttribute('aria-checked', state.pkgs[id]);
-      };
-      pkgToggles.forEach(el => el.addEventListener('click', () => togglePkg(el)));
-      attachToggleKeys(pkgToggles, togglePkg);
       break;
     }
 
@@ -1410,6 +1449,8 @@ function onBaseSelected(baseId) {
 
   initDefaultPkgs();
   initDefaultServices();
+  // Environment presets drive package selection per base.
+  state.pkgs = {};
   if (isRpiFamily()) {
     initDefaultConfigTxt();
   }
@@ -1468,7 +1509,7 @@ function enabledPkgList(base) {
     .filter(p => p.families.includes(base.family) && state.pkgs[p.id])
     .map(resolvePkgName)
     .filter(Boolean);
-  const presetPkgs = (base.pkg === 'apt' && Array.isArray(state.presetCorePkgs)) ? state.presetCorePkgs : [];
+  const presetPkgs = Array.isArray(state.presetCorePkgs) ? state.presetCorePkgs : [];
   return [...new Set([...selectedTogglePkgs, ...presetPkgs])]
     .filter(Boolean)
     .join(' ');
