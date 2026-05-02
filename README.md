@@ -97,9 +97,24 @@ node scripts/tests/validate-environment-packages.cjs
 
 The Packages step now uses **Quick Presets** sourced from `docs/environments/<base>_environment_profiles/.../environment.md`.
 
-- Each preset corresponds to one environment profile (minimum, server, desktop, gaming, education, coding, practical maximum).
-- The wizard parses each profile’s `## Core Package Set`.
+- Each preset corresponds to one environment profile:
+  minimum, server, desktop, gaming, education, coding, practical maximum, and **LLM / AI Workstation & Inference Server**.
+- The wizard parses each profile’s `## Core Package Set` or `## Core System Packages`.
 - Selecting a preset expands the tile to show the exact package list and package count.
+
+### LLM / AI Profile Availability
+
+The LLM / AI preset is shown only for distro bases that include `08_llm_ai_workstation_inference_server/environment.md`.
+
+Included targets currently:
+- Debian 11/12/13
+- Ubuntu 20.04/22.04/24.04/25.04
+- Arch Linux
+- Fedora 41/42
+- openSUSE Leap 15.5/current Leap/Tumbleweed
+- Gentoo
+
+Excluded targets include older/EOL releases and ARM/Raspberry Pi-focused bases where this profile is not provided.
 
 ## Screenshots
 

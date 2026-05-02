@@ -23,9 +23,19 @@ This guide covers everything you need to turn either approach into a bootable IS
 The wizard’s **Packages** step is now preset-driven:
 
 - Quick Presets are loaded from `docs/environments/<base>_environment_profiles/.../environment.md`.
-- Each preset installs that profile’s **Core Package Set**.
+- Each preset installs that profile’s **Core Package Set** (or **Core System Packages** for profiles that use that heading).
 - Selecting a preset shows package count and an expanded package list.
 - Generated scripts install the full Core Package Set for the selected preset.
+- The new **LLM / AI Workstation & Inference Server** preset appears only on compatible distro bases that provide `08_llm_ai_workstation_inference_server/environment.md`.
+
+### Using the LLM / AI Preset
+
+1. In the wizard, pick a compatible base distro.
+2. In **Packages**, select **LLM / AI Workstation & Inference Server**.
+3. Review the expanded package list and package count.
+4. Continue to **Services** and enable only what you actually need (for example SSH, container runtime, or model-serving stack components).
+
+The generated script installs the profile-defined core packages for that distro exactly as listed by the environment profile.
 
 ---
 
