@@ -1512,13 +1512,14 @@ function enabledPkgList(base) {
     if (base.pkg === 'apt' && base.family === 'debian' && n === 'firefox') {
       return 'firefox-esr';
     }
-    // Older apt-based releases may not provide wireplumber; prefer the
-    // legacy PipeWire session manager there to avoid hard install failures.
+    // Older apt-based releases may not provide either wireplumber or
+    // pipewire-media-session consistently. Skip it there to avoid
+    // hard install failures from unavailable audio session packages.
     if (base.pkg === 'apt' && n === 'wireplumber') {
       const oldDebian = base.family === 'debian' && ['stretch', 'buster', 'bullseye'].includes(base.suite || '');
       const oldUbuntu = (base.family === 'ubuntu' || base.family === 'rpi-ubuntu') && ['focal'].includes(base.suite || '');
       if (oldDebian || oldUbuntu) {
-        return 'pipewire-media-session';
+        return '';
       }
     }
     return n;
