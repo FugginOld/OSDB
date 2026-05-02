@@ -2595,6 +2595,10 @@ log "Syncing Portage tree (this may take several minutes)..."
 emaint sync -a || emerge --sync
 
 log "Installing catalyst..."
+mkdir -p /etc/portage/package.accept_keywords
+cat > /etc/portage/package.accept_keywords/catalyst << 'CATKEY_EOF'
+dev-util/catalyst ~amd64
+CATKEY_EOF
 emerge -q dev-util/catalyst
 
 # ── Catalyst configuration ────────────────────────────────────
