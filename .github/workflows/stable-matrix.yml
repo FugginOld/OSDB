@@ -37,15 +37,15 @@ jobs:
           bad=0
           while IFS= read -r -d '' f; do
             mode="$(stat -c '%a' "$f")"
-            if [ "$mode" != "644" ]; then
-              echo "Incorrect mode $mode: $f (expected 644)"
+            if [ "$mode" != "755" ]; then
+              echo "Incorrect mode $mode: $f (expected 755)"
               bad=1
             fi
           done < <(find scripts/tests -name '*.sh' -print0)
           if [ "$bad" -ne 0 ]; then
             echo
             echo "Fix with:"
-            echo "  find scripts/tests -name '*.sh' -exec chmod 644 {} +"
+            echo "  find scripts/tests -name '*.sh' -exec chmod 755 {} +"
             exit 1
           fi
 
