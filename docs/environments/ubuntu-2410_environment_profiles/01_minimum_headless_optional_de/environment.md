@@ -38,44 +38,44 @@ openssh-server
 ## Core Package Set
 
 ```text
-sudo
-openssh-server
-ca-certificates
 apt-transport-https
-curl
-wget
-gnupg
-lsb-release
-locales
-tzdata
-nano
-vim-tiny
-less
-man-db
 bash-completion
-net-tools
+ca-certificates
+cron
+curl
+dmidecode
+dnsutils
+gnupg
+gzip
+htop
 iproute2
 iputils-ping
-dnsutils
-traceroute
-nftables
-ufw
-systemd-timesyncd
-rsync
-tar
-gzip
-xz-utils
-unzip
-zip
-pciutils
-usbutils
-lshw
-dmidecode
-smartmontools
-htop
-ncdu
-cron
+less
+locales
 logrotate
+lsb-release
+lshw
+man-db
+nano
+ncdu
+net-tools
+nftables
+openssh-server
+pciutils
+rsync
+smartmontools
+sudo
+systemd-timesyncd
+tar
+traceroute
+tzdata
+ufw
+unzip
+usbutils
+vim-tiny
+wget
+xz-utils
+zip
 ```
 
 ## Selectable Desktop Environment Options
@@ -115,10 +115,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo apt update
 sudo apt install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

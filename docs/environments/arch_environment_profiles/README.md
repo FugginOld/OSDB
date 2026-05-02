@@ -7,5 +7,5 @@ Separate `environment.md` files are included for each requested install profile.
 - `03_standard_desktop_selectable_de/environment.md` — Arch Linux Standard Desktop Setup with Selectable DE
 - `04_standard_gaming_selectable_de/environment.md` — Arch Linux Standard Gaming Setup with Selectable DE
 - `05_standard_education_selectable_de/environment.md` — Arch Linux Standard Education Setup with Selectable DE
-- `06_standard_coding_environment_selectable_de/environment.md` — Arch Linux Standard Coding Environment with Selectable DE
+- `06_standard_coding_environment_selectable_de/environment.md` — Arch Linux Standard Coding with Selectable DE
 - `07_standard_practical_maximum_selectable_de/environment.md` — Arch Linux Standard Practical Maximum Install with Selectable DE

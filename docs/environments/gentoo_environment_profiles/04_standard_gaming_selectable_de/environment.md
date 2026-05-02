@@ -37,31 +37,31 @@ selected desktop profile plus gaming packages
 ## Core Package Set
 
 ```text
-net-misc/networkmanager
-media-video/pipewire
-gui-apps/wireplumber
-media-sound/pavucontrol
-games-util/steam-launcher
-games-util/lutris
-app-emulation/wine-vanilla
-app-emulation/winetricks
-games-util/gamemode
-games-util/mangohud
-media-libs/mesa
-dev-util/vulkan-tools
-x11-drivers/nvidia-drivers
-media-video/obs-studio
-media-video/ffmpeg
-media-video/vlc
-games-emulation/retroarch
-games-emulation/dosbox
 app-arch/p7zip
 app-arch/unzip
-net-misc/curl
-net-misc/wget
+app-emulation/wine-vanilla
+app-emulation/winetricks
+dev-util/vulkan-tools
 dev-vcs/git
-sys-process/htop
+games-emulation/dosbox
+games-emulation/retroarch
+games-util/gamemode
+games-util/lutris
+games-util/mangohud
+games-util/steam-launcher
+gui-apps/wireplumber
+media-libs/mesa
+media-sound/pavucontrol
+media-video/ffmpeg
+media-video/obs-studio
+media-video/pipewire
+media-video/vlc
+net-misc/curl
+net-misc/networkmanager
+net-misc/wget
 sys-apps/lm-sensors
+sys-process/htop
+x11-drivers/nvidia-drivers
 ```
 
 ## Selectable Desktop Environment Options
@@ -102,10 +102,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

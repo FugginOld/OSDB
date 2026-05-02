@@ -39,39 +39,39 @@ openssh-server
 ## Core Package Set
 
 ```text
-sudo
-openssh-server
-ca-certificates
-curl
-wget
-gnupg2
-nano
-vim-minimal
-less
-man-db
 bash-completion
+bind-utils
+ca-certificates
+chrony
+cronie
+curl
+dmidecode
+firewalld
+gnupg2
+gzip
+htop
 iproute
 iputils
-bind-utils
-traceroute
-firewalld
-nftables
-chrony
-rsync
-tar
-gzip
-xz
-unzip
-zip
-pciutils
-usbutils
-lshw
-dmidecode
-smartmontools
-htop
-ncdu
-cronie
+less
 logrotate
+lshw
+man-db
+nano
+ncdu
+nftables
+openssh-server
+pciutils
+rsync
+smartmontools
+sudo
+tar
+traceroute
+unzip
+usbutils
+vim-minimal
+wget
+xz
+zip
 ```
 
 ## Selectable Desktop Environment Options
@@ -111,10 +111,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo dnf upgrade --refresh
 sudo dnf install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

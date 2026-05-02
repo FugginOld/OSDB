@@ -84,9 +84,7 @@ function detectBaseIdFromPath(p, baseMap) {
   const normalized = p.replace(/\\/g, '/');
   for (const id of Object.keys(baseMap)) {
     if (normalized.includes(`/environments/${id}_environment_profiles/`)) return id;
-  }
-  if (normalized.includes('/environments/debian_trixie_environment_profiles/')) return 'debian-13';
-  return null;
+  }  return null;
 }
 
 function validatePackages(base, pkgs) {

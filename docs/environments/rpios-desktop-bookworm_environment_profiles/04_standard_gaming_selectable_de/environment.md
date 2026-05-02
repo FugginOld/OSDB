@@ -39,40 +39,40 @@ one selected DE task
 ## Core Package Set
 
 ```text
-sudo
-network-manager
-pipewire
-wireplumber
-pavucontrol
-steam-installer
-lutris
-wine
-winetricks
-gamemode
-mangohud
-mesa-utils
-vulkan-tools
-mesa-vulkan-drivers
+curl
+dosbox
+ffmpeg
+firmware-amd-graphics
 firmware-linux
 firmware-linux-nonfree
-firmware-amd-graphics
 firmware-misc-nonfree
-nvidia-driver
-nvidia-settings
-obs-studio
-ffmpeg
-vlc
-joystick
-retroarch
-dosbox
-p7zip-full
-unzip
-curl
-wget
+gamemode
 git
 htop
-nvtop
+joystick
 lm-sensors
+lutris
+mangohud
+mesa-utils
+mesa-vulkan-drivers
+network-manager
+nvidia-driver
+nvidia-settings
+nvtop
+obs-studio
+p7zip-full
+pavucontrol
+pipewire
+retroarch
+steam-installer
+sudo
+unzip
+vlc
+vulkan-tools
+wget
+wine
+winetricks
+wireplumber
 ```
 
 ## Selectable Desktop Environment Options
@@ -113,10 +113,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo apt update
 sudo apt install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

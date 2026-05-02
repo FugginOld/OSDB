@@ -39,64 +39,64 @@ task-ssh-server
 ## Core Package Set
 
 ```text
-sudo
-openssh-server
-ca-certificates
-curl
-wget
-gnupg
-lsb-release
-vim
-nano
-tmux
-screen
-bash-completion
-rsync
-borgbackup
-restic
-rclone
-logrotate
-cron
 acl
-attr
-ufw
-nftables
-fail2ban
-auditd
+apache2
 apparmor
 apparmor-utils
-iproute2
-net-tools
-dnsutils
-tcpdump
-nmap
-mtr-tiny
-ethtool
-iperf3
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
-nvme-cli
-hdparm
-lm-sensors
-mdadm
-lvm2
-xfsprogs
+attr
+auditd
+bash-completion
+borgbackup
 btrfs-progs
-nfs-common
-samba
+ca-certificates
 cifs-utils
-podman
-docker.io
+cron
+curl
+dmidecode
+dnsutils
 docker-compose
-nginx
-apache2
+docker.io
+ethtool
+fail2ban
+gnupg
+hdparm
+iperf3
+iproute2
+lm-sensors
+logrotate
+lsb-release
+lshw
+lvm2
 mariadb-server
+mdadm
+mtr-tiny
+nano
+net-tools
+nfs-common
+nftables
+nginx
+nmap
+nvme-cli
+openssh-server
+pciutils
+podman
 postgresql
-redis-server
 prometheus-node-exporter
+rclone
+redis-server
+restic
+rsync
+samba
+screen
+smartmontools
+sudo
+tcpdump
+tmux
+ufw
+usbutils
+vim
+wget
+xfsprogs
 ```
 
 ## Selectable Desktop Environment Options
@@ -137,10 +137,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo apt update
 sudo apt install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

@@ -38,30 +38,30 @@ selected desktop environment group plus education packages
 ## Core Package Set
 
 ```text
-libreoffice
+audacity
+cups
 firefox
-thunderbird
+gcompris-qt
 gimp
+git
+google-noto-emoji-fonts
+google-noto-fonts-common
 inkscape
 krita
-scribus
-stellarium
-gcompris-qt
-tuxmath
-tuxtype
-scratch
-thonny
+libreoffice
+obs-studio
 python3
 python3-pip
-git
-vlc
-audacity
-obs-studio
-cups
 sane-airscan
+scratch
+scribus
 simple-scan
-google-noto-fonts-common
-google-noto-emoji-fonts
+stellarium
+thonny
+thunderbird
+tuxmath
+tuxtype
+vlc
 ```
 
 ## Selectable Desktop Environment Options
@@ -102,10 +102,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo dnf upgrade --refresh
 sudo dnf install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

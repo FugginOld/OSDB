@@ -1,4 +1,4 @@
-# Arch Linux ARM Standard Coding Environment with Selectable DE
+# Arch Linux ARM Standard Coding with Selectable DE
 
 ## Purpose
 
@@ -39,67 +39,67 @@ optional selected DE packages
 ## Core Package Set
 
 ```text
+ansible
 base-devel
-pkgconf
+buildah
 cmake
-meson
-ninja
-make
+composer
+curl
+docker
+docker-compose
+emacs-nox
+fd
+fzf
 gcc
 gdb
-valgrind
 git
 git-lfs
 github-cli
-subversion
+go
+gradle
+graphviz
+httpie
+jdk-openjdk
+jq
+make
+mariadb-libs
+maven
 mercurial
+meson
+neovim
+ninja
+nmap
+nodejs
+npm
+openbsd-netcat
+pandoc
+perl
+php
+pipx
+pkgconf
+plantuml
+podman
+postgresql-libs
 python
 python-pip
 python-virtualenv
-pipx
-nodejs
-npm
-go
-rust
-jdk-openjdk
-maven
-gradle
-php
-composer
-ruby
-perl
-sqlite
-postgresql-libs
-mariadb-libs
 redis
-docker
-docker-compose
-podman
-buildah
-skopeo
-ansible
+ripgrep
+ruby
+rust
+screen
 shellcheck
 shfmt
-jq
-yq
-curl
-wget
-httpie
-nmap
+skopeo
+sqlite
+subversion
 tcpdump
-openbsd-netcat
-vim
-neovim
-emacs-nox
 tmux
-screen
-ripgrep
-fd
-fzf
 tree
-graphviz
-plantuml
-pandoc
+valgrind
+vim
+wget
+yq
 ```
 
 ## Selectable Desktop Environment Options
@@ -140,10 +140,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo pacman -Syu
 sudo pacman -S <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

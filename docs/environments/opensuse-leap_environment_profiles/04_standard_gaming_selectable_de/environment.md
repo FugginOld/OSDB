@@ -37,35 +37,35 @@ selected desktop pattern plus gaming packages
 ## Core Package Set
 
 ```text
-sudo
-NetworkManager
-pipewire
-wireplumber
-pavucontrol
-steam
-lutris
-wine
-winetricks
-gamemode
-mangohud
-Mesa-demo-x
-vulkan-tools
-Mesa-vulkan-device-select
-nvidia-video-G06
-obs-studio
-ffmpeg
-vlc
-joystick
-retroarch
-dosbox
-p7zip
-unzip
 curl
-wget
+dosbox
+ffmpeg
+gamemode
 git
 htop
+joystick
+lutris
+mangohud
+Mesa-demo-x
+Mesa-vulkan-device-select
+NetworkManager
+nvidia-video-G06
 nvtop
+obs-studio
+p7zip
+pavucontrol
+pipewire
+retroarch
 sensors
+steam
+sudo
+unzip
+vlc
+vulkan-tools
+wget
+wine
+winetricks
+wireplumber
 ```
 
 ## Selectable Desktop Environment Options
@@ -106,10 +106,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo zypper refresh
 sudo zypper install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

@@ -37,39 +37,39 @@ system set plus openssh
 ## Core Package Set
 
 ```text
+app-admin/logrotate
 app-admin/sudo
-net-misc/openssh
-app-misc/ca-certificates
-net-misc/curl
-net-misc/wget
+app-arch/gzip
+app-arch/tar
+app-arch/unzip
+app-arch/xz-utils
+app-arch/zip
 app-crypt/gnupg
 app-editors/nano
 app-editors/vim
-sys-apps/less
-sys-apps/man-db
+app-misc/ca-certificates
 app-shells/bash-completion
-sys-apps/iproute2
-net-misc/iputils
-net-dns/bind-tools
 net-analyzer/traceroute
+net-dns/bind-tools
 net-firewall/nftables
 net-firewall/ufw
 net-misc/chrony
+net-misc/curl
+net-misc/iputils
+net-misc/openssh
 net-misc/rsync
-app-arch/tar
-app-arch/gzip
-app-arch/xz-utils
-app-arch/unzip
-app-arch/zip
-sys-apps/pciutils
-sys-apps/usbutils
-sys-apps/lshw
+net-misc/wget
 sys-apps/dmidecode
+sys-apps/iproute2
+sys-apps/less
+sys-apps/lshw
+sys-apps/man-db
+sys-apps/pciutils
 sys-apps/smartmontools
-sys-process/htop
+sys-apps/usbutils
 sys-fs/ncdu
 sys-process/cronie
-app-admin/logrotate
+sys-process/htop
 ```
 
 ## Selectable Desktop Environment Options
@@ -109,10 +109,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

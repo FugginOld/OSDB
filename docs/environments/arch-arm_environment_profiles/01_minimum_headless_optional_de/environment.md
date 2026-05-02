@@ -41,43 +41,43 @@ openssh
 
 ```text
 base
-linux
-linux-firmware
-sudo
-openssh
-ca-certificates
-curl
-wget
-gnupg
-nano
-vim
-less
-man-db
-man-pages
 bash-completion
-net-tools
+bind
+ca-certificates
+cronie
+curl
+dmidecode
+gnupg
+gzip
+htop
 iproute2
 iputils
-bind
-traceroute
-nftables
-ufw
-systemd-timesyncd
-rsync
-tar
-gzip
-xz
-unzip
-zip
-pciutils
-usbutils
-lshw
-dmidecode
-smartmontools
-htop
-ncdu
-cronie
+less
+linux
+linux-firmware
 logrotate
+lshw
+man-db
+man-pages
+nano
+ncdu
+net-tools
+nftables
+openssh
+pciutils
+rsync
+smartmontools
+sudo
+systemd-timesyncd
+tar
+traceroute
+ufw
+unzip
+usbutils
+vim
+wget
+xz
+zip
 ```
 
 ## Selectable Desktop Environment Options
@@ -117,10 +117,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo pacman -Syu
 sudo pacman -S <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

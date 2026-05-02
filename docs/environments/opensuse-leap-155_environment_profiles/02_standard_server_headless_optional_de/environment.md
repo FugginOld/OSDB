@@ -37,56 +37,56 @@ patterns-server-file_server or selected server patterns
 ## Core Package Set
 
 ```text
-sudo
-openssh
-vim
-nano
-tmux
-screen
-rsync
-borgbackup
-restic
-rclone
-logrotate
-cron
 acl
-attr
-firewalld
-fail2ban
-audit
+apache2
 apparmor-utils
-iproute2
-net-tools
+attr
+audit
 bind-utils
-tcpdump
-nmap
-mtr
-ethtool
-iperf
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
-nvme-cli
-hdparm
-sensors
-mdadm
-lvm2
-xfsprogs
+borgbackup
 btrfsprogs
-nfs-client
-samba-client
 cifs-utils
-podman
+cron
+dmidecode
 docker
 docker-compose
-nginx
-apache2
+ethtool
+fail2ban
+firewalld
+hdparm
+iperf
+iproute2
+logrotate
+lshw
+lvm2
 mariadb
+mdadm
+mtr
+nano
+net-tools
+nfs-client
+nginx
+nmap
+nvme-cli
+openssh
+pciutils
+podman
 postgresql-server
-redis
 prometheus-node_exporter
+rclone
+redis
+restic
+rsync
+samba-client
+screen
+sensors
+smartmontools
+sudo
+tcpdump
+tmux
+usbutils
+vim
+xfsprogs
 ```
 
 ## Selectable Desktop Environment Options
@@ -127,10 +127,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo zypper refresh
 sudo zypper install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

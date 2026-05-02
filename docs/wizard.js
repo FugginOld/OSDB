@@ -426,13 +426,13 @@ const QUICK_PRESET_DEFS = [
   { id: 'standard-desktop', label: 'Standard Desktop', dir: '03_standard_desktop_selectable_de' },
   { id: 'standard-gaming', label: 'Standard Gaming', dir: '04_standard_gaming_selectable_de' },
   { id: 'standard-education', label: 'Standard Education', dir: '05_standard_education_selectable_de' },
-  { id: 'standard-coding-environment', label: 'Standard Coding Environment', dir: '06_standard_coding_environment_selectable_de' },
+  { id: 'standard-coding-environment', label: 'Standard Coding', dir: '06_standard_coding_environment_selectable_de' },
   { id: 'standard-practical-maximum', label: 'Standard Practical Maximum', dir: '07_standard_practical_maximum_selectable_de' },
 ];
 
 const ENV_PROFILE_DIR_OVERRIDES = {
   // Legacy imported folder; prefer canonical base-id folder first.
-  'debian-13': ['debian-13_environment_profiles', 'debian_trixie_environment_profiles/debian_trixie_environment_profiles'],
+  'debian-13': ['debian-13_environment_profiles'],
 };
 
 const PRESET_CACHE = {};

@@ -1,4 +1,4 @@
-﻿# Debian 12 Bookworm Standard Education Setup with Selectable DE
+# Debian 12 Bookworm Standard Education Setup with Selectable DE
 
 ## Purpose
 
@@ -27,7 +27,7 @@ apt-cache search <term>
 sudo apt update
 sudo apt install <packages>
 ```
-- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -39,33 +39,33 @@ one selected DE task
 ## Core Package Set
 
 ```text
-education-desktop-other
-education-common
-education-tasks
-libreoffice
-firefox-esr
-thunderbird
-gimp
-inkscape
-krita
-scribus
-stellarium
-gcompris-qt
-tuxmath
-tuxtype
-scratch
-thonny
-python3
-python3-pip
-git
-vlc
 audacity
-obs-studio
 cups
-sane-airscan
-simple-scan
+education-common
+education-desktop-other
+education-tasks
+firefox-esr
 fonts-noto
 fonts-noto-color-emoji
+gcompris-qt
+gimp
+git
+inkscape
+krita
+libreoffice
+obs-studio
+python3
+python3-pip
+sane-airscan
+scratch
+scribus
+simple-scan
+stellarium
+thonny
+thunderbird
+tuxmath
+tuxtype
+vlc
 ```
 
 ## Selectable Desktop Environment Options
@@ -106,11 +106,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo apt update
 sudo apt install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.
-

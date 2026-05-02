@@ -1,4 +1,4 @@
-# Fedora 42 Standard Coding Environment with Selectable DE
+# Fedora 42 Standard Coding with Selectable DE
 
 ## Purpose
 
@@ -40,67 +40,67 @@ optional selected desktop environment group
 
 ```text
 @development-tools
-rpmdevtools
-rpmlint
-mock
-pkgconf-pkg-config
+ansible
+buildah
+cargo
 cmake
-meson
-ninja-build
-make
+composer
+curl
+docker
+docker-compose
+emacs-nox
+fzf
 gcc
 gcc-c++
 gdb
-valgrind
 git
 git-lfs
+golang
+gradle
+graphviz
+httpie
+java-latest-openjdk-devel
+jq
+make
+mariadb
+maven
+meson
+mock
+neovim
+ninja-build
+nmap
+nmap-ncat
+nodejs
+npm
+pandoc
+perl
+php-cli
+pipx
+pkgconf-pkg-config
+plantuml
+podman
+postgresql
 python3
 python3-devel
 python3-pip
-pipx
-nodejs
-npm
-golang
-rust
-cargo
-java-latest-openjdk-devel
-maven
-gradle
-php-cli
-composer
+redis
+ripgrep
+rpmdevtools
+rpmlint
 ruby
 ruby-devel
-perl
-sqlite
-postgresql
-mariadb
-redis
-docker
-docker-compose
-podman
-buildah
-skopeo
-ansible
-ShellCheck
-jq
-yq
-curl
-wget
-httpie
-nmap
-tcpdump
-nmap-ncat
-vim
-neovim
-emacs-nox
-tmux
+rust
 screen
-ripgrep
-fzf
+ShellCheck
+skopeo
+sqlite
+tcpdump
+tmux
 tree
-graphviz
-plantuml
-pandoc
+valgrind
+vim
+wget
+yq
 ```
 
 ## Selectable Desktop Environment Options
@@ -141,10 +141,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo dnf upgrade --refresh
 sudo dnf install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

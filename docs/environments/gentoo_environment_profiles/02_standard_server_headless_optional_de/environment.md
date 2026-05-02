@@ -37,43 +37,43 @@ system set plus server services
 ## Core Package Set
 
 ```text
+app-admin/fail2ban
+app-admin/logrotate
 app-admin/sudo
-net-misc/openssh
-app-editors/vim
-app-editors/nano
-app-misc/tmux
-app-misc/screen
-net-misc/rsync
 app-backup/borgbackup
 app-backup/restic
-net-misc/rclone
-app-admin/logrotate
-sys-process/cronie
-sys-apps/acl
-sys-apps/attr
-net-firewall/nftables
-net-firewall/ufw
-app-admin/fail2ban
-sys-process/audit
-sys-apps/iproute2
-net-analyzer/tcpdump
-net-analyzer/nmap
-net-analyzer/mtr
-net-misc/iperf
-sys-apps/smartmontools
-sys-block/nvme-cli
-sys-fs/lvm2
-sys-fs/xfsprogs
-sys-fs/btrfs-progs
-net-fs/nfs-utils
-net-fs/samba
-app-containers/podman
 app-containers/docker
-www-servers/nginx
-www-servers/apache
+app-containers/podman
+app-editors/nano
+app-editors/vim
+app-misc/screen
+app-misc/tmux
 dev-db/mariadb
 dev-db/postgresql
 dev-db/redis
+net-analyzer/mtr
+net-analyzer/nmap
+net-analyzer/tcpdump
+net-firewall/nftables
+net-firewall/ufw
+net-fs/nfs-utils
+net-fs/samba
+net-misc/iperf
+net-misc/openssh
+net-misc/rclone
+net-misc/rsync
+sys-apps/acl
+sys-apps/attr
+sys-apps/iproute2
+sys-apps/smartmontools
+sys-block/nvme-cli
+sys-fs/btrfs-progs
+sys-fs/lvm2
+sys-fs/xfsprogs
+sys-process/audit
+sys-process/cronie
+www-servers/apache
+www-servers/nginx
 ```
 
 ## Selectable Desktop Environment Options
@@ -114,10 +114,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

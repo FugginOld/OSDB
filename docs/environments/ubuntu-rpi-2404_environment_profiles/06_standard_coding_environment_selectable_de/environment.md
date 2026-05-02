@@ -1,4 +1,4 @@
-# Ubuntu Server/Desktop for Raspberry Pi 24.04 LTS Standard Coding Environment with Selectable DE
+# Ubuntu Server/Desktop for Raspberry Pi 24.04 LTS Standard Coding with Selectable DE
 
 ## Purpose
 
@@ -40,70 +40,70 @@ optional selected desktop metapackage
 ## Core Package Set
 
 ```text
+ansible
 build-essential
-devscripts
-debhelper
-fakeroot
-lintian
-pkg-config
+buildah
+cargo
 cmake
-meson
-ninja-build
-make
-gcc
+composer
+curl
+debhelper
+default-jdk
+devscripts
+docker-compose
+docker.io
+emacs-nox
+fakeroot
+fzf
 g++
+gcc
 gdb
-valgrind
 git
 git-lfs
+golang
+gradle
+graphviz
+httpie
+jq
+lintian
+make
+mariadb-client
+maven
+meson
+neovim
+netcat-openbsd
+ninja-build
+nmap
+nodejs
+npm
+pandoc
+perl
+php-cli
+pipx
+pkg-config
+plantuml
+podman
+postgresql-client
 python3
 python3-dev
 python3-pip
 python3-venv
-pipx
-nodejs
-npm
-golang
-rustc
-cargo
-default-jdk
-maven
-gradle
-php-cli
-composer
+redis-tools
+ripgrep
 ruby
 ruby-dev
-perl
-sqlite3
-postgresql-client
-mariadb-client
-redis-tools
-docker.io
-docker-compose
-podman
-buildah
-skopeo
-ansible
-shellcheck
-jq
-yq
-curl
-wget
-httpie
-nmap
-tcpdump
-netcat-openbsd
-vim
-neovim
-emacs-nox
-tmux
+rustc
 screen
-ripgrep
-fzf
+shellcheck
+skopeo
+sqlite3
+tcpdump
+tmux
 tree
-graphviz
-plantuml
-pandoc
+valgrind
+vim
+wget
+yq
 ```
 
 ## Selectable Desktop Environment Options
@@ -144,10 +144,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo apt update
 sudo apt install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

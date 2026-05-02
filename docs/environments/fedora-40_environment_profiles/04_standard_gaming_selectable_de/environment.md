@@ -38,35 +38,35 @@ selected desktop environment group plus gaming packages
 ## Core Package Set
 
 ```text
-sudo
-NetworkManager
-pipewire
-wireplumber
-pavucontrol
-steam
-lutris
-wine
-winetricks
-gamemode
-mangohud
-mesa-demos
-vulkan-tools
-mesa-vulkan-drivers
-nvidia-driver
-obs-studio
-ffmpeg
-vlc
-joystick-support
-retroarch
-dosbox
-p7zip
-unzip
 curl
-wget
+dosbox
+ffmpeg
+gamemode
 git
 htop
-nvtop
+joystick-support
 lm_sensors
+lutris
+mangohud
+mesa-demos
+mesa-vulkan-drivers
+NetworkManager
+nvidia-driver
+nvtop
+obs-studio
+p7zip
+pavucontrol
+pipewire
+retroarch
+steam
+sudo
+unzip
+vlc
+vulkan-tools
+wget
+wine
+winetricks
+wireplumber
 ```
 
 ## Selectable Desktop Environment Options
@@ -107,10 +107,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo dnf upgrade --refresh
 sudo dnf install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

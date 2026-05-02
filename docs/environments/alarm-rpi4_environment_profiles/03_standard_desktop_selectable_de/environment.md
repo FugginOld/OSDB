@@ -39,46 +39,46 @@ selected DE packages
 ## Core Package Set
 
 ```text
-sudo
-networkmanager
-wireless_tools
-wpa_supplicant
-pipewire
-wireplumber
-pipewire-pulse
-pavucontrol
 alsa-utils
-bluez
 blueman
+bluez
 cups
-system-config-printer
-sane-airscan
-simple-scan
-firefox
-thunderbird
-libreoffice-still
+curl
+deja-dup
 evince
 file-roller
-gparted
-vlc
+firefox
+flatpak
 gimp
+git
+gparted
+htop
 inkscape
 keepassxc
-flatpak
-ttf-dejavu
-ttf-liberation
+libreoffice-still
+nano
+ncdu
+networkmanager
 noto-fonts
 noto-fonts-emoji
-timeshift
-deja-dup
+pavucontrol
+pipewire
+pipewire-pulse
 rsync
-curl
-wget
-git
+sane-airscan
+simple-scan
+sudo
+system-config-printer
+thunderbird
+timeshift
+ttf-dejavu
+ttf-liberation
 vim
-nano
-htop
-ncdu
+vlc
+wget
+wireless_tools
+wireplumber
+wpa_supplicant
 ```
 
 ## Selectable Desktop Environment Options
@@ -119,10 +119,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo pacman -Syu
 sudo pacman -S <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

@@ -1,4 +1,4 @@
-# Gentoo Linux Standard Coding Environment with Selectable DE
+# Gentoo Linux Standard Coding with Selectable DE
 
 ## Purpose
 
@@ -37,43 +37,43 @@ selected developer toolchain packages
 ## Core Package Set
 
 ```text
-sys-devel/gcc
-sys-devel/gdb
+app-admin/ansible
+app-containers/docker
+app-containers/docker-compose
+app-containers/podman
+app-editors/emacs
+app-editors/neovim
+app-editors/vim
+app-misc/jq
+app-misc/tmux
+app-shells/fzf
+app-shells/shellcheck
+app-text/pandoc
+dev-db/mariadb
+dev-db/postgresql
+dev-db/redis
+dev-db/sqlite
+dev-java/gradle-bin
+dev-java/maven-bin
+dev-lang/go
+dev-lang/nodejs
+dev-lang/perl
+dev-lang/php
+dev-lang/python
+dev-lang/ruby
+dev-lang/rust-bin
+dev-php/composer
+dev-python/pip
+dev-python/virtualenv
 dev-util/cmake
 dev-util/meson
 dev-util/ninja
 dev-vcs/git
 dev-vcs/git-lfs
-dev-lang/python
-dev-python/pip
-dev-python/virtualenv
-dev-lang/nodejs
-dev-lang/go
-dev-lang/rust-bin
-virtual/jdk
-dev-java/maven-bin
-dev-java/gradle-bin
-dev-lang/php
-dev-php/composer
-dev-lang/ruby
-dev-lang/perl
-dev-db/sqlite
-dev-db/postgresql
-dev-db/mariadb
-dev-db/redis
-app-containers/docker
-app-containers/docker-compose
-app-containers/podman
-app-admin/ansible
-app-shells/shellcheck
-app-misc/jq
-app-editors/vim
-app-editors/neovim
-app-editors/emacs
-app-misc/tmux
 sys-apps/ripgrep
-app-shells/fzf
-app-text/pandoc
+sys-devel/gcc
+sys-devel/gdb
+virtual/jdk
 ```
 
 ## Selectable Desktop Environment Options
@@ -114,10 +114,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

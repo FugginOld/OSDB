@@ -38,41 +38,41 @@ openssh
 ## Core Package Set
 
 ```text
-sudo
-openssh
-ca-certificates
-curl
-wget
-gpg2
-nano
-vim-small
-less
-man
-man-pages
 bash-completion
-net-tools
+bind-utils
+ca-certificates
+chrony
+cron
+curl
+dmidecode
+firewalld
+gpg2
+gzip
+htop
 iproute2
 iputils
-bind-utils
-traceroute
-nftables
-firewalld
-chrony
-rsync
-tar
-gzip
-xz
-unzip
-zip
-pciutils
-usbutils
-lshw
-dmidecode
-smartmontools
-htop
-ncdu
-cron
+less
 logrotate
+lshw
+man
+man-pages
+nano
+ncdu
+net-tools
+nftables
+openssh
+pciutils
+rsync
+smartmontools
+sudo
+tar
+traceroute
+unzip
+usbutils
+vim-small
+wget
+xz
+zip
 ```
 
 ## Selectable Desktop Environment Options
@@ -112,10 +112,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo zypper refresh
 sudo zypper install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

@@ -40,40 +40,40 @@ gaming packages
 ## Core Package Set
 
 ```text
-sudo
-networkmanager
-pipewire
-wireplumber
-pipewire-pulse
-pavucontrol
-steam
-lutris
-wine
-winetricks
-gamemode
-mangohud
-vkbasalt
-mesa-utils
-vulkan-tools
-vulkan-radeon
-vulkan-intel
-nvidia
-nvidia-utils
-obs-studio
-ffmpeg
-vlc
-jstest-gtk
-retroarch
+curl
 dolphin-emu
 dosbox
-p7zip
-unzip
-curl
-wget
+ffmpeg
+gamemode
 git
 htop
-nvtop
+jstest-gtk
 lm_sensors
+lutris
+mangohud
+mesa-utils
+networkmanager
+nvidia
+nvidia-utils
+nvtop
+obs-studio
+p7zip
+pavucontrol
+pipewire
+pipewire-pulse
+retroarch
+steam
+sudo
+unzip
+vkbasalt
+vlc
+vulkan-intel
+vulkan-radeon
+vulkan-tools
+wget
+wine
+winetricks
+wireplumber
 ```
 
 ## Selectable Desktop Environment Options
@@ -114,10 +114,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo pacman -Syu
 sudo pacman -S <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

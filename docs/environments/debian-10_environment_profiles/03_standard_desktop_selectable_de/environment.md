@@ -1,4 +1,4 @@
-﻿# Debian 10 Buster Standard Desktop Setup with Selectable DE
+# Debian 10 Buster Standard Desktop Setup with Selectable DE
 
 ## Purpose
 
@@ -27,7 +27,7 @@ apt-cache search <term>
 sudo apt update
 sudo apt install <packages>
 ```
-- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -39,48 +39,48 @@ one selected DE task
 ## Core Package Set
 
 ```text
-sudo
-network-manager
-network-manager-gnome
-wireless-tools
-wpasupplicant
-pipewire
-wireplumber
-pavucontrol
 alsa-utils
+blueman
 bluetooth
 bluez
-blueman
 cups
-system-config-printer
-printer-driver-all
-sane-airscan
-simple-scan
-firefox-esr
-thunderbird
-libreoffice
+curl
+deja-dup
 evince
 file-roller
-gparted
-vlc
-gimp
-inkscape
-keepassxc
+firefox-esr
 flatpak
 fonts-dejavu
 fonts-liberation
 fonts-noto
 fonts-noto-color-emoji
-timeshift
-deja-dup
-rsync
-curl
-wget
+gimp
 git
-vim
-nano
+gparted
 htop
+inkscape
+keepassxc
+libreoffice
+nano
 ncdu
+network-manager
+network-manager-gnome
+pavucontrol
+pipewire
+printer-driver-all
+rsync
+sane-airscan
+simple-scan
+sudo
+system-config-printer
+thunderbird
+timeshift
+vim
+vlc
+wget
+wireless-tools
+wireplumber
+wpasupplicant
 ```
 
 ## Selectable Desktop Environment Options
@@ -121,11 +121,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo apt update
 sudo apt install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.
-

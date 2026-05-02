@@ -38,24 +38,24 @@ selected desktop profile plus education packages
 
 ```text
 app-office/libreoffice
-www-client/firefox
-mail-client/thunderbird
-media-gfx/gimp
-media-gfx/inkscape
-media-gfx/krita
 app-office/scribus
-sci-astronomy/stellarium
-games-kids/gcompris-qt
 dev-lang/python
 dev-python/pip
 dev-vcs/git
-media-video/vlc
-media-sound/audacity
-media-video/obs-studio
-net-print/cups
-media-gfx/simple-scan
+games-kids/gcompris-qt
+mail-client/thunderbird
 media-fonts/noto
 media-fonts/noto-emoji
+media-gfx/gimp
+media-gfx/inkscape
+media-gfx/krita
+media-gfx/simple-scan
+media-sound/audacity
+media-video/obs-studio
+media-video/vlc
+net-print/cups
+sci-astronomy/stellarium
+www-client/firefox
 ```
 
 ## Selectable Desktop Environment Options
@@ -96,10 +96,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

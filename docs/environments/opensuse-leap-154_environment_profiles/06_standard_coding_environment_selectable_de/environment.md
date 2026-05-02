@@ -1,4 +1,4 @@
-# openSUSE Leap 15.4 Standard Coding Environment with Selectable DE
+# openSUSE Leap 15.4 Standard Coding with Selectable DE
 
 ## Purpose
 
@@ -38,69 +38,69 @@ optional selected desktop pattern
 ## Core Package Set
 
 ```text
-patterns-devel-base-devel_basis
-rpm-build
-rpmlint
-osc
-pkg-config
+ansible
+buildah
+cargo
 cmake
-meson
-ninja
-make
+composer
+curl
+docker
+docker-compose
+emacs-nox
+fzf
 gcc
 gcc-c++
 gdb
-valgrind
 git
 git-lfs
+go
+gradle
+graphviz
+httpie
+java-devel
+jq
+make
+mariadb
+maven
+meson
+neovim
+netcat-openbsd
+ninja
+nmap
+nodejs
+npm
+osc
+pandoc
+patterns-devel-base-devel_basis
+perl
+php7
+pipx
+pkg-config
+plantuml
+podman
+postgresql
 python3
 python3-devel
 python3-pip
 python3-virtualenv
-pipx
-nodejs
-npm
-go
-rust
-cargo
-java-devel
-maven
-gradle
-php7
-composer
+redis
+ripgrep
+rpm-build
+rpmlint
 ruby
 ruby-devel
-perl
-sqlite3
-postgresql
-mariadb
-redis
-docker
-docker-compose
-podman
-buildah
-skopeo
-ansible
-ShellCheck
-jq
-yq
-curl
-wget
-httpie
-nmap
-tcpdump
-netcat-openbsd
-vim
-neovim
-emacs-nox
-tmux
+rust
 screen
-ripgrep
-fzf
+ShellCheck
+skopeo
+sqlite3
+tcpdump
+tmux
 tree
-graphviz
-plantuml
-pandoc
+valgrind
+vim
+wget
+yq
 ```
 
 ## Selectable Desktop Environment Options
@@ -141,10 +141,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo zypper refresh
 sudo zypper install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

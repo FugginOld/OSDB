@@ -39,56 +39,56 @@ sudo dnf install <packages>
 ## Core Package Set
 
 ```text
-sudo
-openssh-server
-vim
-nano
-tmux
-screen
-rsync
-borgbackup
-restic
-rclone
-logrotate
-cronie
 acl
 attr
-firewalld
-fail2ban
 audit
 audit-libs
-iproute
-net-tools
 bind-utils
-tcpdump
-nmap
-mtr
-ethtool
-iperf3
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
-nvme-cli
-hdparm
-lm_sensors
-mdadm
-lvm2
-xfsprogs
+borgbackup
 btrfs-progs
-nfs-utils
-samba
 cifs-utils
-podman
+cronie
+dmidecode
 docker
 docker-compose
-nginx
+ethtool
+fail2ban
+firewalld
+hdparm
 httpd
+iperf3
+iproute
+lm_sensors
+logrotate
+lshw
+lvm2
 mariadb-server
-postgresql-server
-redis
+mdadm
+mtr
+nano
+net-tools
+nfs-utils
+nginx
+nmap
 node_exporter
+nvme-cli
+openssh-server
+pciutils
+podman
+postgresql-server
+rclone
+redis
+restic
+rsync
+samba
+screen
+smartmontools
+sudo
+tcpdump
+tmux
+usbutils
+vim
+xfsprogs
 ```
 
 ## Selectable Desktop Environment Options
@@ -129,10 +129,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo dnf upgrade --refresh
 sudo dnf install <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

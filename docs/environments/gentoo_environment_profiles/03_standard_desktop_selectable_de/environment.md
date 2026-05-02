@@ -37,35 +37,35 @@ selected desktop profile/packages
 ## Core Package Set
 
 ```text
-net-misc/networkmanager
-media-video/pipewire
-gui-apps/wireplumber
-media-sound/pavucontrol
-media-sound/alsa-utils
-net-wireless/bluez
-net-print/cups
-media-gfx/simple-scan
-www-client/firefox
-mail-client/thunderbird
-app-office/libreoffice
-app-arch/file-roller
-sys-block/gparted
-media-video/vlc
-media-gfx/gimp
-media-gfx/inkscape
 app-admin/keepassxc
-sys-apps/flatpak
+app-arch/file-roller
+app-editors/nano
+app-editors/vim
+app-office/libreoffice
+dev-vcs/git
+gui-apps/wireplumber
+mail-client/thunderbird
 media-fonts/dejavu
 media-fonts/liberation-fonts
 media-fonts/noto-emoji
-net-misc/rsync
+media-gfx/gimp
+media-gfx/inkscape
+media-gfx/simple-scan
+media-sound/alsa-utils
+media-sound/pavucontrol
+media-video/pipewire
+media-video/vlc
 net-misc/curl
+net-misc/networkmanager
+net-misc/rsync
 net-misc/wget
-dev-vcs/git
-app-editors/vim
-app-editors/nano
-sys-process/htop
+net-print/cups
+net-wireless/bluez
+sys-apps/flatpak
+sys-block/gparted
 sys-fs/ncdu
+sys-process/htop
+www-client/firefox
 ```
 
 ## Selectable Desktop Environment Options
@@ -106,10 +106,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.

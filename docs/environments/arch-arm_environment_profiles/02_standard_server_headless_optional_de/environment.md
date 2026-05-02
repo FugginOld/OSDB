@@ -40,60 +40,60 @@ server services
 ## Core Package Set
 
 ```text
-base
-linux
-linux-firmware
-sudo
-openssh
-vim
-nano
-tmux
-screen
-rsync
-borg
-restic
-rclone
-logrotate
-cronie
 acl
-attr
-ufw
-nftables
-fail2ban
-audit
+apache
 apparmor
-iproute2
-net-tools
+attr
+audit
+base
 bind
-tcpdump
-nmap
-mtr
-ethtool
-iperf3
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
-nvme-cli
-hdparm
-lm_sensors
-mdadm
-lvm2
-xfsprogs
+borg
 btrfs-progs
-nfs-utils
-samba
 cifs-utils
-podman
+cronie
+dmidecode
 docker
 docker-compose
-nginx
-apache
+ethtool
+fail2ban
+hdparm
+iperf3
+iproute2
+linux
+linux-firmware
+lm_sensors
+logrotate
+lshw
+lvm2
 mariadb
+mdadm
+mtr
+nano
+net-tools
+nfs-utils
+nftables
+nginx
+nmap
+nvme-cli
+openssh
+pciutils
+podman
 postgresql
-redis
 prometheus-node-exporter
+rclone
+redis
+restic
+rsync
+samba
+screen
+smartmontools
+sudo
+tcpdump
+tmux
+ufw
+usbutils
+vim
+xfsprogs
 ```
 
 ## Selectable Desktop Environment Options
@@ -134,10 +134,3 @@ Validate renamed, removed, EOL, or architecture-specific packages before automat
 sudo pacman -Syu
 sudo pacman -S <packages>
 ```
-
-## LLM Build Notes
-
-- Treat this file as a planning profile, not a guaranteed resolved dependency lockfile.
-- Resolve package names against the selected distro release and CPU architecture.
-- For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
-- Services are populated by installed packages; enable only the services needed for the selected role.
