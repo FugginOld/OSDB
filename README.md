@@ -107,6 +107,7 @@ The Packages step now uses **Quick Presets** sourced from `docs/environments/<ba
 The LLM / AI preset is shown only for distro bases that include `08_llm_ai_workstation_inference_server/environment.md`.
 
 Included targets currently:
+
 - Debian 11/12/13
 - Ubuntu 20.04/22.04/24.04/25.04
 - Arch Linux
