@@ -2595,7 +2595,7 @@ log "Syncing Portage tree (this may take several minutes)..."
 emaint sync -a || emerge --sync
 
 log "Installing catalyst..."
-emerge -q sys-devel/catalyst
+emerge -q dev-util/catalyst
 
 # ── Catalyst configuration ────────────────────────────────────
 log "Writing /etc/catalyst/catalyst.conf..."
