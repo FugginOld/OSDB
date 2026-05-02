@@ -2648,6 +2648,20 @@ sys-boot/grub grub_platforms_efi-32
 CATUSE_EOF
 env -u BUILD_DIR ACCEPT_KEYWORDS="~amd64" emerge -q dev-util/catalyst
 
+# Catalyst 4.1.1 + Python 3.13 compatibility:
+# upstream code assumes conf_values["options"] is a list and calls .extend(),
+# but some builds provide a set, which raises AttributeError. Patch in-place.
+log "Applying catalyst Python 3.13 compatibility patch (if needed)..."
+CAT_MAIN="$(python3 - << 'PY_EOF'
+import inspect
+import catalyst.main
+print(inspect.getsourcefile(catalyst.main) or "")
+PY_EOF
+)"
+if [ -n "\${CAT_MAIN}" ] && [ -f "\${CAT_MAIN}" ]; then
+  sed -i 's/conf_values\["options"\]\.extend(options)/conf_values["options"].update(options) if isinstance(conf_values["options"], set) else conf_values["options"].extend(options)/' "\${CAT_MAIN}" || true
+fi
+
 # ── Catalyst configuration ────────────────────────────────────
 log "Writing /etc/catalyst/catalyst.conf..."
 mkdir -p /etc/catalyst
