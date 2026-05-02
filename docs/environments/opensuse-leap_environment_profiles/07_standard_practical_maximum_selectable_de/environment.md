@@ -1,4 +1,4 @@
-# openSUSE Leap Standard Practical Maximum Install with Selectable DE
+﻿# openSUSE Leap Standard Practical Maximum Install with Selectable DE
 
 ## Purpose
 
@@ -26,7 +26,7 @@ zypper search <term>
 sudo zypper refresh
 sudo zypper install <packages>
 ```
-- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -74,37 +74,22 @@ htop
 ncdu
 cron
 logrotate
-sudo
-openssh
 vim
-nano
 tmux
 screen
-rsync
 borgbackup
 restic
 rclone
-logrotate
-cron
 acl
 attr
-firewalld
 fail2ban
 audit
 apparmor-utils
-iproute2
-net-tools
-bind-utils
 tcpdump
 nmap
 mtr
 ethtool
 iperf
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
 nvme-cli
 hdparm
 sensors
@@ -124,7 +109,6 @@ mariadb
 postgresql-server
 redis
 prometheus-node_exporter
-sudo
 NetworkManager
 wireless-tools
 wpa_supplicant
@@ -152,19 +136,7 @@ flatpak
 dejavu-fonts
 liberation-fonts
 noto-coloremoji-fonts
-rsync
-curl
-wget
 git
-vim
-nano
-htop
-ncdu
-sudo
-NetworkManager
-pipewire
-wireplumber
-pavucontrol
 steam
 lutris
 wine
@@ -177,23 +149,11 @@ Mesa-vulkan-device-select
 nvidia-video-G06
 obs-studio
 ffmpeg
-vlc
 joystick
 retroarch
 dosbox
 p7zip
-unzip
-curl
-wget
-git
-htop
 nvtop
-sensors
-libreoffice
-firefox
-thunderbird
-gimp
-inkscape
 krita
 scribus
 stellarium
@@ -204,14 +164,8 @@ scratch
 thonny
 python3
 python3-pip
-git
-vlc
 audacity
-obs-studio
-cups
-simple-scan
 noto-fonts
-noto-coloremoji-fonts
 patterns-devel-base-devel_basis
 rpm-build
 rpmlint
@@ -225,11 +179,8 @@ gcc
 gcc-c++
 gdb
 valgrind
-git
 git-lfs
-python3
 python3-devel
-python3-pip
 python3-virtualenv
 pipx
 nodejs
@@ -247,28 +198,16 @@ ruby-devel
 perl
 sqlite3
 postgresql
-mariadb
-redis
-docker
-docker-compose
-podman
 buildah
 skopeo
 ansible
 ShellCheck
 jq
 yq
-curl
-wget
 httpie
-nmap
-tcpdump
 netcat-openbsd
-vim
 neovim
 emacs-nox
-tmux
-screen
 ripgrep
 fzf
 tree

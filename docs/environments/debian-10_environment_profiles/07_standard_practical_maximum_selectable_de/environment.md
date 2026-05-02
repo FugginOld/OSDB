@@ -1,4 +1,4 @@
-# Debian 10 Buster Standard Practical Maximum Install with Selectable DE
+﻿# Debian 10 Buster Standard Practical Maximum Install with Selectable DE
 
 ## Purpose
 
@@ -27,7 +27,7 @@ apt-cache search <term>
 sudo apt update
 sudo apt install <packages>
 ```
-- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -79,45 +79,23 @@ htop
 ncdu
 cron
 logrotate
-sudo
-openssh-server
-ca-certificates
-curl
-wget
-gnupg
-lsb-release
 vim
-nano
 tmux
 screen
-bash-completion
-rsync
 borgbackup
 restic
 rclone
-logrotate
-cron
 acl
 attr
-ufw
-nftables
 fail2ban
 auditd
 apparmor
 apparmor-utils
-iproute2
-net-tools
-dnsutils
 tcpdump
 nmap
 mtr-tiny
 ethtool
 iperf3
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
 nvme-cli
 hdparm
 lm-sensors
@@ -137,7 +115,6 @@ mariadb-server
 postgresql
 redis-server
 prometheus-node-exporter
-sudo
 network-manager
 network-manager-gnome
 wireless-tools
@@ -154,7 +131,7 @@ system-config-printer
 printer-driver-all
 sane-airscan
 simple-scan
-firefox
+firefox-esr
 thunderbird
 libreoffice
 evince
@@ -171,19 +148,7 @@ fonts-noto
 fonts-noto-color-emoji
 timeshift
 deja-dup
-rsync
-curl
-wget
 git
-vim
-nano
-htop
-ncdu
-sudo
-network-manager
-pipewire
-wireplumber
-pavucontrol
 steam-installer
 lutris
 wine
@@ -201,26 +166,14 @@ nvidia-driver
 nvidia-settings
 obs-studio
 ffmpeg
-vlc
 joystick
 retroarch
 dosbox
 p7zip-full
-unzip
-curl
-wget
-git
-htop
 nvtop
-lm-sensors
 education-desktop-other
 education-common
 education-tasks
-libreoffice
-firefox
-thunderbird
-gimp
-inkscape
 krita
 scribus
 stellarium
@@ -231,15 +184,7 @@ scratch
 thonny
 python3
 python3-pip
-git
-vlc
 audacity
-obs-studio
-cups
-sane-airscan
-simple-scan
-fonts-noto
-fonts-noto-color-emoji
 build-essential
 devscripts
 debhelper
@@ -254,11 +199,8 @@ gcc
 g++
 gdb
 valgrind
-git
 git-lfs
-python3
 python3-dev
-python3-pip
 python3-venv
 pipx
 nodejs
@@ -278,26 +220,16 @@ sqlite3
 postgresql-client
 mariadb-client
 redis-tools
-docker.io
-docker-compose
-podman
 buildah
 skopeo
 ansible
 shellcheck
 jq
 yq
-curl
-wget
 httpie
-nmap
-tcpdump
 netcat-openbsd
-vim
 neovim
 emacs-nox
-tmux
-screen
 ripgrep
 fzf
 tree
@@ -351,3 +283,4 @@ sudo apt install <packages>
 - Resolve package names against the selected distro release and CPU architecture.
 - For Raspberry Pi, ARM, or older/EOL releases, expect some desktop, gaming, container, or GPU packages to differ or be unavailable.
 - Services are populated by installed packages; enable only the services needed for the selected role.
+

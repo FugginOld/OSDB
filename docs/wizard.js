@@ -1505,11 +1505,23 @@ function enabledPkgList(base) {
     return pkg.pkgName[base.pkg] || pkg.id;
   };
 
+  const normalizePresetPkgName = (name) => {
+    const n = String(name || '').trim();
+    if (!n) return '';
+    // Debian uses firefox-esr in official repos for current supported releases.
+    if (base.pkg === 'apt' && base.family === 'debian' && n === 'firefox') {
+      return 'firefox-esr';
+    }
+    return n;
+  };
+
   const selectedTogglePkgs = PACKAGES
     .filter(p => p.families.includes(base.family) && state.pkgs[p.id])
     .map(resolvePkgName)
     .filter(Boolean);
-  const presetPkgs = Array.isArray(state.presetCorePkgs) ? state.presetCorePkgs : [];
+  const presetPkgs = Array.isArray(state.presetCorePkgs)
+    ? state.presetCorePkgs.map(normalizePresetPkgName).filter(Boolean)
+    : [];
   return [...new Set([...selectedTogglePkgs, ...presetPkgs])]
     .filter(Boolean)
     .join(' ');

@@ -1,4 +1,4 @@
-# Gentoo Linux Standard Practical Maximum Install with Selectable DE
+﻿# Gentoo Linux Standard Practical Maximum Install with Selectable DE
 
 ## Purpose
 
@@ -26,7 +26,7 @@ equery depends <package>
 sudo emerge --sync
 sudo emerge --ask <packages>
 ```
-- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -70,30 +70,19 @@ sys-process/htop
 sys-fs/ncdu
 sys-process/cronie
 app-admin/logrotate
-app-admin/sudo
-net-misc/openssh
-app-editors/vim
-app-editors/nano
 app-misc/tmux
 app-misc/screen
-net-misc/rsync
 app-backup/borgbackup
 app-backup/restic
 net-misc/rclone
-app-admin/logrotate
-sys-process/cronie
 sys-apps/acl
 sys-apps/attr
-net-firewall/nftables
-net-firewall/ufw
 app-admin/fail2ban
 sys-process/audit
-sys-apps/iproute2
 net-analyzer/tcpdump
 net-analyzer/nmap
 net-analyzer/mtr
 net-misc/iperf
-sys-apps/smartmontools
 sys-block/nvme-cli
 sys-fs/lvm2
 sys-fs/xfsprogs
@@ -128,18 +117,7 @@ sys-apps/flatpak
 media-fonts/dejavu
 media-fonts/liberation-fonts
 media-fonts/noto-emoji
-net-misc/rsync
-net-misc/curl
-net-misc/wget
 dev-vcs/git
-app-editors/vim
-app-editors/nano
-sys-process/htop
-sys-fs/ncdu
-net-misc/networkmanager
-media-video/pipewire
-gui-apps/wireplumber
-media-sound/pavucontrol
 games-util/steam-launcher
 games-util/lutris
 app-emulation/wine-vanilla
@@ -151,44 +129,24 @@ dev-util/vulkan-tools
 x11-drivers/nvidia-drivers
 media-video/obs-studio
 media-video/ffmpeg
-media-video/vlc
 games-emulation/retroarch
 games-emulation/dosbox
 app-arch/p7zip
-app-arch/unzip
-net-misc/curl
-net-misc/wget
-dev-vcs/git
-sys-process/htop
 sys-apps/lm-sensors
-app-office/libreoffice
-www-client/firefox
-mail-client/thunderbird
-media-gfx/gimp
-media-gfx/inkscape
 media-gfx/krita
 app-office/scribus
 sci-astronomy/stellarium
 games-kids/gcompris-qt
 dev-lang/python
 dev-python/pip
-dev-vcs/git
-media-video/vlc
 media-sound/audacity
-media-video/obs-studio
-net-print/cups
-media-gfx/simple-scan
 media-fonts/noto
-media-fonts/noto-emoji
 sys-devel/gcc
 sys-devel/gdb
 dev-util/cmake
 dev-util/meson
 dev-util/ninja
-dev-vcs/git
 dev-vcs/git-lfs
-dev-lang/python
-dev-python/pip
 dev-python/virtualenv
 dev-lang/nodejs
 dev-lang/go
@@ -201,19 +159,12 @@ dev-php/composer
 dev-lang/ruby
 dev-lang/perl
 dev-db/sqlite
-dev-db/postgresql
-dev-db/mariadb
-dev-db/redis
-app-containers/docker
 app-containers/docker-compose
-app-containers/podman
 app-admin/ansible
 app-shells/shellcheck
 app-misc/jq
-app-editors/vim
 app-editors/neovim
 app-editors/emacs
-app-misc/tmux
 sys-apps/ripgrep
 app-shells/fzf
 app-text/pandoc

@@ -87,6 +87,12 @@ node .\scripts\tests\run-stable-default-matrix.cjs
 
 The matrix validates, for each stable non-EOL base and each supported DE, that generated scripts include all default packages and default services. The runner prints only failures.
 
+Validate `environment.md` Core Package Set consistency across distros:
+
+```bash
+node scripts/tests/validate-environment-packages.cjs
+```
+
 ## Environment Presets
 
 The Packages step now uses **Quick Presets** sourced from `docs/environments/<base>_environment_profiles/.../environment.md`.

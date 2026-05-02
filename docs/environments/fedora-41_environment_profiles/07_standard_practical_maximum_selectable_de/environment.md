@@ -1,4 +1,4 @@
-# Fedora 41 Standard Practical Maximum Install with Selectable DE
+﻿# Fedora 41 Standard Practical Maximum Install with Selectable DE
 
 ## Purpose
 
@@ -27,7 +27,7 @@ dnf search <term>
 sudo dnf upgrade --refresh
 sudo dnf install <packages>
 ```
-- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -73,37 +73,23 @@ htop
 ncdu
 cronie
 logrotate
-sudo
-openssh-server
 vim
-nano
 tmux
 screen
-rsync
 borgbackup
 restic
 rclone
-logrotate
-cronie
 acl
 attr
-firewalld
 fail2ban
 audit
 audit-libs
-iproute
 net-tools
-bind-utils
 tcpdump
 nmap
 mtr
 ethtool
 iperf3
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
 nvme-cli
 hdparm
 lm_sensors
@@ -123,7 +109,6 @@ mariadb-server
 postgresql-server
 redis
 node_exporter
-sudo
 NetworkManager
 pipewire
 wireplumber
@@ -150,19 +135,7 @@ flatpak
 dejavu-sans-fonts
 liberation-fonts
 google-noto-emoji-fonts
-rsync
-curl
-wget
 git
-vim
-nano
-htop
-ncdu
-sudo
-NetworkManager
-pipewire
-wireplumber
-pavucontrol
 steam
 lutris
 wine
@@ -175,23 +148,11 @@ mesa-vulkan-drivers
 nvidia-driver
 obs-studio
 ffmpeg
-vlc
 joystick-support
 retroarch
 dosbox
 p7zip
-unzip
-curl
-wget
-git
-htop
 nvtop
-lm_sensors
-libreoffice
-firefox
-thunderbird
-gimp
-inkscape
 krita
 scribus
 stellarium
@@ -202,15 +163,8 @@ scratch
 thonny
 python3
 python3-pip
-git
-vlc
 audacity
-obs-studio
-cups
-sane-airscan
-simple-scan
 google-noto-fonts-common
-google-noto-emoji-fonts
 @development-tools
 rpmdevtools
 rpmlint
@@ -224,11 +178,8 @@ gcc
 gcc-c++
 gdb
 valgrind
-git
 git-lfs
-python3
 python3-devel
-python3-pip
 pipx
 nodejs
 npm
@@ -246,27 +197,16 @@ perl
 sqlite
 postgresql
 mariadb
-redis
-docker
-docker-compose
-podman
 buildah
 skopeo
 ansible
 ShellCheck
 jq
 yq
-curl
-wget
 httpie
-nmap
-tcpdump
 nmap-ncat
-vim
 neovim
 emacs-nox
-tmux
-screen
 ripgrep
 fzf
 tree

@@ -1,4 +1,4 @@
-# Arch Linux ARM Raspberry Pi 4 Standard Practical Maximum Install with Selectable DE
+﻿# Arch Linux ARM Raspberry Pi 4 Standard Practical Maximum Install with Selectable DE
 
 ## Purpose
 
@@ -27,7 +27,7 @@ pacman -Ss <term>
 sudo pacman -Syu
 sudo pacman -S <packages>
 ```
-- Avoid installing every package in the archive. “Practical maximum” means a broad usable profile, not the full repository.
+- Avoid installing every package in the archive. â€œPractical maximumâ€ means a broad usable profile, not the full repository.
 
 ## Distro / Group / Task Packages
 
@@ -79,41 +79,21 @@ htop
 ncdu
 cronie
 logrotate
-base
-linux
-linux-firmware
-sudo
-openssh
-vim
-nano
 tmux
 screen
-rsync
 borg
 restic
 rclone
-logrotate
-cronie
 acl
 attr
-ufw
-nftables
 fail2ban
 audit
 apparmor
-iproute2
-net-tools
-bind
 tcpdump
 nmap
 mtr
 ethtool
 iperf3
-lshw
-dmidecode
-pciutils
-usbutils
-smartmontools
 nvme-cli
 hdparm
 lm_sensors
@@ -133,7 +113,6 @@ mariadb
 postgresql
 redis
 prometheus-node-exporter
-sudo
 networkmanager
 wireless_tools
 wpa_supplicant
@@ -165,20 +144,7 @@ noto-fonts
 noto-fonts-emoji
 timeshift
 deja-dup
-rsync
-curl
-wget
 git
-vim
-nano
-htop
-ncdu
-sudo
-networkmanager
-pipewire
-wireplumber
-pipewire-pulse
-pavucontrol
 steam
 lutris
 wine
@@ -194,24 +160,12 @@ nvidia
 nvidia-utils
 obs-studio
 ffmpeg
-vlc
 jstest-gtk
 retroarch
 dolphin-emu
 dosbox
 p7zip
-unzip
-curl
-wget
-git
-htop
 nvtop
-lm_sensors
-libreoffice-still
-firefox
-thunderbird
-gimp
-inkscape
 krita
 scribus
 stellarium
@@ -222,15 +176,7 @@ scratch
 thonny
 python
 python-pip
-git
-vlc
 audacity
-obs-studio
-cups
-sane-airscan
-simple-scan
-noto-fonts
-noto-fonts-emoji
 base-devel
 pkgconf
 cmake
@@ -240,13 +186,10 @@ make
 gcc
 gdb
 valgrind
-git
 git-lfs
 github-cli
 subversion
 mercurial
-python
-python-pip
 python-virtualenv
 pipx
 nodejs
@@ -263,10 +206,6 @@ perl
 sqlite
 postgresql-libs
 mariadb-libs
-redis
-docker
-docker-compose
-podman
 buildah
 skopeo
 ansible
@@ -274,17 +213,10 @@ shellcheck
 shfmt
 jq
 yq
-curl
-wget
 httpie
-nmap
-tcpdump
 openbsd-netcat
-vim
 neovim
 emacs-nox
-tmux
-screen
 ripgrep
 fd
 fzf
