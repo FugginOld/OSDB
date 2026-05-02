@@ -2611,7 +2611,6 @@ log "Writing /etc/catalyst/catalyst.conf..."
 mkdir -p /etc/catalyst
 cat > /etc/catalyst/catalyst.conf << CATALYSTCONF_EOF
 storedir="\${STOREDIR}"
-portdir="/var/db/repos/gentoo"
 hash_function="sha512"
 CATALYSTCONF_EOF
 
