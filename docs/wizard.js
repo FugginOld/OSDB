@@ -2599,6 +2599,11 @@ mkdir -p /etc/portage/package.accept_keywords
 cat > /etc/portage/package.accept_keywords/catalyst << 'CATKEY_EOF'
 dev-util/catalyst ~amd64
 CATKEY_EOF
+mkdir -p /etc/portage/package.use
+cat > /etc/portage/package.use/catalyst << 'CATUSE_EOF'
+>=sys-apps/util-linux-2.41.4 python
+>=sys-boot/grub-2.14-r5 grub_platforms_efi-32
+CATUSE_EOF
 ACCEPT_KEYWORDS="~amd64" emerge -q dev-util/catalyst
 
 # ── Catalyst configuration ────────────────────────────────────
