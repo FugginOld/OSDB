@@ -420,6 +420,15 @@ const PACKAGES = [
   { id: 'gpio-tools',   label: 'GPIO tools',          families: ['rpi','rpi-ubuntu','rpi-arch'],                                            pkgName: { apt: 'gpiod python3-gpiozero', pacman: 'libgpiod'                                                                                    }, defaultOn: false },
 ];
 
+const PACKAGE_PRESETS = {
+  'debian-12': [
+    { id: 'minimal', label: 'Minimal', pkgIds: ['git'] },
+    { id: 'server',  label: 'Server',  pkgIds: ['git', 'flatpak'] },
+    { id: 'desktop', label: 'Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'] },
+    { id: 'full',    label: 'Full',    pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'] },
+  ],
+};
+
 // ── Services ─────────────────────────────────────────────────
 const SERVICES = [
   // Base services (all families)
@@ -502,6 +511,7 @@ let state = {
   base:            null,
   rpiHardware:     null,
   de:              null,
+  pkgPreset:       null,
   pkgs:            {},
   repoType:        null,
   customMirrorUrl: '',
@@ -850,9 +860,21 @@ function renderStepDE() {
 function renderStepPackages() {
   const base = getBase();
   const avail = base ? PACKAGES.filter(p => p.families.includes(base.family)) : [];
+  const presets = state.base && PACKAGE_PRESETS[state.base] ? PACKAGE_PRESETS[state.base] : [];
   let html = `<h2 class="step-heading">Step 3 — Packages</h2>
-    <p class="step-sub">Toggle additional packages to include. Package names are shown in <em>${base ? base.pkg : 'pkg'}</em> syntax.</p>
-    <div class="toggle-list">`;
+    <p class="step-sub">Toggle additional packages to include. Package names are shown in <em>${base ? base.pkg : 'pkg'}</em> syntax.</p>`;
+  if (presets.length) {
+    html += `<p class="step-sub">Quick presets (Debian 12):</p>
+    <div class="tiles single-col" role="radiogroup" aria-label="Package preset">`;
+    for (const preset of presets) {
+      const sel = state.pkgPreset === preset.id ? 'selected' : '';
+      html += `<div class="tile ${sel}" data-pkg-preset="${esc(preset.id)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
+        <div class="tile-title">${esc(preset.label)}</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += `<div class="toggle-list">`;
   for (const pkg of avail) {
     const on = state.pkgs[pkg.id] !== undefined ? state.pkgs[pkg.id] : pkg.defaultOn;
     const cls = on ? 'on' : '';
@@ -1204,9 +1226,28 @@ function attachStepListeners(stepId) {
 
     case 'packages': {
       const pkgToggles = [...container.querySelectorAll('[data-pkg]')];
+      const base = getBase();
+      const avail = base ? PACKAGES.filter(p => p.families.includes(base.family)) : [];
+      const presets = state.base && PACKAGE_PRESETS[state.base] ? PACKAGE_PRESETS[state.base] : [];
+      const applyPreset = (presetId) => {
+        const preset = presets.find(p => p.id === presetId);
+        if (!preset) return;
+        const selectedIds = new Set(preset.pkgIds);
+        for (const pkg of avail) {
+          state.pkgs[pkg.id] = selectedIds.has(pkg.id);
+        }
+        state.pkgPreset = presetId;
+        renderAll();
+      };
+      const presetTiles = [...container.querySelectorAll('[data-pkg-preset]')];
+      presetTiles.forEach(el => el.addEventListener('click', () => applyPreset(el.dataset.pkgPreset)));
+      if (presetTiles.length) {
+        attachTileKeys(presetTiles, (el) => applyPreset(el.dataset.pkgPreset));
+      }
       const togglePkg = (el) => {
         const id = el.dataset.pkg;
         state.pkgs[id] = !state.pkgs[id];
+        state.pkgPreset = null;
         el.classList.toggle('on', state.pkgs[id]);
         el.querySelector('.toggle-switch').style.cssText = '';
         el.setAttribute('aria-checked', state.pkgs[id]);
@@ -1341,6 +1382,7 @@ function onBaseSelected(baseId) {
   // Reset downstream
   state.rpiHardware = null;
   state.de = null;
+  state.pkgPreset = null;
   state.repoType = null;
   state.installer = null;
   state.customMirrorUrl = '';
@@ -2611,7 +2653,6 @@ log "Writing /etc/catalyst/catalyst.conf..."
 mkdir -p /etc/catalyst
 cat > /etc/catalyst/catalyst.conf << CATALYSTCONF_EOF
 storedir="\${STOREDIR}"
-hash_function="sha512"
 CATALYSTCONF_EOF
 
 mkdir -p "\${STOREDIR}"
