@@ -319,7 +319,7 @@ const BASES = {
     track: 'rolling', builder: 'catalyst', pkg: 'emerge',
     mirror: 'https://distfiles.gentoo.org',
     des: ['gnome','kde','xfce','mate','lxqt','cinnamon','qtile','none'],
-    installers: ['none'],
+    installers: ['calamares','none'],
     repoTypes: ['official','custom'],
     serviceManager: 'openrc',
     notes: 'Source-based rolling release. Catalyst build can take 2–4 hours.',
@@ -2548,6 +2548,7 @@ function generateCatalyst(base, name) {
   const userPkgs = enabledPkgList(base);
   const servicePkgs = enabledServicePkgList(base);
   const rcServices = enabledServicesRcList();
+  const installerPkgs = state.installer === 'calamares' ? ['app-admin/calamares'] : [];
 
   // Validate the mirror URL: only accept strict http(s) URLs composed of
   // standard URL-safe characters (alphanumeric, dash, dot, underscore, tilde,
@@ -2572,6 +2573,7 @@ function generateCatalyst(base, name) {
       'net-misc/dhcpcd',
       'sys-kernel/gentoo-kernel-bin',
       'sys-kernel/linux-firmware',
+      ...installerPkgs,
       dePackages, userPkgs, servicePkgs,
     ].filter(Boolean).join(' ').split(/\s+/).filter(Boolean)
   )];
