@@ -2592,7 +2592,7 @@ MIRROR='${mirrorEscaped}'
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Syncing Portage tree (this may take several minutes)..."
-emaint sync -a || emerge --sync
+env -u BUILD_DIR emaint sync -a || env -u BUILD_DIR emerge --sync
 
 log "Installing catalyst..."
 mkdir -p /etc/portage/package.accept_keywords
@@ -2604,7 +2604,7 @@ cat > /etc/portage/package.use/catalyst << 'CATUSE_EOF'
 sys-apps/util-linux python
 sys-boot/grub grub_platforms_efi-32
 CATUSE_EOF
-ACCEPT_KEYWORDS="~amd64" emerge -q dev-util/catalyst
+env -u BUILD_DIR ACCEPT_KEYWORDS="~amd64" emerge -q dev-util/catalyst
 
 # ── Catalyst configuration ────────────────────────────────────
 log "Writing /etc/catalyst/catalyst.conf..."
@@ -2619,7 +2619,7 @@ mkdir -p "\${STOREDIR}"
 
 # ── Portage snapshot ──────────────────────────────────────────
 log "Creating Portage snapshot for catalyst builds..."
-catalyst --snapshot latest
+env -u BUILD_DIR catalyst --snapshot latest
 
 # ── Stage3 seed tarball ───────────────────────────────────────
 log "Fetching latest amd64 OpenRC stage3..."
@@ -2678,10 +2678,10 @@ STAGE2_EOF
 
 # ── Run catalyst ──────────────────────────────────────────────
 log "Running catalyst livecd-stage1 (this may take 60–120 minutes)..."
-catalyst -f "\${SPECDIR}/livecd-stage1.spec"
+env -u BUILD_DIR catalyst -f "\${SPECDIR}/livecd-stage1.spec"
 
 log "Running catalyst livecd-stage2 (this may take 15–30 minutes)..."
-catalyst -f "\${SPECDIR}/livecd-stage2.spec"
+env -u BUILD_DIR catalyst -f "\${SPECDIR}/livecd-stage2.spec"
 
 # ── Collect ISO ───────────────────────────────────────────────
 # Catalyst places the stage2 ISO at builds/<rel_type>/<iso-name> as declared in the spec.
