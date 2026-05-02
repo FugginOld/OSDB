@@ -47,6 +47,7 @@ separate download needed.
 | Arch Linux ARM — Pi 5 | rolling | alarm-rpi | IMG |
 | openSUSE Leap 15.6 | stable | kiwi | ISO |
 | openSUSE Tumbleweed | rolling | kiwi | ISO |
+| Gentoo Linux | rolling | catalyst | ISO |
 
 ---
 

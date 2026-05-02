@@ -22,7 +22,7 @@ This guide covers everything you need to turn either approach into a bootable IS
 
 Prerequisites depend on the builder selected in the wizard:
 
-### Most builders (live-build, archiso, lorax, pi-gen, ubuntu-rpi, kiwi)
+### Most builders (live-build, archiso, lorax, pi-gen, ubuntu-rpi, kiwi, catalyst)
 
 These scripts are fully self-contained: if they detect they are **not** already running inside a container they will automatically re-launch themselves inside the correct build environment via **Docker** or **Podman**. You only need one of these installed on your host machine.
 
@@ -90,6 +90,7 @@ Build times vary by base distribution:
 | Arch Linux (archiso) | 20 – 40 minutes |
 | Fedora (lorax) | 30 – 60 minutes |
 | Raspberry Pi OS (pi-gen) | 30 – 90 minutes |
+| Gentoo Linux (catalyst) | 2 – 4 hours |
 
 ---
 
@@ -131,6 +132,7 @@ Output artifacts differ by builder:
 | **pi-gen** (Raspberry Pi OS) | `MyDistro.img` and/or `MyDistro.img.xz` | *(none)* | `build.log` |
 | **ubuntu-rpi** (Ubuntu for Pi) | `MyDistro.img.xz` | `MyDistro.img.xz.sha256` | `build.log` |
 | **kiwi** (openSUSE) | ISO file(s) in `OUTPUT_DIR` | `MyDistro.iso.sha256` | `build.log` |
+| **catalyst** (Gentoo) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
 | **alarm-rpi** (Arch ARM for Pi) | *(written directly to SD card)* | *(none)* | `build.log` |
 
 All files are placed in `OUTPUT_DIR` (default: `/var/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device. The generated script streams build output to the terminal and saves the same output to `build.log`.
