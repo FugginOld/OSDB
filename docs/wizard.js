@@ -428,6 +428,7 @@ const QUICK_PRESET_DEFS = [
   { id: 'standard-education', label: 'Standard Education', dir: '05_standard_education_selectable_de' },
   { id: 'standard-coding-environment', label: 'Standard Coding', dir: '06_standard_coding_environment_selectable_de' },
   { id: 'standard-practical-maximum', label: 'Standard Practical Maximum', dir: '07_standard_practical_maximum_selectable_de' },
+  { id: 'llm-ai-workstation-inference-server', label: 'LLM / AI Workstation & Inference Server', dir: '08_llm_ai_workstation_inference_server' },
 ];
 
 const ENV_PROFILE_DIR_OVERRIDES = {
@@ -600,8 +601,12 @@ function profileDirsForBase(baseId) {
 }
 
 function parseCorePackagesFromEnvironmentMd(md) {
-  const marker = '## Core Package Set';
-  const idx = md.indexOf(marker);
+  const markers = ['## Core Package Set', '## Core System Packages'];
+  let idx = -1;
+  for (const marker of markers) {
+    const mIdx = md.indexOf(marker);
+    if (mIdx !== -1 && (idx === -1 || mIdx < idx)) idx = mIdx;
+  }
   if (idx === -1) return [];
   const tail = md.slice(idx);
   const fenceStart = tail.indexOf('```');

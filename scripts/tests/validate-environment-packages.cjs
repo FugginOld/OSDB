@@ -61,10 +61,14 @@ function findEnvironmentFiles(root) {
 }
 
 function extractCorePackages(md) {
-  const marker = '## Core Package Set';
-  const idx = md.indexOf(marker);
+  const markers = ['## Core Package Set', '## Core System Packages'];
+  let idx = -1;
+  for (const marker of markers) {
+    const mIdx = md.indexOf(marker);
+    if (mIdx !== -1 && (idx === -1 || mIdx < idx)) idx = mIdx;
+  }
   if (idx === -1) return [];
-  const tail = md.slice(idx + marker.length);
+  const tail = md.slice(idx);
   const fenceOpen = tail.indexOf('```');
   if (fenceOpen === -1) return [];
   const rest = tail.slice(fenceOpen + 3);
@@ -141,7 +145,7 @@ function main() {
       findings.push({
         file: path.relative(repoRoot, file).replace(/\\/g, '/'),
         baseId,
-        issues: [{ code: 'missing-core-package-set', msg: 'No packages found in Core Package Set block' }],
+        issues: [{ code: 'missing-core-package-set', msg: 'No packages found in a supported core package block (Core Package Set/Core System Packages)' }],
       });
       continue;
     }
@@ -157,7 +161,7 @@ function main() {
   }
 
   if (!findings.length) {
-    console.log('OK: no package-name consistency issues found across environment.md Core Package Set blocks.');
+    console.log('OK: no package-name consistency issues found across environment.md core package blocks.');
     process.exit(0);
   }
 
@@ -175,4 +179,3 @@ function main() {
 }
 
 main();
-
