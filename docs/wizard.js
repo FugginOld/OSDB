@@ -427,6 +427,15 @@ const PACKAGE_PRESETS = {
     { id: 'desktop', label: 'Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'] },
     { id: 'full',    label: 'Full',    pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'] },
   ],
+  'debian-13': [
+    { id: 'trixie-minimum-headless', label: 'Minimum Headless', pkgIds: ['git'] },
+    { id: 'trixie-server-headless', label: 'Standard Server Headless', pkgIds: ['git'] },
+    { id: 'trixie-desktop', label: 'Standard Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'flatpak'] },
+    { id: 'trixie-gaming', label: 'Standard Gaming', pkgIds: ['steam', 'vlc', 'git'] },
+    { id: 'trixie-education', label: 'Standard Education', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'] },
+    { id: 'trixie-coding', label: 'Standard Coding Environment', pkgIds: ['git', 'vscode'] },
+    { id: 'trixie-practical-maximum', label: 'Standard Practical Maximum', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'] },
+  ],
 };
 
 // ── Services ─────────────────────────────────────────────────
@@ -864,7 +873,7 @@ function renderStepPackages() {
   let html = `<h2 class="step-heading">Step 3 — Packages</h2>
     <p class="step-sub">Toggle additional packages to include. Package names are shown in <em>${base ? base.pkg : 'pkg'}</em> syntax.</p>`;
   if (presets.length) {
-    html += `<p class="step-sub">Quick presets (Debian 12):</p>
+    html += `<p class="step-sub">Quick presets (${base ? base.label : 'selected base'}):</p>
     <div class="tiles single-col" role="radiogroup" aria-label="Package preset">`;
     for (const preset of presets) {
       const sel = state.pkgPreset === preset.id ? 'selected' : '';
