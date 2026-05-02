@@ -428,13 +428,13 @@ const PACKAGE_PRESETS = {
     { id: 'full',    label: 'Full',    pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'] },
   ],
   'debian-13': [
-    { id: 'trixie-minimum-headless', label: 'Minimum Headless', pkgIds: ['git'] },
-    { id: 'trixie-server-headless', label: 'Standard Server Headless', pkgIds: ['git'] },
-    { id: 'trixie-desktop', label: 'Standard Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'flatpak'] },
-    { id: 'trixie-gaming', label: 'Standard Gaming', pkgIds: ['steam', 'vlc', 'git'] },
-    { id: 'trixie-education', label: 'Standard Education', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'] },
-    { id: 'trixie-coding', label: 'Standard Coding Environment', pkgIds: ['git', 'vscode'] },
-    { id: 'trixie-practical-maximum', label: 'Standard Practical Maximum', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'] },
+    { id: 'trixie-minimum-headless', label: 'Minimum Headless', pkgIds: ['git'], corePkgs: ['sudo','openssh-server','ca-certificates','apt-transport-https','curl','wget','gnupg','lsb-release','locales','tzdata','nano','vim-tiny','less','man-db','bash-completion','net-tools','iproute2','iputils-ping','dnsutils','traceroute','nftables','ufw','systemd-timesyncd','rsync','tar','gzip','xz-utils','unzip','zip','pciutils','usbutils','lshw','dmidecode','smartmontools','htop','ncdu','cron','logrotate'] },
+    { id: 'trixie-server-headless', label: 'Standard Server Headless', pkgIds: ['git'], corePkgs: ['sudo','openssh-server','ca-certificates','curl','wget','gnupg','lsb-release','vim','nano','tmux','screen','bash-completion','command-not-found','rsync','borgbackup','restic','rclone','logrotate','cron','acl','attr','ufw','nftables','fail2ban','auditd','apparmor','apparmor-utils','iproute2','net-tools','dnsutils','bind9-dnsutils','tcpdump','nmap','mtr-tiny','ethtool','iperf3','lshw','dmidecode','pciutils','usbutils','smartmontools','nvme-cli','hdparm','lm-sensors','mdadm','lvm2','xfsprogs','btrfs-progs','nfs-common','samba','cifs-utils','podman','docker.io','docker-compose','compose-switch','nginx','apache2','mariadb-server','postgresql','redis-server','prometheus-node-exporter'] },
+    { id: 'trixie-desktop', label: 'Standard Desktop', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'flatpak'], corePkgs: ['sudo','network-manager','network-manager-gnome','wireless-tools','wpasupplicant','pipewire','pipewire-audio','wireplumber','pavucontrol','alsa-utils','bluetooth','bluez','blueman','cups','system-config-printer','printer-driver-all','sane-airscan','simple-scan','firefox-esr','thunderbird','libreoffice','evince','file-roller','gparted','vlc','celluloid','rhythmbox','shotwell','gimp','inkscape','keepassxc','seahorse','gnome-keyring','flatpak','gnome-software-plugin-flatpak','fonts-dejavu','fonts-liberation','fonts-noto','fonts-noto-color-emoji','timeshift','deja-dup','rsync','curl','wget','git','vim','nano','htop','ncdu'] },
+    { id: 'trixie-gaming', label: 'Standard Gaming', pkgIds: ['steam', 'vlc', 'git'], corePkgs: ['sudo','network-manager','pipewire','pipewire-audio','wireplumber','pavucontrol','steam-installer','lutris','wine','winetricks','protontricks','gamemode','mangohud','vkbasalt','mesa-utils','vulkan-tools','mesa-vulkan-drivers','libgl1-mesa-dri','firmware-linux','firmware-linux-nonfree','firmware-amd-graphics','firmware-misc-nonfree','nvidia-driver','nvidia-settings','gamescope','obs-studio','ffmpeg','vlc','jstest-gtk','joystick','antimicrox','input-remapper','retroarch','pcsxr','dolphin-emu','dosbox','scummvm','p7zip-full','unzip','curl','wget','git','htop','nvtop','lm-sensors'] },
+    { id: 'trixie-education', label: 'Standard Education', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice'], corePkgs: ['education-desktop-other','education-common','education-tasks','education-preschool','education-primaryschool','education-secondaryschool','education-highschool','education-mathematics','education-chemistry','education-physics','education-astronomy','education-geography','education-development','education-graphics','education-language','education-music','education-video','libreoffice','firefox-esr','thunderbird','gimp','inkscape','krita','scribus','geogebra','stellarium','kalzium','kstars','gcompris-qt','tuxmath','tuxtype','scratch','idle','thonny','python3','python3-pip','git','vlc','audacity','obs-studio','cups','sane-airscan','simple-scan','fonts-noto','fonts-noto-color-emoji'] },
+    { id: 'trixie-coding', label: 'Standard Coding Environment', pkgIds: ['git', 'vscode'], corePkgs: ['build-essential','devscripts','debhelper','fakeroot','lintian','pkg-config','cmake','meson','ninja-build','make','gcc','g++','gdb','valgrind','git','git-lfs','gh','subversion','mercurial','python3','python3-dev','python3-pip','python3-venv','pipx','python3-poetry','python3-pytest','ruff','mypy','nodejs','npm','yarnpkg','golang','rustc','cargo','default-jdk','maven','gradle','php-cli','composer','ruby','ruby-dev','perl','sqlite3','postgresql-client','mariadb-client','redis-tools','docker.io','docker-compose','compose-switch','podman','buildah','skopeo','ansible','terraform','vagrant','shellcheck','shfmt','jq','yq','xmlstarlet','curl','wget','httpie','nmap','tcpdump','netcat-openbsd','vim','neovim','emacs-nox','tmux','screen','ripgrep','fd-find','fzf','tree','graphviz','plantuml','pandoc','texlive-latex-recommended'] },
+    { id: 'trixie-practical-maximum', label: 'Standard Practical Maximum', pkgIds: ['firefox', 'vlc', 'git', 'cups', 'libreoffice', 'vscode', 'flatpak', 'steam'], corePkgs: ['sudo','openssh-server','task-standard','network-manager','pipewire','pipewire-audio','wireplumber','cups','bluetooth','bluez','firefox-esr','thunderbird','libreoffice','gimp','inkscape','krita','scribus','vlc','obs-studio','ffmpeg','audacity','build-essential','devscripts','debhelper','fakeroot','lintian','pkg-config','cmake','meson','ninja-build','gcc','g++','gdb','valgrind','git','git-lfs','gh','python3','python3-dev','python3-pip','python3-venv','pipx','nodejs','npm','golang','rustc','cargo','default-jdk','maven','gradle','docker.io','docker-compose','podman','buildah','ansible','terraform','vagrant','qemu-system','libvirt-daemon-system','virt-manager','virtinst','nginx','apache2','mariadb-server','postgresql','redis-server','sqlite3','nfs-common','samba','cifs-utils','rsync','borgbackup','restic','rclone','ufw','nftables','fail2ban','auditd','apparmor','apparmor-utils','smartmontools','nvme-cli','hdparm','lshw','dmidecode','pciutils','usbutils','lm-sensors','htop','iotop','iftop','nload','ncdu','steam-installer','lutris','wine','winetricks','gamemode','mangohud','vulkan-tools','mesa-vulkan-drivers','education-desktop-other','education-development','education-mathematics','education-highschool','fonts-dejavu','fonts-liberation','fonts-noto','fonts-noto-color-emoji','flatpak','gnome-software-plugin-flatpak'] },
   ],
 };
 
@@ -521,6 +521,7 @@ let state = {
   rpiHardware:     null,
   de:              null,
   pkgPreset:       null,
+  presetCorePkgs:  [],
   pkgs:            {},
   repoType:        null,
   customMirrorUrl: '',
@@ -877,8 +878,10 @@ function renderStepPackages() {
     <div class="tiles single-col" role="radiogroup" aria-label="Package preset">`;
     for (const preset of presets) {
       const sel = state.pkgPreset === preset.id ? 'selected' : '';
+      const count = Array.isArray(preset.corePkgs) ? preset.corePkgs.length : 0;
       html += `<div class="tile ${sel}" data-pkg-preset="${esc(preset.id)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
         <div class="tile-title">${esc(preset.label)}</div>
+        <div class="installer-desc">${count} packages from Core Package Set</div>
       </div>`;
     }
     html += '</div>';
@@ -1246,6 +1249,7 @@ function attachStepListeners(stepId) {
           state.pkgs[pkg.id] = selectedIds.has(pkg.id);
         }
         state.pkgPreset = presetId;
+        state.presetCorePkgs = Array.isArray(preset.corePkgs) ? [...preset.corePkgs] : [];
         renderAll();
       };
       const presetTiles = [...container.querySelectorAll('[data-pkg-preset]')];
@@ -1257,6 +1261,7 @@ function attachStepListeners(stepId) {
         const id = el.dataset.pkg;
         state.pkgs[id] = !state.pkgs[id];
         state.pkgPreset = null;
+        state.presetCorePkgs = [];
         el.classList.toggle('on', state.pkgs[id]);
         el.querySelector('.toggle-switch').style.cssText = '';
         el.setAttribute('aria-checked', state.pkgs[id]);
@@ -1392,6 +1397,7 @@ function onBaseSelected(baseId) {
   state.rpiHardware = null;
   state.de = null;
   state.pkgPreset = null;
+  state.presetCorePkgs = [];
   state.repoType = null;
   state.installer = null;
   state.customMirrorUrl = '';
@@ -1453,9 +1459,12 @@ function enabledPkgList(base) {
     return pkg.pkgName[base.pkg] || pkg.id;
   };
 
-  return PACKAGES
+  const selectedTogglePkgs = PACKAGES
     .filter(p => p.families.includes(base.family) && state.pkgs[p.id])
     .map(resolvePkgName)
+    .filter(Boolean);
+  const presetPkgs = (base.pkg === 'apt' && Array.isArray(state.presetCorePkgs)) ? state.presetCorePkgs : [];
+  return [...new Set([...selectedTogglePkgs, ...presetPkgs])]
     .filter(Boolean)
     .join(' ');
 }
@@ -2668,7 +2677,28 @@ print(inspect.getsourcefile(catalyst.main) or "")
 PY_EOF
 )"
 if [ -n "\${CAT_MAIN}" ] && [ -f "\${CAT_MAIN}" ]; then
-  sed -i 's/conf_values\["options"\]\.extend(options)/conf_values["options"].update(options) if isinstance(conf_values["options"], set) else conf_values["options"].extend(options)/' "\${CAT_MAIN}" || true
+  python3 - "\${CAT_MAIN}" << 'PY_PATCH_EOF'
+import pathlib
+import re
+import sys
+
+path = pathlib.Path(sys.argv[1])
+src = path.read_text(encoding='utf-8')
+patterns = [
+    r'conf_values\["options"\]\.extend\(options\)',
+    r"conf_values\['options'\]\.extend\(options\)",
+]
+replacement = 'conf_values["options"].update(options) if isinstance(conf_values["options"], set) else conf_values["options"].extend(options)'
+new = src
+for pat in patterns:
+    new = re.sub(pat, replacement, new)
+
+if new != src:
+    path.write_text(new, encoding='utf-8')
+    print(f"patched {path}")
+else:
+    print(f"no patch target found in {path}")
+PY_PATCH_EOF
 fi
 
 # ── Catalyst configuration ────────────────────────────────────
