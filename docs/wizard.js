@@ -2599,7 +2599,7 @@ mkdir -p /etc/portage/package.accept_keywords
 cat > /etc/portage/package.accept_keywords/catalyst << 'CATKEY_EOF'
 dev-util/catalyst ~amd64
 CATKEY_EOF
-emerge -q dev-util/catalyst
+ACCEPT_KEYWORDS="~amd64" emerge -q dev-util/catalyst
 
 # ── Catalyst configuration ────────────────────────────────────
 log "Writing /etc/catalyst/catalyst.conf..."
