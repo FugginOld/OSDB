@@ -871,36 +871,41 @@ function renderStepPackages() {
   const base = getBase();
   const avail = base ? PACKAGES.filter(p => p.families.includes(base.family)) : [];
   const presets = state.base && PACKAGE_PRESETS[state.base] ? PACKAGE_PRESETS[state.base] : [];
+  const isTrixie = state.base === 'debian-13';
   let html = `<h2 class="step-heading">Step 3 — Packages</h2>
-    <p class="step-sub">Toggle additional packages to include. Package names are shown in <em>${base ? base.pkg : 'pkg'}</em> syntax.</p>`;
+    <p class="step-sub">${isTrixie ? 'Select a Debian Trixie environment preset to install its Core Package Set.' : `Toggle additional packages to include. Package names are shown in <em>${base ? base.pkg : 'pkg'}</em> syntax.`}</p>`;
   if (presets.length) {
     html += `<p class="step-sub">Quick presets (${base ? base.label : 'selected base'}):</p>
     <div class="tiles single-col" role="radiogroup" aria-label="Package preset">`;
     for (const preset of presets) {
       const sel = state.pkgPreset === preset.id ? 'selected' : '';
       const count = Array.isArray(preset.corePkgs) ? preset.corePkgs.length : 0;
+      const expanded = sel === 'selected' && isTrixie;
       html += `<div class="tile ${sel}" data-pkg-preset="${esc(preset.id)}" role="radio" tabindex="0" aria-checked="${sel === 'selected'}">
         <div class="tile-title">${esc(preset.label)}</div>
         <div class="installer-desc">${count} packages from Core Package Set</div>
+        ${expanded ? `<div class="installer-desc" style="margin-top:.6rem; max-height:14rem; overflow:auto; white-space:pre-wrap;">${esc((preset.corePkgs || []).join('\n'))}</div>` : ''}
       </div>`;
     }
     html += '</div>';
   }
-  html += `<div class="toggle-list">`;
-  for (const pkg of avail) {
-    const on = state.pkgs[pkg.id] !== undefined ? state.pkgs[pkg.id] : pkg.defaultOn;
-    const cls = on ? 'on' : '';
-    const pkgName = getPkgName(pkg);
-    html += `<div class="toggle-row ${cls}" data-pkg="${esc(pkg.id)}" role="checkbox" tabindex="0" aria-checked="${on}">
-      <div class="toggle-label">
-        <strong>${esc(pkg.label)}</strong>
-        <span>${esc(pkgName)}</span>
-      </div>
-      <div class="toggle-switch"></div>
-    </div>`;
+  if (!isTrixie) {
+    html += `<div class="toggle-list">`;
+    for (const pkg of avail) {
+      const on = state.pkgs[pkg.id] !== undefined ? state.pkgs[pkg.id] : pkg.defaultOn;
+      const cls = on ? 'on' : '';
+      const pkgName = getPkgName(pkg);
+      html += `<div class="toggle-row ${cls}" data-pkg="${esc(pkg.id)}" role="checkbox" tabindex="0" aria-checked="${on}">
+        <div class="toggle-label">
+          <strong>${esc(pkg.label)}</strong>
+          <span>${esc(pkgName)}</span>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>`;
+    }
+    html += '</div>';
   }
-  html += '</div>';
-  if (!avail.length) {
+  if (!avail.length && !presets.length) {
     html += '<p style="color:var(--text-muted)">No additional packages available for this base.</p>';
   }
   return html;
