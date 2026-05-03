@@ -1853,7 +1853,7 @@ start_logging
 // ─ Mirror URL validation ──────────────────────────────────────
 // Validates a mirror URL to prevent shell injection. Only accepts strict
 // http(s) URLs composed of standard URL-safe characters (alphanumeric, dash,
-// dot, underscore, tilde, colon, slash, percent-encoded sequences, @, =, +, ?)
+// dot, underscore, tilde, colon, slash, percent, @, =, +, ?)
 // Returns the validated URL or the fallback if validation fails.
 function validateMirrorUrl(url, fallback) {
   const trimmed = (url || '').trim();
