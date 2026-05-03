@@ -2190,9 +2190,11 @@ function generateArchiso(base, name) {
     state.repoType === 'custom' ? state.customMirrorUrl : '',
     base.mirror || 'https://mirror.rackspace.com/archlinux/$repo/os/$arch'
   );
-  const mirrorBase = mirror.replace(/\/\$repo\/os\/\$arch$/, '');
-  const allFallbackMirrors = ['https://mirror.rackspace.com/archlinux', 'https://mirrors.kernel.org/archlinux'];
-  const fallbackMirrors = allFallbackMirrors.filter(m => m !== mirrorBase);
+  const allFallbackMirrors = [
+    'https://mirror.rackspace.com/archlinux/$repo/os/$arch',
+    'https://mirrors.kernel.org/archlinux/$repo/os/$arch'
+  ];
+  const fallbackMirrors = allFallbackMirrors.filter(m => m !== mirror);
   const fallbackMirrorsStr = fallbackMirrors.map(m => `"${m}"`).join(' ');
 
   const arInstallBlock = state.installer === 'archinstall'
@@ -2266,7 +2268,7 @@ chmod +x airootfs/root/customize_airootfs.sh`
   : '# No display manager autologin needed'}
 
 # ── Self-Healing Mirror Configuration ────────────────────────
-PRIMARY_MIRROR="${mirrorBase}"
+PRIMARY_MIRROR="${mirror}"
 FALLBACK_MIRRORS=(${fallbackMirrorsStr})
 MIRRORS_TRIED=()
 MAX_RETRIES_PER_MIRROR=2
@@ -2276,11 +2278,11 @@ build_with_mirror() {
   log "Configuring mirror: \${mirror_base}"
 
   # Write host container mirrorlist (pacman uses this during mkarchiso)
-  printf 'Server = %s/$repo/os/$arch\\n' "\${mirror_base}" > /etc/pacman.d/mirrorlist
+  printf 'Server = %s\\n' "\${mirror_base}" > /etc/pacman.d/mirrorlist
 
   # Write live-system mirrorlist (embedded in the ISO)
   mkdir -p "\${PROFILE_DIR}/airootfs/etc/pacman.d"
-  printf 'Server = %s/$repo/os/$arch\\n' "\${mirror_base}" > "\${PROFILE_DIR}/airootfs/etc/pacman.d/mirrorlist"
+  printf 'Server = %s\\n' "\${mirror_base}" > "\${PROFILE_DIR}/airootfs/etc/pacman.d/mirrorlist"
 
   # Wipe work directory; PROFILE_DIR is preserved across retries
   rm -rf "\${WORK_DIR}"
