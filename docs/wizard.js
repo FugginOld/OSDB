@@ -2497,7 +2497,7 @@ debootstrap --arch="${arch}" --foreign --include=ca-certificates \\
   "${suite}" "\${ROOTFS}" "${mirror}"
 
 # ── Copy QEMU for cross-arch ──────────────────────────────────
-cp /usr/bin/qemu-aarch64-static "\${ROOTFS}/usr/bin/" 2>/dev/null || true
+cp /usr/bin/qemu-${arch === 'aarch64' ? 'aarch64' : 'arm'}-static "\${ROOTFS}/usr/bin/" 2>/dev/null || true
 
 # ── debootstrap stage 2 ───────────────────────────────────────
 log "Running debootstrap stage 2 (inside chroot)..."
@@ -2522,6 +2522,7 @@ chroot "\${ROOTFS}" apt-get install -y \\
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."
+CONFIG_TXT="\${ROOTFS}/boot/firmware/config.txt"
 ${configTxtLines}
 
 # ── Enable services ───────────────────────────────────────────
@@ -2554,7 +2555,7 @@ FSTAB_EOF
 # ── Cleanup + unmount ─────────────────────────────────────────
 log "Cleaning up..."
 chroot "\${ROOTFS}" apt-get clean
-rm -f "\${ROOTFS}/usr/bin/qemu-aarch64-static"
+rm -f "\${ROOTFS}/usr/bin/qemu-${arch === 'aarch64' ? 'aarch64' : 'arm'}-static"
 umount -R "\${ROOTFS}"
 losetup -d "\${LOOP_DEV}"
 

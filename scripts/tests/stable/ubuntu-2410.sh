@@ -35,6 +35,12 @@ NODE_EOF
     continue
   fi
 
+  if ! bash -n "$TMP_SCRIPT" 2>/dev/null; then
+    FAILS+=("$BASE_ID/$DE:bash_syntax_error")
+    rm -f "$TMP_SCRIPT" "$TMP_LOG"
+    continue
+  fi
+
   if ! grep -Fq "firefox" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:firefox"); fi
   if ! grep -Fq "vlc" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:vlc"); fi
   if ! grep -Fq "git" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:git"); fi
