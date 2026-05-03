@@ -2522,6 +2522,7 @@ chroot "\${ROOTFS}" apt-get install -y \\
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."
+CONFIG_TXT="\${ROOTFS}/boot/firmware/config.txt"
 ${configTxtLines}
 
 # ── Enable services ───────────────────────────────────────────
