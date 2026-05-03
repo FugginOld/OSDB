@@ -2,6 +2,7 @@
 
 const path = require('path');
 const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
+const { buildDefaultPkgs, buildDefaultServices, getEnabledPackages, getEnabledServicePackages, getEnabledServiceUnits } = require('./lib/pkg-resolution.cjs');
 
 const {
   BASES,
@@ -13,61 +14,6 @@ const {
   initDefaultServices,
   generateScript,
 } = loadWizard();
-
-function expectedDefaultPackages(base) {
-  const resolvePkgName = (p) => {
-    if (p.id === 'firefox' && base.pkg === 'apt') {
-      return base.family === 'debian' ? 'firefox-esr' : 'firefox';
-    }
-    if (p.id === 'vscode' && base.pkg === 'apt' && base.family === 'ubuntu') {
-      return '';
-    }
-    return p.pkgName && p.pkgName[base.pkg] ? p.pkgName[base.pkg] : '';
-  };
-
-  return PACKAGES
-    .filter((p) => p.defaultOn && p.families.includes(base.family))
-    .map(resolvePkgName)
-    .filter(Boolean)
-    .flatMap((name) => String(name).split(/\s+/).filter(Boolean));
-}
-
-function expectedDefaultServicePackages(base, baseId) {
-  const list = SERVICES
-    .filter((s) => {
-      const familyOk = s.families === null || s.families.includes(base.family);
-      return familyOk && s.defaultOn;
-    })
-    .map((s) => (s.pkgName && s.pkgName[base.pkg] ? s.pkgName[base.pkg] : ''))
-    .filter(Boolean)
-    .flatMap((name) => String(name).split(/\s+/).filter(Boolean));
-
-  if (baseId === 'rpios-lite-bookworm') {
-    const sshSvc = SERVICES.find((s) => s.id === 'sshd');
-    if (sshSvc && sshSvc.pkgName && sshSvc.pkgName[base.pkg]) {
-      list.push(...String(sshSvc.pkgName[base.pkg]).split(/\s+/).filter(Boolean));
-    }
-  }
-
-  return list;
-}
-
-function expectedDefaultServiceUnits(base, baseId) {
-  const units = SERVICES
-    .filter((s) => {
-      const familyOk = s.families === null || s.families.includes(base.family);
-      return familyOk && s.defaultOn;
-    })
-    .map((s) => s.unit)
-    .filter(Boolean);
-
-  if (baseId === 'rpios-lite-bookworm') {
-    const sshSvc = SERVICES.find((s) => s.id === 'sshd');
-    if (sshSvc && sshSvc.unit) units.push(sshSvc.unit);
-  }
-
-  return units;
-}
 
 function installerFor(base) {
   if (!Array.isArray(base.installers) || base.installers.length === 0) return 'none';
@@ -85,9 +31,11 @@ for (const baseId of stableBaseIds) {
   const base = BASES[baseId];
   const des = Array.isArray(base.des) && base.des.length ? base.des : ['none'];
 
-  const expectedPkgs = expectedDefaultPackages(base);
-  const expectedSvcPkgs = expectedDefaultServicePackages(base, baseId);
-  const expectedUnits = expectedDefaultServiceUnits(base, baseId);
+  const defaultPkgs = buildDefaultPkgs(base, PACKAGES);
+  const defaultServices = buildDefaultServices(base, SERVICES);
+  const expectedPkgs = getEnabledPackages(base, defaultPkgs, [], PACKAGES);
+  const expectedSvcPkgs = getEnabledServicePackages(base, defaultServices, SERVICES, baseId);
+  const expectedUnits = getEnabledServiceUnits(base, defaultServices, SERVICES, baseId);
 
   for (const de of des) {
     try {
