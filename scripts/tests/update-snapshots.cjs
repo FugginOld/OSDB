@@ -54,6 +54,7 @@ for (const baseId of stableBaseIds) {
   const script = normalizeTimestamp(generateScript());
   const outFile = path.join(snapshotDir, `${baseId}.sh`);
   fs.writeFileSync(outFile, script, 'utf8');
+  fs.chmodSync(outFile, 0o755);
   written.push(path.relative(path.resolve(__dirname, '..'), outFile).replace(/\\/g, '/'));
 }
 
