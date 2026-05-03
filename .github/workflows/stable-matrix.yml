@@ -55,5 +55,8 @@ jobs:
       - name: Run mirror URL injection tests
         run: node scripts/tests/test-mirror-url-injection.cjs
 
+      - name: Run QEMU binary selection tests
+        run: node scripts/tests/test-qemu-binary-selection.cjs
+
       - name: Run stable default matrix tests
         run: bash scripts/tests/run-stable-default-matrix.sh
