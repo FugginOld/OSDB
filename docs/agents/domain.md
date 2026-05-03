@@ -5,7 +5,7 @@ How the engineering skills should consume this repo's domain documentation when 
 ## Before exploring, read these
 
 - **`CONTEXT.md`** at the repo root
-- **`docs/adr/`** — read ADRs that touch the area you're about to work in
+- **`docs/decisions/`** — read decisions that touch the area you're about to work in
 
 If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The producer skill (`/grill-with-docs`) creates them lazily when terms or decisions actually get resolved.
 
@@ -16,7 +16,7 @@ Single-context repo:
 ```
 /
 ├── CONTEXT.md
-├── docs/adr/
+├── docs/decisions/
 │   ├── 0001-example-decision.md
 │   └── ...
 └── src/
@@ -28,8 +28,8 @@ When your output names a domain concept (in an issue title, a refactor proposal,
 
 If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/grill-with-docs`).
 
-## Flag ADR conflicts
+## Flag decision conflicts
 
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
+If your output contradicts an existing decision, surface it explicitly rather than silently overriding:
 
-> _Contradicts ADR-0007 (example decision) — but worth reopening because…_
+> _Contradicts decision-0001 (mirror self-healing strategy) — but worth reopening because…_

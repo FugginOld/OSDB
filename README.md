@@ -37,7 +37,7 @@ separate download needed.
 | Ubuntu 25.04 Plucky | beta | live-build | ISO |
 | Arch Linux (rolling) | rolling | archiso | ISO |
 | Arch Linux ARM | rolling | archiso | ISO |
-| Fedora 39–42 | legacy/stable/current/beta | lorax | ISO |
+| Fedora 40–42 | stable/current/beta | lorax | ISO |
 | Raspberry Pi OS Lite (Bookworm) | stable | pi-gen | IMG |
 | Raspberry Pi OS Desktop (Bookworm) | stable | pi-gen | IMG |
 | Raspberry Pi OS Full (Bookworm) | stable | pi-gen | IMG |
@@ -51,55 +51,12 @@ separate download needed.
 
 ---
 
-## Repository layout
-
-```text
-docs/               ← GitHub Pages root (static site)
-  index.html        ← Single-page wizard shell
-  wizard.js         ← All wizard logic + script generators
-  styles.css        ← Styling (badges, cards, progress bar)
-  environments/     ← Per-base environment profiles + Core Package Sets used by Quick Presets
-scripts/
-  examples/         ← Static reference scripts (ShellCheck CI)
-  tests/            ← Stable-base generator matrix tests
-.github/
-  workflows/
-    pages.yml       ← Deploy docs/ to GitHub Pages on push
-    shellcheck.yml  ← Lint example scripts with ShellCheck
-```
-
-## Test matrix
-
-Generate and run stable-base default matrix tests:
-
-```bash
-node scripts/tests/generate-stable-base-tests.cjs
-bash scripts/tests/run-stable-default-matrix.sh
-```
-
-Windows/PowerShell (no `bash` required):
-
-```powershell
-node .\scripts\tests\run-stable-default-matrix.cjs
-# or:
-.\scripts\tests\run-stable-default-matrix.ps1
-```
-
-The matrix validates, for each stable non-EOL base and each supported DE, that generated scripts include all default packages and default services. The runner prints only failures.
-
-Validate `environment.md` Core Package Set consistency across distros:
-
-```bash
-node scripts/tests/validate-environment-packages.cjs
-```
-
 ## Environment Presets
 
-The Packages step now uses **Quick Presets** sourced from `docs/environments/<base>_environment_profiles/.../environment.md`.
+The Packages step uses **Quick Presets** sourced from `docs/environments/<base>_environment_profiles/.../environment.md`.
 
-- Each preset corresponds to one environment profile:
-  minimum, server, desktop, gaming, education, coding, practical maximum, and **LLM / AI Workstation & Inference Server**.
-- The wizard parses each profile’s `## Core Package Set` or `## Core System Packages`.
+- Each preset corresponds to one environment profile: minimum, server, desktop, gaming, education, coding, practical maximum, and **LLM / AI Workstation & Inference Server**.
+- The wizard parses each profile's `## Core Package Set` or `## Core System Packages`.
 - Selecting a preset expands the tile to show the exact package list and package count.
 
 ### LLM / AI Profile Availability
@@ -117,6 +74,20 @@ Included targets currently:
 
 Excluded targets include older/EOL releases and ARM/Raspberry Pi-focused bases where this profile is not provided.
 
+---
+
+## Running locally
+
+No build step needed — just open `docs/index.html` in a browser:
+
+```bash
+cd docs
+python3 -m http.server 8080
+# then open http://localhost:8080
+```
+
+---
+
 ## Screenshots
 
 | Step | Screenshot |
@@ -132,21 +103,9 @@ Excluded targets include older/EOL releases and ARM/Raspberry Pi-focused bases w
 
 ---
 
-## Running locally
+## Contributing
 
-No build step needed — just open `docs/index.html` in a browser:
-
-```bash
-cd docs
-python3 -m http.server 8080
-# then open http://localhost:8080
-```
-
-## CI
-
-- **ShellCheck** — lints all scripts in `scripts/examples/` on every push/PR
-- **Stable Base Matrix** — regenerates and runs `scripts/tests` checks for all stable non-EOL bases/DEs, failing on any mismatch
-- **GitHub Pages** — deploys `docs/` to `https://fugginold.github.io/OSDB/` on every push to `main`
+See [docs/architecture.md](docs/architecture.md) for the module map, data flow, and a step-by-step guide to adding a new distro or Build Tool.
 
 ## License
 

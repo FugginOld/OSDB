@@ -3,7 +3,13 @@
     "allow": [
       "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\Joe\\\\Documents\\\\GitHub\\\\OSDB\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Sort-Object Type, Name)",
       "PowerShell(\\(ls -Recurse \"c:\\\\Users\\\\Joe\\\\Documents\\\\GitHub\\\\OSDB\\\\scripts\\\\examples\" -File | Measure-Object\\).Count)",
-      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\Joe\\\\Documents\\\\GitHub\\\\OSDB\\\\docs\\\\agents\" | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}})"
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\Joe\\\\Documents\\\\GitHub\\\\OSDB\\\\docs\\\\agents\" | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}})",
+      "Bash(gh label *)",
+      "Bash(gh issue create --label needs-triage --title 'Fix mirror URL injection in live-build, archiso, and ubuntu-rpi generators' --body ' *)",
+      "Bash(gh issue create --label needs-triage --title 'Fix PPA string injection in live-build generator' --body ' *)",
+      "Bash(gh issue create --label needs-triage --title 'Fix QEMU binary hardcoded to aarch64 in ubuntu-rpi generator' --body ' *)",
+      "Bash(gh issue create --label needs-triage --title 'Add bash syntax check to stable matrix test scripts' --body ' *)",
+      "Bash(gh issue create --label needs-triage --title 'Add Snapshot Tests for Canonical Configs' --body ' *)"
     ]
   }
 }
