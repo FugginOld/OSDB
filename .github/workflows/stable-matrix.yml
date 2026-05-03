@@ -18,6 +18,20 @@ permissions:
   contents: read
 
 jobs:
+  snapshot-tests:
+    name: Snapshot tests for canonical configs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run snapshot tests
+        run: node scripts/tests/run-snapshot-tests.cjs
+
   stable-matrix:
     name: Validate stable base default matrix
     runs-on: ubuntu-latest

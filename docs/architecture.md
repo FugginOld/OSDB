@@ -86,18 +86,35 @@ scripts/tests/
   generate-stable-base-tests.cjs    ← generates stable/{baseId}.sh for each stable Base × DE
   run-stable-default-matrix.cjs     ← runs all stable tests in-process (Windows-friendly)
   run-stable-default-matrix.sh      ← bash runner called by CI
+  run-snapshot-tests.cjs            ← diffs fresh canonical output against stored snapshots
+  update-snapshots.cjs              ← regenerates all snapshot files from current wizard output
   validate-environment-packages.cjs ← validates environment.md Core Package Sets
   sort-environment-core-packages.cjs← sorts package lists alphabetically in-place
   stable/                           ← auto-generated test scripts — do not edit by hand
+  snapshots/                        ← committed snapshot files — one per stable non-EOL Base
 ```
 
 The Wizard Harness strips the `DOMContentLoaded` listener from `wizard.js` and exposes `generateScript`, `BASES`, `PACKAGES`, `SERVICES`, `state`, `initDefaultPkgs`, `initDefaultServices` for use in Node without a browser.
+
+### Snapshot Tests
+
+Each stable non-EOL Base has a committed reference Build Script at `scripts/tests/snapshots/{baseId}.sh`. These are generated from a **Canonical Config**: the default DE, `repoType: 'official'`, default packages, default services, and the best available installer for that Base.
+
+`run-snapshot-tests.cjs` regenerates each Build Script from the current wizard output and diffs it character-by-character against the stored reference. Any difference fails CI immediately and prints a unified diff of the first failure.
+
+**Updating snapshots intentionally** (e.g. after a deliberate Generator change):
+
+```bash
+node scripts/tests/update-snapshots.cjs
+```
+
+Then commit the updated files in `scripts/tests/snapshots/` alongside the wizard change.
 
 ### CI (`.github/workflows/`)
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `stable-matrix.yml` | Push/PR touching `wizard.js` or `scripts/tests/` | Regenerates test scripts → verifies permissions → git diff check → runs matrix |
+| `stable-matrix.yml` | Push/PR touching `wizard.js` or `scripts/tests/` | Snapshot tests → regenerates test scripts → verifies permissions → git diff check → runs matrix |
 | `pages.yml` | Push to main touching `docs/` | Deploys `docs/` to GitHub Pages |
 | `shellcheck.yml` | Push/PR touching `scripts/examples/` | ShellChecks reference scripts |
 
@@ -221,6 +238,12 @@ node scripts/tests/generate-stable-base-tests.cjs
 bash scripts/tests/run-stable-default-matrix.sh
 ```
 
+Also update snapshots for the new Base:
+
+```bash
+node scripts/tests/update-snapshots.cjs
+```
+
 ### 6. Update the README
 
 Add the new Base to the **Supported bases** table in `README.md`.
@@ -228,6 +251,12 @@ Add the new Base to the **Supported bases** table in `README.md`.
 ---
 
 ## Running tests locally
+
+Run snapshot tests:
+
+```bash
+node scripts/tests/run-snapshot-tests.cjs
+```
 
 Generate and run the stable base matrix:
 
