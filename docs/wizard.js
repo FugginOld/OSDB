@@ -15,28 +15,6 @@ const SCRIPT_GENERATOR_VERSION = '2026.04.29.1';
 const BASES = {
 
   // ── Debian ─────────────────────────────────────────────────
-  'debian-9': {
-    label: 'Debian 9 Stretch', family: 'debian', suite: 'stretch',
-    track: 'legacy', builder: 'live-build', pkg: 'apt',
-    mirror: 'http://archive.debian.org/debian',
-    areas: 'main contrib non-free',
-    des: ['gnome','kde','cinnamon','xfce','lxde','mate','qtile','none'],
-    installers: ['debian-installer-gtk','calamares','debian-installer-tui','preseed','none'],
-    repoTypes: ['official','custom'],
-    serviceManager: 'systemd',
-    eol: true,
-  },
-  'debian-10': {
-    label: 'Debian 10 Buster', family: 'debian', suite: 'buster',
-    track: 'legacy', builder: 'live-build', pkg: 'apt',
-    mirror: 'http://archive.debian.org/debian',
-    areas: 'main contrib non-free',
-    des: ['gnome','kde','cinnamon','xfce','lxde','mate','qtile','none'],
-    installers: ['debian-installer-gtk','calamares','debian-installer-tui','preseed','none'],
-    repoTypes: ['official','custom'],
-    serviceManager: 'systemd',
-    eol: true,
-  },
   'debian-11': {
     label: 'Debian 11 Bullseye', family: 'debian', suite: 'bullseye',
     track: 'oldstable', builder: 'live-build', pkg: 'apt',
@@ -98,17 +76,6 @@ const BASES = {
     installers: ['ubuntu-desktop-installer','ubiquity','subiquity','ubuntu-autoinstall','none'],
     repoTypes: ['official','ppa','custom'],
     serviceManager: 'systemd',
-  },
-  'ubuntu-2310': {
-    label: 'Ubuntu 23.10 Mantic', family: 'ubuntu', suite: 'mantic',
-    track: 'current', builder: 'live-build', pkg: 'apt',
-    mirror: 'http://archive.ubuntu.com/ubuntu',
-    areas: 'main restricted universe multiverse',
-    des: ['gnome','kde','xfce','mate','lxqt','budgie','cosmic','qtile','none'],
-    installers: ['ubuntu-desktop-installer','ubiquity','subiquity','ubuntu-autoinstall','none'],
-    repoTypes: ['official','ppa','custom'],
-    serviceManager: 'systemd',
-    eol: true,
   },
   'ubuntu-2410': {
     label: 'Ubuntu 24.10 Oracular', family: 'ubuntu', suite: 'oracular',
@@ -278,24 +245,6 @@ const BASES = {
   },
 
   // ── openSUSE ────────────────────────────────────────────────
-  'opensuse-leap-154': {
-    label: 'openSUSE Leap 15.4', family: 'opensuse', suite: 'leap',
-    track: 'stable', builder: 'kiwi', pkg: 'zypper',
-    des: ['kde','gnome','xfce','none'],
-    installers: ['yast-installer','yast-ncurses','autoyast','none'],
-    repoTypes: ['official','obs','custom'],
-    serviceManager: 'systemd',
-    eol: true,
-  },
-  'opensuse-leap-155': {
-    label: 'openSUSE Leap 15.5', family: 'opensuse', suite: 'leap',
-    track: 'stable', builder: 'kiwi', pkg: 'zypper',
-    des: ['kde','gnome','xfce','none'],
-    installers: ['yast-installer','yast-ncurses','autoyast','none'],
-    repoTypes: ['official','obs','custom'],
-    serviceManager: 'systemd',
-    eol: true,
-  },
   'opensuse-leap': {
     label: 'openSUSE Leap 15.6', family: 'opensuse', suite: 'leap',
     track: 'stable', builder: 'kiwi', pkg: 'zypper',
@@ -549,12 +498,12 @@ const REPO_DESC = {
 
 // Family groupings for Step 1 display
 const FAMILY_GROUPS = [
-  { id: 'debian',    label: 'Debian',                 keys: ['debian-9','debian-10','debian-11','debian-12','debian-13'] },
-  { id: 'ubuntu',    label: 'Ubuntu',                 keys: ['ubuntu-2004','ubuntu-2204','ubuntu-2310','ubuntu-2404','ubuntu-2410','ubuntu-2504'] },
+  { id: 'debian',    label: 'Debian',                 keys: ['debian-11','debian-12','debian-13'] },
+  { id: 'ubuntu',    label: 'Ubuntu',                 keys: ['ubuntu-2004','ubuntu-2204','ubuntu-2404','ubuntu-2410','ubuntu-2504'] },
   { id: 'arch',      label: 'Arch Linux',             keys: ['arch','arch-arm'] },
   { id: 'fedora',    label: 'Fedora',                 keys: ['fedora-39','fedora-40','fedora-41','fedora-42'] },
   { id: 'rpi',       label: 'Raspberry Pi',           keys: ['rpios-lite-bookworm','rpios-desktop-bookworm','rpios-full-bookworm','ubuntu-rpi-2204','ubuntu-rpi-2404','alarm-rpi4','alarm-rpi5'] },
-  { id: 'opensuse',  label: 'openSUSE',               keys: ['opensuse-leap-154','opensuse-leap-155','opensuse-leap','opensuse-tumbleweed'] },
+  { id: 'opensuse',  label: 'openSUSE',               keys: ['opensuse-leap','opensuse-tumbleweed'] },
   { id: 'gentoo',    label: 'Gentoo',                 keys: ['gentoo'] },
 ];
 

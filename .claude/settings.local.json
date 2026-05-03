@@ -10,7 +10,9 @@
       "Bash(gh issue create --label needs-triage --title 'Fix QEMU binary hardcoded to aarch64 in ubuntu-rpi generator' --body ' *)",
       "Bash(gh issue create --label needs-triage --title 'Add bash syntax check to stable matrix test scripts' --body ' *)",
       "Bash(gh issue create --label needs-triage --title 'Add Snapshot Tests for Canonical Configs' --body ' *)",
-      "Bash(gh issue *)"
+      "Bash(gh issue *)",
+      "PowerShell(cd \"c:\\\\Users\\\\Joe\\\\Documents\\\\GitHub\\\\OSDB\"; node .\\\\scripts\\\\tests\\\\run-stable-default-matrix.cjs 2>&1; Write-Host \"Done. Exit: $LASTEXITCODE\")",
+      "PowerShell(cd \"c:\\\\Users\\\\Joe\\\\Documents\\\\GitHub\\\\OSDB\"; node .\\\\scripts\\\\tests\\\\validate-environment-packages.cjs 2>&1; Write-Host \"Exit: $LASTEXITCODE\")"
     ]
   }
 }

@@ -26,7 +26,6 @@ separate download needed.
 
 | Distribution | Track | Builder | Output |
 | --- | --- | --- | --- |
-| Debian 10 Buster | legacy (EOL) | live-build | ISO |
 | Debian 11 Bullseye | oldstable | live-build | ISO |
 | Debian 12 Bookworm | stable | live-build | ISO |
 | Debian 13 Trixie | beta | live-build | ISO |
