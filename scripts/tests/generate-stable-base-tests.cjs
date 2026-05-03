@@ -129,6 +129,12 @@ NODE_EOF
     continue
   fi
 
+  if ! bash -n "$TMP_SCRIPT" 2>/dev/null; then
+    FAILS+=("$BASE_ID/$DE:bash_syntax_error")
+    rm -f "$TMP_SCRIPT" "$TMP_LOG"
+    continue
+  fi
+
 ${defaultPkgTokens.map((pkg) => `  if ! grep -Fq ${JSON.stringify(pkg)} "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:${pkg}"); fi`).join('\n')}
 ${defaultSvcPkgTokens.map((pkg) => `  if ! grep -Fq ${JSON.stringify(pkg)} "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_service_pkg:${pkg}"); fi`).join('\n')}
 ${expectedUnits.map((unit) => `  if ! grep -Fq ${JSON.stringify(unit)} "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_service_unit:${unit}"); fi`).join('\n')}
