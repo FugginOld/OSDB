@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
-const { getEnabledPackages, getEnabledServicePackages, getEnabledServiceUnits } = require('./lib/pkg-resolution.cjs');
+const { buildDefaultPkgs, buildDefaultServices, getEnabledPackages, getEnabledServicePackages, getEnabledServiceUnits } = require('./lib/pkg-resolution.cjs');
 
 const outDir = path.resolve(__dirname, 'stable');
 fs.mkdirSync(outDir, { recursive: true });
@@ -24,20 +24,6 @@ function installerFor(base) {
   return base.installers.find((i) => i !== 'none') || base.installers[0];
 }
 
-function buildDefaultPkgs(base) {
-  return Object.fromEntries(
-    PACKAGES.filter((p) => p.families.includes(base.family)).map((p) => [p.id, p.defaultOn]),
-  );
-}
-
-function buildDefaultServices(base) {
-  return Object.fromEntries(
-    SERVICES
-      .filter((s) => s.families === null || s.families.includes(base.family))
-      .map((s) => [s.id, s.defaultOn]),
-  );
-}
-
 const stableBaseIds = Object.entries(BASES)
   .filter(([, b]) => STABLE_TRACKS.has(b.track) && !b.eol)
   .map(([id]) => id)
@@ -49,8 +35,8 @@ for (const baseId of stableBaseIds) {
   const base = BASES[baseId];
   const des = Array.isArray(base.des) && base.des.length ? base.des : ['none'];
 
-  const defaultPkgs = buildDefaultPkgs(base);
-  const defaultServices = buildDefaultServices(base);
+  const defaultPkgs = buildDefaultPkgs(base, PACKAGES);
+  const defaultServices = buildDefaultServices(base, SERVICES);
   const defaultPkgTokens = getEnabledPackages(base, defaultPkgs, [], PACKAGES);
   const defaultSvcPkgTokens = getEnabledServicePackages(base, defaultServices, SERVICES, baseId);
   const expectedUnits = getEnabledServiceUnits(base, defaultServices, SERVICES, baseId);

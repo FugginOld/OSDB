@@ -1,6 +1,36 @@
 'use strict';
 
 /**
+ * Builds default package state for a given base.
+ * Mirrors initDefaultPkgs() in wizard.js.
+ *
+ * @param {object}   base     - A BASES entry (with .family field)
+ * @param {object[]} packages - PACKAGES array from wizard data
+ * @returns {object} Map of packageId -> boolean (default enabled state)
+ */
+function buildDefaultPkgs(base, packages) {
+  return Object.fromEntries(
+    packages.filter((p) => p.families.includes(base.family)).map((p) => [p.id, p.defaultOn]),
+  );
+}
+
+/**
+ * Builds default service state for a given base.
+ * Mirrors initDefaultServices() in wizard.js.
+ *
+ * @param {object}   base         - A BASES entry (with .family field)
+ * @param {object[]} servicesData - SERVICES array from wizard data
+ * @returns {object} Map of serviceId -> boolean (default enabled state)
+ */
+function buildDefaultServices(base, servicesData) {
+  return Object.fromEntries(
+    servicesData
+      .filter((s) => s.families === null || s.families.includes(base.family))
+      .map((s) => [s.id, s.defaultOn]),
+  );
+}
+
+/**
  * Resolves the package name for a given PACKAGES entry and base.
  * Handles per-distro exceptions (firefox-esr/firefox split, vscode Ubuntu exclusion).
  *
@@ -19,7 +49,7 @@ function resolvePkgName(pkg, base) {
     return '';
   }
 
-  return pkg.pkgName && pkg.pkgName[base.pkg] ? pkg.pkgName[base.pkg] : '';
+  return pkg.pkgName && pkg.pkgName[base.pkg] ? pkg.pkgName[base.pkg] : pkg.id;
 }
 
 /**
@@ -131,6 +161,8 @@ function getEnabledServiceUnits(base, services, servicesData, baseId) {
 }
 
 module.exports = {
+  buildDefaultPkgs,
+  buildDefaultServices,
   resolvePkgName,
   getEnabledPackages,
   getEnabledServicePackages,

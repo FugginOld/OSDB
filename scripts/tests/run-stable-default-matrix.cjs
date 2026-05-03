@@ -2,7 +2,7 @@
 
 const path = require('path');
 const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
-const { getEnabledPackages, getEnabledServicePackages, getEnabledServiceUnits } = require('./lib/pkg-resolution.cjs');
+const { buildDefaultPkgs, buildDefaultServices, getEnabledPackages, getEnabledServicePackages, getEnabledServiceUnits } = require('./lib/pkg-resolution.cjs');
 
 const {
   BASES,
@@ -14,20 +14,6 @@ const {
   initDefaultServices,
   generateScript,
 } = loadWizard();
-
-function buildDefaultPkgs(base) {
-  return Object.fromEntries(
-    PACKAGES.filter((p) => p.families.includes(base.family)).map((p) => [p.id, p.defaultOn]),
-  );
-}
-
-function buildDefaultServices(base) {
-  return Object.fromEntries(
-    SERVICES
-      .filter((s) => s.families === null || s.families.includes(base.family))
-      .map((s) => [s.id, s.defaultOn]),
-  );
-}
 
 function installerFor(base) {
   if (!Array.isArray(base.installers) || base.installers.length === 0) return 'none';
@@ -45,8 +31,8 @@ for (const baseId of stableBaseIds) {
   const base = BASES[baseId];
   const des = Array.isArray(base.des) && base.des.length ? base.des : ['none'];
 
-  const defaultPkgs = buildDefaultPkgs(base);
-  const defaultServices = buildDefaultServices(base);
+  const defaultPkgs = buildDefaultPkgs(base, PACKAGES);
+  const defaultServices = buildDefaultServices(base, SERVICES);
   const expectedPkgs = getEnabledPackages(base, defaultPkgs, [], PACKAGES);
   const expectedSvcPkgs = getEnabledServicePackages(base, defaultServices, SERVICES, baseId);
   const expectedUnits = getEnabledServiceUnits(base, defaultServices, SERVICES, baseId);
