@@ -73,5 +73,8 @@ jobs:
       - name: Run QEMU binary selection tests
         run: node scripts/tests/test-qemu-binary-selection.cjs
 
+      - name: Verify CONFIG_TXT variable definitions
+        run: node scripts/tests/test-config-txt-definition.cjs
+
       - name: Run stable default matrix tests
         run: bash scripts/tests/run-stable-default-matrix.sh

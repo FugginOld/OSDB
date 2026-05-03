@@ -110,6 +110,19 @@ node scripts/tests/update-snapshots.cjs
 
 Then commit the updated files in `scripts/tests/snapshots/` alongside the wizard change.
 
+**Important**: All generated `.sh` files under `scripts/tests/` must have mode `755`. The `update-snapshots.cjs` and `generate-stable-base-tests.cjs` scripts use `fs.chmodSync(outFile, 0o755)` after writing to ensure correct permissions. CI enforces this requirement.
+
+### Generator Variable Requirements
+
+All generator functions in `wizard.js` that use shell variables must define them before use, especially when scripts run with `set -u`:
+
+- **CONFIG_TXT**: Used by `buildConfigTxt()` for Raspberry Pi builds. Must be defined before any `echo "..." >> "${CONFIG_TXT}"` lines.
+  - pi-gen (rpios): `CONFIG_TXT="/boot/firmware/config.txt"` with fallback
+  - ubuntu-rpi: `CONFIG_TXT="${ROOTFS}/boot/firmware/config.txt"`
+  - rpi-arch: `CONFIG_TXT="${BUILD_DIR}/boot/config.txt"`
+
+CI runs `test-config-txt-definition.cjs` to verify all generators that reference `${CONFIG_TXT}` define it before use.
+
 ### CI (`.github/workflows/`)
 
 | Workflow | Trigger | What it does |
