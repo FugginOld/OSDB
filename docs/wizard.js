@@ -2182,7 +2182,8 @@ function generateArchiso(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
   const servicePkgs = enabledServicePkgList(base);
-  const allPkgs = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
+  const allPkgsRaw = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
+  const allPkgs = [...new Set(allPkgsRaw.split(' ').filter(Boolean))].join(' ');
   const services = enabledServicesList();
   const containerImage = 'archlinux:latest';
   const mirror = validateMirrorUrl(
@@ -2190,6 +2191,9 @@ function generateArchiso(base, name) {
     base.mirror || 'https://mirror.rackspace.com/archlinux/$repo/os/$arch'
   );
   const mirrorBase = mirror.replace(/\/\$repo\/os\/\$arch$/, '');
+  const allFallbackMirrors = ['https://mirror.rackspace.com/archlinux', 'https://mirrors.kernel.org/archlinux'];
+  const fallbackMirrors = allFallbackMirrors.filter(m => m !== mirrorBase);
+  const fallbackMirrorsStr = fallbackMirrors.map(m => `"${m}"`).join(' ');
 
   const arInstallBlock = state.installer === 'archinstall'
     ? '\n# archinstall is included in the live environment by default\n'
@@ -2263,7 +2267,7 @@ chmod +x airootfs/root/customize_airootfs.sh`
 
 # ── Self-Healing Mirror Configuration ────────────────────────
 PRIMARY_MIRROR="${mirrorBase}"
-FALLBACK_MIRRORS=("https://mirror.rackspace.com/archlinux" "https://mirrors.kernel.org/archlinux")
+FALLBACK_MIRRORS=(${fallbackMirrorsStr})
 MIRRORS_TRIED=()
 MAX_RETRIES_PER_MIRROR=2
 
@@ -2310,18 +2314,19 @@ for attempt in \$(seq 0 \${MAX_RETRIES_PER_MIRROR}); do
 
   MIRRORS_TRIED+=("\${PRIMARY_MIRROR}")
 
-  if build_with_mirror "\${PRIMARY_MIRROR}"; then
+  build_with_mirror "\${PRIMARY_MIRROR}"
+  build_result=\$?
+  if [ "\${build_result}" -eq 0 ]; then
     log "Build succeeded with primary mirror"
     log "Generating SHA256 checksum..."
     find "\${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \\; > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
     BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
     log "Build complete!"
-    log "ISO:      \${BUILT_ISO}"
+    log "ISO:      \${DISPLAY_OUTPUT_DIR}/\$(basename "\${BUILT_ISO}")"
     log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
     exit 0
   fi
 
-  build_result=\$?
   if [ "\${build_result}" -eq 2 ]; then
     log "Non-checksum build failure detected. Not retrying."
     log "Attempted mirrors: \${MIRRORS_TRIED[*]}"
@@ -2344,18 +2349,19 @@ for fallback_mirror in "\${FALLBACK_MIRRORS[@]}"; do
 
     MIRRORS_TRIED+=("\${fallback_mirror}")
 
-    if build_with_mirror "\${fallback_mirror}"; then
+    build_with_mirror "\${fallback_mirror}"
+    build_result=\$?
+    if [ "\${build_result}" -eq 0 ]; then
       log "Build succeeded with fallback mirror: \${fallback_mirror}"
       log "Generating SHA256 checksum..."
       find "\${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \\; > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
       BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
       log "Build complete!"
-      log "ISO:      \${BUILT_ISO}"
+      log "ISO:      \${DISPLAY_OUTPUT_DIR}/\$(basename "\${BUILT_ISO}")"
       log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
       exit 0
     fi
 
-    build_result=\$?
     if [ "\${build_result}" -eq 2 ]; then
       log "Non-checksum build failure detected. Not retrying."
       log "Attempted mirrors: \${MIRRORS_TRIED[*]}"
