@@ -51,7 +51,7 @@ cleanup_build_dir() {
   esac
 
   log "Removing failed build workspace: ${cleanup_path}"
-  rm -rf --one-file-system -- "${cleanup_path}" || log "Cleanup skipped for busy path: ${cleanup_path}"
+  rm -rf --one-file-system -- "${cleanup_path}" || { log "Cleanup failed for path: ${cleanup_path}"; return 1; }
 }
 finish_build() {
   local status=$?
@@ -176,34 +176,42 @@ if ! command -v isohybrid >/dev/null 2>&1; then
   die "isohybrid is required for iso-hybrid output but is not installed. Install syslinux-utils (or syslinux/isolinux) in the build container."
 fi
 
-mkdir -p "${LB_DIR}"
-cd "${LB_DIR}"
+# ── Self-Healing Mirror Configuration ────────────────────────
+# Array of fallback mirrors to try if primary mirror has checksum failures
+FALLBACK_MIRRORS=("http://ftp.us.debian.org/debian" "http://ftp.de.debian.org/debian")
 
-# ── lb config ─────────────────────────────────────────────────
-log "Configuring live-build..."
-lb config \
-  --distribution "bullseye" \
-  --archive-areas "main contrib non-free" \
-  --mirror-bootstrap "http://deb.debian.org/debian" \
-  --mirror-binary "http://deb.debian.org/debian" \
-  --mirror-chroot "http://deb.debian.org/debian" \
-  --binary-images iso \
-  --bootloader "grub-efi,syslinux" \
-  --debian-installer false \
-  --apt-recommends false \
-  --memtest none
+# Function to configure and build with a specific mirror
+build_with_mirror() {
+  local mirror_url="$1"
+  log "Configuring live-build with mirror: ${mirror_url}"
 
-# ── Chroot environment ──────────────────────────────────────────────
-log "Setting noninteractive environment for chroot..."
-mkdir -p config
-printf '%s\n' \
-  'DEBIAN_FRONTEND=noninteractive' \
-  'DEBCONF_NONINTERACTIVE_SEEN=true' > config/environment.chroot
+  mkdir -p "${LB_DIR}"
+  cd "${LB_DIR}"
 
-# ── Debconf preseed ──────────────────────────────────────────────
-log "Writing debconf preseed..."
-mkdir -p config/preseed
-cat > config/preseed/live.cfg.chroot << 'PRESEED_EOF'
+  # ── lb config ─────────────────────────────────────────────────
+  lb config \
+    --distribution "bullseye" \
+    --archive-areas "main contrib non-free" \
+    --mirror-bootstrap "${mirror_url}" \
+    --mirror-binary "${mirror_url}" \
+    --mirror-chroot "${mirror_url}" \
+    --binary-images iso \
+    --bootloader "grub-efi,syslinux" \
+    --debian-installer false \
+    --apt-recommends false \
+    --memtest none
+
+  # ── Chroot environment ──────────────────────────────────────────────
+  log "Setting noninteractive environment for chroot..."
+  mkdir -p config
+  printf '%s\n' \
+    'DEBIAN_FRONTEND=noninteractive' \
+    'DEBCONF_NONINTERACTIVE_SEEN=true' > config/environment.chroot
+
+  # ── Debconf preseed ──────────────────────────────────────────────
+  log "Writing debconf preseed..."
+  mkdir -p config/preseed
+  cat > config/preseed/live.cfg.chroot << 'PRESEED_EOF'
 console-setup console-setup/charmap47 select UTF-8
 console-setup console-setup/codeset47 select Guess optimal character set
 console-setup console-setup/fontface47 select Fixed
@@ -217,25 +225,25 @@ keyboard-configuration keyboard-configuration/variantcode string
 keyboard-configuration keyboard-configuration/xkb-keymap select us
 PRESEED_EOF
 
-# ── Package lists ──────────────────────────────────────────────
-log "Writing package lists..."
-mkdir -p config/package-lists
-printf '%s\n' "gnome-shell" "gnome-session" "gdm3" "gnome-control-center" "nautilus" > config/package-lists/desktop.list.chroot
-printf '%s\n' "firefox-esr" "vlc" "git" "cups" > config/package-lists/user.list.chroot
-printf '%s\n' "network-manager" "cups" "bluez" "unattended-upgrades" > config/package-lists/services.list.chroot
-printf '%s\n' "live-boot" "live-config" "live-config-systemd" > config/package-lists/live.list.chroot
+  # ── Package lists ──────────────────────────────────────────────
+  log "Writing package lists..."
+  mkdir -p config/package-lists
+  printf '%s\n' "gnome-shell" "gnome-session" "gdm3" "gnome-control-center" "nautilus" > config/package-lists/desktop.list.chroot
+  printf '%s\n' "firefox-esr" "vlc" "git" "cups" > config/package-lists/user.list.chroot
+  printf '%s\n' "network-manager" "cups" "bluez" "unattended-upgrades" > config/package-lists/services.list.chroot
+  printf '%s\n' "live-boot" "live-config" "live-config-systemd" > config/package-lists/live.list.chroot
+  
+  
 
+  # ── Chroot hooks ───────────────────────────────────────────────
+  log "Writing chroot hooks..."
+  mkdir -p config/hooks/live
 
+  # ── PPAs ──────────────────────────────────────────────────────
+  # No PPAs configured
 
-# ── Chroot hooks ───────────────────────────────────────────────
-log "Writing chroot hooks..."
-mkdir -p config/hooks/live
-
-# ── PPAs ──────────────────────────────────────────────────────
-# No PPAs configured
-
-# Hook: enable services
-cat > config/hooks/live/0010-services.hook.chroot << 'HOOK_EOF'
+  # Hook: enable services
+  cat > config/hooks/live/0010-services.hook.chroot << 'HOOK_EOF'
 #!/bin/sh
 set -e
 if systemctl list-unit-files "NetworkManager.service" 2>/dev/null | grep -q "^NetworkManager.service"; then
@@ -259,10 +267,10 @@ else
   echo "Skipping unattended-upgrades.service (unit not found - package may not be installed)"
 fi
 HOOK_EOF
-chmod +x config/hooks/live/0010-services.hook.chroot
+  chmod +x config/hooks/live/0010-services.hook.chroot
 
-# Hook: display manager / auto-login
-cat > config/hooks/live/0020-autologin.hook.chroot << 'HOOK_EOF'
+  # Hook: display manager / auto-login
+  cat > config/hooks/live/0020-autologin.hook.chroot << 'HOOK_EOF'
 #!/bin/sh
 set -e
 
@@ -270,21 +278,125 @@ set -e
 sed -i 's/#AutomaticLoginEnable/AutomaticLoginEnable/' /etc/gdm3/daemon.conf
 sed -i 's/#AutomaticLogin = user1/AutomaticLogin = user/' /etc/gdm3/daemon.conf
 HOOK_EOF
-chmod +x config/hooks/live/0020-autologin.hook.chroot
+  chmod +x config/hooks/live/0020-autologin.hook.chroot
 
 
 
-# ── Build ──────────────────────────────────────────────────────
-log "Starting live-build (this may take 30–60 minutes)..."
-lb build
+  # ── Build ──────────────────────────────────────────────────────
+  log "Starting live-build (this may take 30–60 minutes)..."
+  local build_log
+  build_log="$(mktemp)"
 
-# ── Move output ────────────────────────────────────────────────
-find . -maxdepth 1 -name '*.iso' -exec mv {} "${OUTPUT_DIR}/${DISTRO_NAME}.iso" \;
+  # Run lb build and capture output for checksum failure detection
+  if lb build 2>&1 | tee "${build_log}"; then
+    rm -f "${build_log}"
+    return 0
+  else
+    # Check if failure is due to checksum mismatch
+    if grep -qE '(Hash Sum mismatch|Hash mismatch)' "${build_log}"; then
+      rm -f "${build_log}"
+      return 1  # Checksum failure - retry possible
+    else
+      rm -f "${build_log}"
+      return 2  # Non-checksum failure - do not retry
+    fi
+  fi
+}
 
-# ── Checksum ───────────────────────────────────────────────────
-log "Generating SHA256 checksum..."
-sha256sum "${OUTPUT_DIR}/${DISTRO_NAME}.iso" > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+# ── Self-Healing Retry Loop ───────────────────────────────────
+PRIMARY_MIRROR="http://deb.debian.org/debian"
+MIRRORS_TRIED=()
+MAX_RETRIES_PER_MIRROR=2
 
-log "Build complete!"
-log "ISO:      ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso"
-log "Checksum: ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+log "Starting self-healing build with primary mirror: ${PRIMARY_MIRROR}"
+
+# Try primary mirror with retries
+for attempt in $(seq 0 ${MAX_RETRIES_PER_MIRROR}); do
+  if [ "${attempt}" -eq 0 ]; then
+    log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
+  else
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
+    cd /
+    cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+    mkdir -p "${BUILD_DIR}"
+    : > "${BUILD_MARKER}"
+  fi
+
+  MIRRORS_TRIED+=("${PRIMARY_MIRROR}")
+
+  if build_with_mirror "${PRIMARY_MIRROR}"; then
+    log "Build succeeded with primary mirror"
+    # Move output and generate checksums (moved outside function for clarity)
+    cd "${LB_DIR}"
+    find . -maxdepth 1 -name '*.iso' -exec mv {} "${OUTPUT_DIR}/${DISTRO_NAME}.iso" \;
+    log "Generating SHA256 checksum..."
+    sha256sum "${OUTPUT_DIR}/${DISTRO_NAME}.iso" > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+    log "Build complete!"
+    log "ISO:      ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso"
+    log "Checksum: ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+    exit 0
+  fi
+
+  build_result=$?
+  if [ "${build_result}" -eq 2 ]; then
+    log "Non-checksum build failure detected. Not retrying."
+    log "Attempted mirrors: ${MIRRORS_TRIED[*]}"
+    exit 1
+  fi
+
+  log "Checksum failure detected on primary mirror"
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+# Try fallback mirrors
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  cd /
+  cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+  mkdir -p "${BUILD_DIR}"
+  : > "${BUILD_MARKER}"
+
+  for attempt in $(seq 0 ${MAX_RETRIES_PER_MIRROR}); do
+    if [ "${attempt}" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      cd /
+      cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+      mkdir -p "${BUILD_DIR}"
+      : > "${BUILD_MARKER}"
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+
+    if build_with_mirror "${fallback_mirror}"; then
+      log "Build succeeded with fallback mirror: ${fallback_mirror}"
+      cd "${LB_DIR}"
+      find . -maxdepth 1 -name '*.iso' -exec mv {} "${OUTPUT_DIR}/${DISTRO_NAME}.iso" \;
+      log "Generating SHA256 checksum..."
+      sha256sum "${OUTPUT_DIR}/${DISTRO_NAME}.iso" > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+      log "Build complete!"
+      log "ISO:      ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso"
+      log "Checksum: ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+      exit 0
+    fi
+
+    build_result=$?
+    if [ "${build_result}" -eq 2 ]; then
+      log "Non-checksum build failure detected. Not retrying."
+      log "Attempted mirrors: ${MIRRORS_TRIED[*]}"
+      exit 1
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+# All mirrors exhausted
+log "ERROR: All mirrors exhausted. Build failed with checksum errors on all attempted mirrors."
+log "Attempted mirrors (${#MIRRORS_TRIED[@]} total attempts):"
+for mirror in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${mirror}"
+done
+exit 1
