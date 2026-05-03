@@ -52,5 +52,8 @@ jobs:
       - name: Ensure generated test scripts are up to date
         run: git diff --exit-code -- scripts/tests
 
+      - name: Run mirror URL injection tests
+        run: node scripts/tests/test-mirror-url-injection.cjs
+
       - name: Run stable default matrix tests
         run: bash scripts/tests/run-stable-default-matrix.sh

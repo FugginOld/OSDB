@@ -1850,6 +1850,18 @@ start_logging
 `;
 }
 
+// ─ Mirror URL validation ──────────────────────────────────────
+// Validates a mirror URL to prevent shell injection. Only accepts strict
+// http(s) URLs composed of standard URL-safe characters (alphanumeric, dash,
+// dot, underscore, tilde, colon, slash, percent, @, =, +, ?)
+// Returns the validated URL or the fallback if validation fails.
+function validateMirrorUrl(url, fallback) {
+  const trimmed = (url || '').trim();
+  if (!trimmed) return fallback;
+  const isValid = /^https?:\/\/[a-zA-Z0-9\-._~:/?@%=+]+$/.test(trimmed);
+  return isValid ? trimmed : fallback;
+}
+
 // ─ live-build (Debian / Ubuntu) ──────────────────────────────
 function generateLiveBuild(base, name) {
   const de = state.de || 'none';
@@ -1857,8 +1869,10 @@ function generateLiveBuild(base, name) {
   const userPkgs = enabledPkgList(base);
   const servicePkgs = enabledServicePkgList(base);
   const allPkgs = [dePackages, userPkgs].filter(Boolean).join(' ');
-  const mirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
-    ? state.customMirrorUrl.trim() : base.mirror;
+  const mirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    base.mirror
+  );
   const areas = base.areas;
   const suite = base.suite;
   const services = enabledServicesList();
@@ -2088,6 +2102,10 @@ function generateArchiso(base, name) {
   const allPkgs = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
   const services = enabledServicesList();
   const containerImage = 'archlinux:latest';
+  const mirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    base.mirror || 'https://mirror.rackspace.com/archlinux/$repo/os/$arch'
+  );
 
   const arInstallBlock = state.installer === 'archinstall'
     ? '\n# archinstall is included in the live environment by default\n'
@@ -2160,8 +2178,8 @@ chmod +x airootfs/root/customize_airootfs.sh`
   : '# No display manager autologin needed'}
 
 # ── Custom mirror ──────────────────────────────────────────────
-${(state.repoType === 'custom' && state.customMirrorUrl.trim()) ? `cat > airootfs/etc/pacman.d/mirrorlist << 'MIRROR_EOF'
-Server = ${state.customMirrorUrl.trim()}
+${state.repoType === 'custom' && state.customMirrorUrl.trim() ? `cat > airootfs/etc/pacman.d/mirrorlist << 'MIRROR_EOF'
+Server = ${mirror}
 MIRROR_EOF` : '# Using default Arch mirrors'}
 
 # ── Build ──────────────────────────────────────────────────────
@@ -2413,8 +2431,10 @@ function generateUbuntuRpi(base, name) {
   const hwObj = RPI_HARDWARE.find(h => h.id === hw) || { arch: 'aarch64' };
   const arch = hwObj.arch;
   const suite = base.suite;
-  const mirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
-    ? state.customMirrorUrl.trim() : base.mirror;
+  const mirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    base.mirror
+  );
   const areas = base.areas;
   const needsEeprom = ['rpi4','rpi5'].includes(hw);
   const containerImage = `ubuntu:${suite}`;
@@ -2732,20 +2752,12 @@ function generateCatalyst(base, name) {
   const rcServices = enabledServicesRcList();
   const installerPkgs = state.installer === 'calamares' ? ['app-admin/calamares'] : [];
 
-  // Validate the mirror URL: only accept strict http(s) URLs composed of
-  // standard URL-safe characters (alphanumeric, dash, dot, underscore, tilde,
-  // colon, slash, percent-encoded sequences, @, =, +, ?) to prevent shell
-  // injection when the value is embedded in the generated script.
-  const rawMirror = (state.repoType === 'custom' && state.customMirrorUrl.trim())
-    ? state.customMirrorUrl.trim() : (base.mirror || 'https://distfiles.gentoo.org');
-  const mirrorIsValid = /^https?:\/\/[a-zA-Z0-9\-._~:/?@%=+]+$/.test(rawMirror);
-  // If the custom URL fails validation fall back to the built-in default mirror
-  // (a hardcoded constant that needs no further escaping).
-  const mirror = mirrorIsValid ? rawMirror : (base.mirror || 'https://distfiles.gentoo.org');
-  // Single-quote-escape only when the validated custom URL is actually used.
-  const mirrorEscaped = mirrorIsValid
-    ? mirror.replace(/'/g, "'\\''")
-    : mirror; // default mirror is a hardcoded constant; no escaping needed
+  const mirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    base.mirror || 'https://distfiles.gentoo.org'
+  );
+  // Single-quote-escape for embedding in shell script
+  const mirrorEscaped = mirror.replace(/'/g, "'\\''");
   const containerImage = 'gentoo/stage3:amd64-openrc';
 
   // All packages to install in the live environment (deduplicated via Set)

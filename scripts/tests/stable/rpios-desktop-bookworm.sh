@@ -23,7 +23,7 @@ state.distroName = 'test-' + baseId + '-' + de;
 state.repoType = 'official';
 state.customMirrorUrl = '';
 state.ppaList = '';
-state.installer = "none";
+state.installer = "raspberry-pi-imager";
 state.rpiHardware = (base.family === 'rpi' || base.family === 'rpi-ubuntu' || base.family === 'rpi-arch') ? 'rpi4' : null;
 initDefaultPkgs();
 initDefaultServices();
