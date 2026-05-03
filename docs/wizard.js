@@ -1862,6 +1862,17 @@ function validateMirrorUrl(url, fallback) {
   return isValid ? trimmed : fallback;
 }
 
+// ─ PPA string validation ──────────────────────────────────────
+// Validates a PPA string to prevent shell injection. Only accepts the strict
+// format: ppa:username/ppaname where username and ppaname contain only
+// alphanumeric characters, dots, underscores, and hyphens.
+// Returns true if valid, false otherwise.
+function validatePpaString(ppa) {
+  const trimmed = (ppa || '').trim();
+  if (!trimmed) return false;
+  return /^ppa:[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(trimmed);
+}
+
 // ─ live-build (Debian / Ubuntu) ──────────────────────────────
 function generateLiveBuild(base, name) {
   const de = state.de || 'none';
@@ -1948,11 +1959,18 @@ SVC_EOF
     ? '\n# NOTE: Ubiquity requires the ubiquity package included below (added automatically)\n'
     : '';
 
-  const ppaBlock = state.repoType === 'ppa' && state.ppaList.trim()
-    ? state.ppaList.trim().split('\n').filter(Boolean).map(ppa =>
-        `add-apt-repository -y "${ppa.trim()}"`
-      ).join('\n') + '\napt-get update'
-    : '';
+  const ppaBlock = (() => {
+    if (state.repoType !== 'ppa' || !state.ppaList.trim()) return '';
+    const entries = state.ppaList.trim().split('\n')
+      .map(ppa => ppa.trim())
+      .filter(Boolean)
+      .map(ppa => validatePpaString(ppa)
+        ? { valid: true, line: `add-apt-repository -y "${ppa}"` }
+        : { valid: false, line: `# skipped invalid PPA: ${ppa}` }
+      );
+    if (!entries.some(e => e.valid)) return '';
+    return entries.map(e => e.line).join('\n') + '\napt-get update';
+  })();
 
   return `${scriptHeader(name, 'live-build', containerImage)}
 LB_DIR="\${BUILD_DIR}/lb"
