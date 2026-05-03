@@ -1822,6 +1822,105 @@ function validatePpaString(ppa) {
   return /^ppa:[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(trimmed);
 }
 
+function selfHealingBashFragment({
+  primaryMirror,
+  checksumFailureCondition,
+  mirrorInjectionBlock,
+  cleanRestartBlock,
+  buildBlock,
+  successBlock,
+  shellcheckNote,
+}) {
+  const shellcheck = shellcheckNote ? `${shellcheckNote}\n` : '';
+  const cleanRestart = cleanRestartBlock ? `
+${cleanRestartBlock}` : '';
+
+  return `
+# ── Self-Healing Mirror Configuration ────────────────────────
+${shellcheck}PRIMARY_MIRROR="${primaryMirror}"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  ${checksumFailureCondition}
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  ${mirrorInjectionBlock}
+
+  ${buildBlock}
+}
+
+log "Starting self-healing build with primary mirror: \${PRIMARY_MIRROR}"
+
+attempt=0
+while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+  if [ "$attempt" -gt 0 ]; then
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): \${PRIMARY_MIRROR}"
+    ${cleanRestart ? cleanRestart.trim() : ':'}
+  else
+    log "Attempting build with primary mirror: \${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("\${PRIMARY_MIRROR}")
+  build_with_mirror "\${PRIMARY_MIRROR}"; result=$?
+
+  if [ "$result" -eq 0 ]; then
+    ${successBlock}
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${'$'}{FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: \${fallback_mirror}"
+  ${cleanRestart ? cleanRestart.trim() : ':'}
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): \${fallback_mirror}"
+      ${cleanRestart ? cleanRestart.trim() : ':'}
+    fi
+
+    MIRRORS_TRIED+=("\${fallback_mirror}")
+    build_with_mirror "\${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      ${successBlock}
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: \${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: \${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${'$'}{MIRRORS_TRIED[@]}"; do
+  log "  - \${m}"
+done
+die "Build failed after exhausting all mirrors"
+`;
+}
+
 // ─ live-build (Debian / Ubuntu) ──────────────────────────────
 function generateLiveBuild(base, name) {
   const de = state.de || 'none';
@@ -2077,103 +2176,87 @@ ${calamaresBlock}
   fi
 }
 
-# ── Self-Healing Retry Loop ───────────────────────────────────
-PRIMARY_MIRROR="${mirror}"
-MIRRORS_TRIED=()
-MAX_RETRIES_PER_MIRROR=2
+${selfHealingBashFragment({
+  primaryMirror: mirror,
+  checksumFailureCondition: `grep -qE '(Hash Sum mismatch|Hash mismatch)' "$build_log"`,
+  mirrorInjectionBlock: `log "Configuring live-build with mirror: $mirror_url"
 
-log "Starting self-healing build with primary mirror: \${PRIMARY_MIRROR}"
+  mkdir -p "$LB_DIR"
+  cd "$LB_DIR"`,
+  cleanRestartBlock: `cd /
+cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+mkdir -p "$BUILD_DIR"
+: > "$BUILD_MARKER"`,
+  buildBlock: `lb config \\
+    --distribution "${suite}" \\
+    --archive-areas "${areas}" \\
+    --mirror-bootstrap "$mirror_url" \\
+    --mirror-binary "$mirror_url" \\
+${base.family === 'ubuntu' ? `    --mode ubuntu \\
+    --parent-mirror-bootstrap "$mirror_url" \\
+    --parent-mirror-chroot "$mirror_url" \\
+    --parent-mirror-binary "$mirror_url" \\
+    --parent-mirror-chroot-security "http://security.ubuntu.com/ubuntu" \\
+    --parent-mirror-binary-security "http://security.ubuntu.com/ubuntu" \\
+    --mirror-chroot-security "http://security.ubuntu.com/ubuntu" \\
+    --mirror-binary-security "http://security.ubuntu.com/ubuntu" \\
+` : ''}    --mirror-chroot "$mirror_url" \\
+    --binary-images iso \\
+    --bootloader "grub-efi,syslinux" \\
+    --debian-installer false \\
+    --apt-recommends false \\
+    --memtest none
 
-# Try primary mirror with retries
-for attempt in \$(seq 0 \${MAX_RETRIES_PER_MIRROR}); do
-  if [ "\${attempt}" -eq 0 ]; then
-    log "Attempting build with primary mirror: \${PRIMARY_MIRROR}"
-  else
-    log "Retrying primary mirror (attempt \$((attempt + 1))/\$((MAX_RETRIES_PER_MIRROR + 1))): \${PRIMARY_MIRROR}"
-    cd /
-    cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
-    mkdir -p "\${BUILD_DIR}"
-    : > "\${BUILD_MARKER}"
-  fi
+  log "Setting noninteractive environment for chroot..."
+  mkdir -p config
+  printf '%s\\n' \\
+    'DEBIAN_FRONTEND=noninteractive' \\
+    'DEBCONF_NONINTERACTIVE_SEEN=true' > config/environment.chroot
 
-  MIRRORS_TRIED+=("\${PRIMARY_MIRROR}")
+  log "Writing debconf preseed..."
+  mkdir -p config/preseed
 
-  if build_with_mirror "\${PRIMARY_MIRROR}"; then
-    log "Build succeeded with primary mirror"
-    # Move output and generate checksums (moved outside function for clarity)
-    cd "\${LB_DIR}"
-    find . -maxdepth 1 -name '*.iso' -exec mv {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" \\;
-    log "Generating SHA256 checksum..."
-    sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
-    log "Build complete!"
-    log "ISO:      \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso"
-    log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
-    exit 0
-  fi
+  log "Writing chroot hooks..."
+  mkdir -p config/hooks/live
 
-  build_result=\$?
-  if [ "\${build_result}" -eq 2 ]; then
-    log "Non-checksum build failure detected. Not retrying."
-    log "Attempted mirrors: \${MIRRORS_TRIED[*]}"
-    exit 1
-  fi
+  ${ppaBlock ? `log "Adding PPAs..."
+  cat > config/hooks/live/0001-ppa.hook.chroot << 'HOOK_EOF'
+#!/bin/sh
+set -e
+apt-get install -y software-properties-common
+${ppaBlock}
+HOOK_EOF
+  chmod +x config/hooks/live/0001-ppa.hook.chroot` : '# No PPAs configured'}
 
-  log "Checksum failure detected on primary mirror"
-done
+  cat > config/hooks/live/0010-services.hook.chroot << 'HOOK_EOF'
+#!/bin/sh
+set -e
+${serviceEnableBlock(services) || '# No services selected'}
+HOOK_EOF
+  chmod +x config/hooks/live/0010-services.hook.chroot
 
-log "Primary mirror exhausted after \$((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+  cat > config/hooks/live/0020-autologin.hook.chroot << 'HOOK_EOF'
+#!/bin/sh
+set -e
+${autologinHook(base)}
+HOOK_EOF
+  chmod +x config/hooks/live/0020-autologin.hook.chroot
 
-# Try fallback mirrors
-for fallback_mirror in "\${FALLBACK_MIRRORS[@]}"; do
-  log "Switching to fallback mirror: \${fallback_mirror}"
-  cd /
-  cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
-  mkdir -p "\${BUILD_DIR}"
-  : > "\${BUILD_MARKER}"
+${calamaresBlock}
 
-  for attempt in \$(seq 0 \${MAX_RETRIES_PER_MIRROR}); do
-    if [ "\${attempt}" -gt 0 ]; then
-      log "Retrying fallback mirror (attempt \$((attempt + 1))/\$((MAX_RETRIES_PER_MIRROR + 1))): \${fallback_mirror}"
-      cd /
-      cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
-      mkdir -p "\${BUILD_DIR}"
-      : > "\${BUILD_MARKER}"
-    fi
+  log "Starting live-build (this may take 30–60 minutes)..."
+  build_log="$(mktemp)"
 
-    MIRRORS_TRIED+=("\${fallback_mirror}")
-
-    if build_with_mirror "\${fallback_mirror}"; then
-      log "Build succeeded with fallback mirror: \${fallback_mirror}"
-      cd "\${LB_DIR}"
-      find . -maxdepth 1 -name '*.iso' -exec mv {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" \\;
-      log "Generating SHA256 checksum..."
-      sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
-      log "Build complete!"
-      log "ISO:      \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso"
-      log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
-      exit 0
-    fi
-
-    build_result=\$?
-    if [ "\${build_result}" -eq 2 ]; then
-      log "Non-checksum build failure detected. Not retrying."
-      log "Attempted mirrors: \${MIRRORS_TRIED[*]}"
-      exit 1
-    fi
-
-    log "Checksum failure detected on fallback mirror: \${fallback_mirror}"
-  done
-
-  log "Fallback mirror exhausted: \${fallback_mirror}"
-done
-
-# All mirrors exhausted
-log "ERROR: All mirrors exhausted. Build failed with checksum errors on all attempted mirrors."
-log "Attempted mirrors (\${#MIRRORS_TRIED[@]} total attempts):"
-for mirror in "\${MIRRORS_TRIED[@]}"; do
-  log "  - \${mirror}"
-done
-exit 1
+  lb build 2>&1 | tee "$build_log"`,
+  successBlock: `rm -f "$build_log"
+cd "$LB_DIR"
+find . -maxdepth 1 -name '*.iso' -exec mv {} "$OUTPUT_DIR/$DISTRO_NAME.iso" \\;
+log "Generating SHA256 checksum..."
+sha256sum "$OUTPUT_DIR/$DISTRO_NAME.iso" > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+log "Build complete!"
+log "ISO:      $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
+})}
 `;
 }
 
@@ -3188,6 +3271,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render
   renderAll();
 });
-
-
-
