@@ -1862,6 +1862,17 @@ function validateMirrorUrl(url, fallback) {
   return isValid ? trimmed : fallback;
 }
 
+// ─ PPA string validation ──────────────────────────────────────
+// Validates a PPA string to prevent shell injection. Only accepts the strict
+// format: ppa:username/ppaname where username and ppaname contain only
+// alphanumeric characters, dots, underscores, and hyphens.
+// Returns true if valid, false otherwise.
+function validatePpaString(ppa) {
+  const trimmed = (ppa || '').trim();
+  if (!trimmed) return false;
+  return /^ppa:[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(trimmed);
+}
+
 // ─ live-build (Debian / Ubuntu) ──────────────────────────────
 function generateLiveBuild(base, name) {
   const de = state.de || 'none';
@@ -1949,9 +1960,14 @@ SVC_EOF
     : '';
 
   const ppaBlock = state.repoType === 'ppa' && state.ppaList.trim()
-    ? state.ppaList.trim().split('\n').filter(Boolean).map(ppa =>
-        `add-apt-repository -y "${ppa.trim()}"`
-      ).join('\n') + '\napt-get update'
+    ? state.ppaList.trim().split('\n').filter(Boolean).map(ppa => {
+        const trimmed = ppa.trim();
+        if (validatePpaString(trimmed)) {
+          return `add-apt-repository -y "${trimmed}"`;
+        } else {
+          return `# skipped invalid PPA: ${trimmed}`;
+        }
+      }).join('\n') + '\napt-get update'
     : '';
 
   return `${scriptHeader(name, 'live-build', containerImage)}
