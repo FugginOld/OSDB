@@ -1959,16 +1959,18 @@ SVC_EOF
     ? '\n# NOTE: Ubiquity requires the ubiquity package included below (added automatically)\n'
     : '';
 
-  const ppaBlock = state.repoType === 'ppa' && state.ppaList.trim()
-    ? state.ppaList.trim().split('\n').filter(Boolean).map(ppa => {
-        const trimmed = ppa.trim();
-        if (validatePpaString(trimmed)) {
-          return `add-apt-repository -y "${trimmed}"`;
-        } else {
-          return `# skipped invalid PPA: ${trimmed}`;
-        }
-      }).join('\n') + '\napt-get update'
-    : '';
+  const ppaBlock = (() => {
+    if (state.repoType !== 'ppa' || !state.ppaList.trim()) return '';
+    const entries = state.ppaList.trim().split('\n')
+      .map(ppa => ppa.trim())
+      .filter(Boolean)
+      .map(ppa => validatePpaString(ppa)
+        ? { valid: true, line: `add-apt-repository -y "${ppa}"` }
+        : { valid: false, line: `# skipped invalid PPA: ${ppa}` }
+      );
+    if (!entries.some(e => e.valid)) return '';
+    return entries.map(e => e.line).join('\n') + '\napt-get update';
+  })();
 
   return `${scriptHeader(name, 'live-build', containerImage)}
 LB_DIR="\${BUILD_DIR}/lb"

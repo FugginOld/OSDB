@@ -69,6 +69,7 @@ function testPpaInjection(testName, baseId, ppaList, expectations) {
   state.customMirrorUrl = '';
   state.ppaList = ppaList;
   state.installer = base.installers && base.installers.length > 0 ? base.installers[0] : 'none';
+  state.rpiHardware = null;
 
   initDefaultPkgs();
   initDefaultServices();
@@ -168,25 +169,25 @@ testMirrorInjection(
 
 // ─── PPA Injection Tests ──────────────────────────────────────────────────────
 
-// Test 8: PPA with double quotes - should be skipped
+// Test 8: PPA with double quotes - should be skipped, no hook generated
 testPpaInjection(
   'ppa-double-quote',
   'ubuntu-2204',
   'ppa:user/name" && rm -rf / && echo "',
   [
-    { shouldContain: '# skipped invalid PPA:' },
-    { shouldNotContain: 'add-apt-repository -y "ppa:user/name" && rm -rf / && echo ""' }
+    { shouldNotContain: 'add-apt-repository' },
+    { shouldNotContain: 'rm -rf /' }
   ]
 );
 
-// Test 9: PPA with $() command substitution - should be skipped
+// Test 9: PPA with $() command substitution - should be skipped, no hook generated
 testPpaInjection(
   'ppa-command-substitution',
   'ubuntu-2204',
   'ppa:user/$(whoami)',
   [
-    { shouldContain: '# skipped invalid PPA:' },
-    { shouldNotContain: 'add-apt-repository -y "ppa:user/$(whoami)"' }
+    { shouldNotContain: 'add-apt-repository' },
+    { shouldNotContain: '$(whoami)' }
   ]
 );
 
@@ -245,6 +246,6 @@ if (FAILS.length > 0) {
   FAILS.forEach(f => console.log(`  ${f}`));
   process.exit(1);
 } else {
-  console.log('All mirror URL injection tests passed!');
+  console.log('All mirror URL and PPA injection tests passed!');
   process.exit(0);
 }
