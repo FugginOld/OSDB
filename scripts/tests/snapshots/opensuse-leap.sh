@@ -51,7 +51,7 @@ cleanup_build_dir() {
   esac
 
   log "Removing failed build workspace: ${cleanup_path}"
-  rm -rf --one-file-system -- "${cleanup_path}" || log "Cleanup skipped for busy path: ${cleanup_path}"
+  rm -rf --one-file-system -- "${cleanup_path}" || { log "Cleanup failed for path: ${cleanup_path}"; return 1; }
 }
 finish_build() {
   local status=$?

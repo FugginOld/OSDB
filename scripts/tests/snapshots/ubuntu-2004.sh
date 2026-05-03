@@ -51,7 +51,7 @@ cleanup_build_dir() {
   esac
 
   log "Removing failed build workspace: ${cleanup_path}"
-  rm -rf --one-file-system -- "${cleanup_path}" || log "Cleanup skipped for busy path: ${cleanup_path}"
+  rm -rf --one-file-system -- "${cleanup_path}" || { log "Cleanup failed for path: ${cleanup_path}"; return 1; }
 }
 finish_build() {
   local status=$?
@@ -324,7 +324,9 @@ for attempt in $(seq 0 ${MAX_RETRIES_PER_MIRROR}); do
     log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
   else
     log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
-    cleanup_build_dir
+    cd /
+    cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+    mkdir -p "${BUILD_DIR}"
     : > "${BUILD_MARKER}"
   fi
 
@@ -358,13 +360,17 @@ log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
 # Try fallback mirrors
 for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
   log "Switching to fallback mirror: ${fallback_mirror}"
-  cleanup_build_dir
+  cd /
+  cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+  mkdir -p "${BUILD_DIR}"
   : > "${BUILD_MARKER}"
 
   for attempt in $(seq 0 ${MAX_RETRIES_PER_MIRROR}); do
     if [ "${attempt}" -gt 0 ]; then
       log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
-      cleanup_build_dir
+      cd /
+      cleanup_build_dir || die "Cleanup failed before retry; cannot guarantee clean state."
+      mkdir -p "${BUILD_DIR}"
       : > "${BUILD_MARKER}"
     fi
 
