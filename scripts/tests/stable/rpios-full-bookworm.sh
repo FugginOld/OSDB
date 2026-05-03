@@ -35,6 +35,12 @@ NODE_EOF
     continue
   fi
 
+  if ! bash -n "$TMP_SCRIPT" 2>/dev/null; then
+    FAILS+=("$BASE_ID/$DE:bash_syntax_error")
+    rm -f "$TMP_SCRIPT" "$TMP_LOG"
+    continue
+  fi
+
   if ! grep -Fq "chromium-browser" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:chromium-browser"); fi
   if ! grep -Fq "git" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:git"); fi
   if ! grep -Fq "raspi-config" "$TMP_SCRIPT"; then FAILS+=("$BASE_ID/$DE:missing_default_pkg:raspi-config"); fi
