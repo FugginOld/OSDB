@@ -2268,6 +2268,7 @@ chmod +x airootfs/root/customize_airootfs.sh`
   : '# No display manager autologin needed'}
 
 # ── Self-Healing Mirror Configuration ────────────────────────
+# shellcheck disable=SC2154  # \$repo and \$arch are pacman variables, not shell variables
 PRIMARY_MIRROR="${mirror}"
 FALLBACK_MIRRORS=(${fallbackMirrorsStr})
 MIRRORS_TRIED=()
