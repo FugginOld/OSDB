@@ -9,12 +9,11 @@
  * - Both the copy step and cleanup step use the correct binary
  */
 
-const fs = require('fs');
 const path = require('path');
 
 // Load wizard
 const { loadWizard } = require(path.resolve(__dirname, 'lib/osdb-wizard-harness.cjs'));
-const { BASES, state, initDefaultPkgs, initDefaultServices, generateScript } = loadWizard();
+const { BASES, RPI_HARDWARE, state, initDefaultPkgs, initDefaultServices, generateScript } = loadWizard();
 
 const ubuntu2404 = BASES['ubuntu-rpi-2404'];
 if (!ubuntu2404) {
@@ -23,17 +22,6 @@ if (!ubuntu2404) {
 }
 
 const failures = [];
-
-// Define the hardware configurations to test
-// This matches RPI_HARDWARE from wizard.js
-const RPI_HARDWARE = [
-  { id: 'rpi5',   arch: 'aarch64' },
-  { id: 'rpi4',   arch: 'aarch64' },
-  { id: 'rpi3',   arch: 'aarch64' },
-  { id: 'rpi2',   arch: 'aarch64' },
-  { id: 'rpi0-2', arch: 'aarch64' },
-  { id: 'rpi0',   arch: 'armhf' },
-];
 
 // Test each hardware configuration
 for (const hwObj of RPI_HARDWARE) {
