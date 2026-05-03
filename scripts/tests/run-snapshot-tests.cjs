@@ -99,6 +99,9 @@ for (const baseId of stableBaseIds) {
     console.error(`MISSING snapshot: ${snapshotFile}`);
     console.error(`  Run: node scripts/tests/update-snapshots.cjs`);
     failures.push(baseId);
+    if (firstFailure === null) {
+      firstFailure = { baseId, diff: null };
+    }
     continue;
   }
 
@@ -132,8 +135,12 @@ for (const baseId of stableBaseIds) {
 
 if (failures.length > 0) {
   console.error(`\nSnapshot test FAILED for: ${failures.join(', ')}`);
-  console.error(`\nFirst failure diff (${firstFailure.baseId}):\n`);
-  console.error(firstFailure.diff);
+  if (firstFailure.diff !== null) {
+    console.error(`\nFirst failure diff (${firstFailure.baseId}):\n`);
+    console.error(firstFailure.diff);
+  } else {
+    console.error(`\nFirst failure (${firstFailure.baseId}): missing snapshot file`);
+  }
   console.error(`\nTo update snapshots intentionally, run:`);
   console.error(`  node scripts/tests/update-snapshots.cjs`);
   process.exit(1);

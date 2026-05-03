@@ -199,6 +199,7 @@ chroot "${ROOTFS}" apt-get install -y \
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."
+CONFIG_TXT="${ROOTFS}/boot/firmware/config.txt"
 echo "arm_64bit=1" >> "${CONFIG_TXT}"
 echo "gpu_mem=128" >> "${CONFIG_TXT}"
 
