@@ -2182,13 +2182,20 @@ function generateArchiso(base, name) {
   const dePackages = dePkgs(base);
   const userPkgs = enabledPkgList(base);
   const servicePkgs = enabledServicePkgList(base);
-  const allPkgs = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
+  const allPkgsRaw = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
+  const allPkgs = [...new Set(allPkgsRaw.split(' ').filter(Boolean))].join(' ');
   const services = enabledServicesList();
   const containerImage = 'archlinux:latest';
   const mirror = validateMirrorUrl(
     state.repoType === 'custom' ? state.customMirrorUrl : '',
     base.mirror || 'https://mirror.rackspace.com/archlinux/$repo/os/$arch'
   );
+  const allFallbackMirrors = [
+    'https://mirror.rackspace.com/archlinux/$repo/os/$arch',
+    'https://mirrors.kernel.org/archlinux/$repo/os/$arch'
+  ];
+  const fallbackMirrors = allFallbackMirrors.filter(m => m !== mirror);
+  const fallbackMirrorsStr = fallbackMirrors.map(m => `"${m}"`).join(' ');
 
   const arInstallBlock = state.installer === 'archinstall'
     ? '\n# archinstall is included in the live environment by default\n'
@@ -2260,23 +2267,123 @@ fi
 chmod +x airootfs/root/customize_airootfs.sh`
   : '# No display manager autologin needed'}
 
-# ── Custom mirror ──────────────────────────────────────────────
-${state.repoType === 'custom' && state.customMirrorUrl.trim() ? `cat > airootfs/etc/pacman.d/mirrorlist << 'MIRROR_EOF'
-Server = ${mirror}
-MIRROR_EOF` : '# Using default Arch mirrors'}
+# ── Self-Healing Mirror Configuration ────────────────────────
+# shellcheck disable=SC2154  # \$repo and \$arch are pacman variables, not shell variables
+PRIMARY_MIRROR="${mirror}"
+FALLBACK_MIRRORS=(${fallbackMirrorsStr})
+MIRRORS_TRIED=()
+MAX_RETRIES_PER_MIRROR=2
 
-# ── Build ──────────────────────────────────────────────────────
-log "Building Arch ISO (this may take 20–40 minutes)..."
-mkarchiso -v -w "\${WORK_DIR}" -o "\${OUTPUT_DIR}" "\${PROFILE_DIR}"
+build_with_mirror() {
+  local mirror_base="\$1"
+  log "Configuring mirror: \${mirror_base}"
 
-# ── Checksum ───────────────────────────────────────────────────
-log "Generating SHA256 checksum..."
-find "\${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \\; > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
-BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
+  # Write host container mirrorlist (pacman uses this during mkarchiso)
+  printf 'Server = %s\\n' "\${mirror_base}" > /etc/pacman.d/mirrorlist
 
-log "Build complete!"
-log "ISO:      \${BUILT_ISO}"
-log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+  # Write live-system mirrorlist (embedded in the ISO)
+  mkdir -p "\${PROFILE_DIR}/airootfs/etc/pacman.d"
+  printf 'Server = %s\\n' "\${mirror_base}" > "\${PROFILE_DIR}/airootfs/etc/pacman.d/mirrorlist"
+
+  # Wipe work directory; PROFILE_DIR is preserved across retries
+  rm -rf "\${WORK_DIR}"
+
+  local build_log
+  build_log="\$(mktemp)"
+
+  if mkarchiso -v -w "\${WORK_DIR}" -o "\${OUTPUT_DIR}" "\${PROFILE_DIR}" 2>&1 | tee "\${build_log}"; then
+    rm -f "\${build_log}"
+    return 0
+  else
+    if grep -qE '(FAILED|error: failed to commit transaction)' "\${build_log}"; then
+      rm -f "\${build_log}"
+      return 1
+    else
+      rm -f "\${build_log}"
+      return 2
+    fi
+  fi
+}
+
+log "Starting self-healing build with primary mirror: \${PRIMARY_MIRROR}"
+
+# Try primary mirror with retries
+for attempt in \$(seq 0 \${MAX_RETRIES_PER_MIRROR}); do
+  if [ "\${attempt}" -eq 0 ]; then
+    log "Attempting build with primary mirror: \${PRIMARY_MIRROR}"
+  else
+    log "Retrying primary mirror (attempt \$((attempt + 1))/\$((MAX_RETRIES_PER_MIRROR + 1))): \${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("\${PRIMARY_MIRROR}")
+
+  build_with_mirror "\${PRIMARY_MIRROR}"
+  build_result=\$?
+  if [ "\${build_result}" -eq 0 ]; then
+    log "Build succeeded with primary mirror"
+    log "Generating SHA256 checksum..."
+    find "\${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \\; > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+    BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
+    log "Build complete!"
+    log "ISO:      \${DISPLAY_OUTPUT_DIR}/\$(basename "\${BUILT_ISO}")"
+    log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+    exit 0
+  fi
+
+  if [ "\${build_result}" -eq 2 ]; then
+    log "Non-checksum build failure detected. Not retrying."
+    log "Attempted mirrors: \${MIRRORS_TRIED[*]}"
+    exit 1
+  fi
+
+  log "Checksum failure detected on primary mirror"
+done
+
+log "Primary mirror exhausted after \$((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+# Try fallback mirrors
+for fallback_mirror in "\${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: \${fallback_mirror}"
+
+  for attempt in \$(seq 0 \${MAX_RETRIES_PER_MIRROR}); do
+    if [ "\${attempt}" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt \$((attempt + 1))/\$((MAX_RETRIES_PER_MIRROR + 1))): \${fallback_mirror}"
+    fi
+
+    MIRRORS_TRIED+=("\${fallback_mirror}")
+
+    build_with_mirror "\${fallback_mirror}"
+    build_result=\$?
+    if [ "\${build_result}" -eq 0 ]; then
+      log "Build succeeded with fallback mirror: \${fallback_mirror}"
+      log "Generating SHA256 checksum..."
+      find "\${OUTPUT_DIR}" -name '*.iso' -exec sha256sum {} \\; > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+      BUILT_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
+      log "Build complete!"
+      log "ISO:      \${DISPLAY_OUTPUT_DIR}/\$(basename "\${BUILT_ISO}")"
+      log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+      exit 0
+    fi
+
+    if [ "\${build_result}" -eq 2 ]; then
+      log "Non-checksum build failure detected. Not retrying."
+      log "Attempted mirrors: \${MIRRORS_TRIED[*]}"
+      exit 1
+    fi
+
+    log "Checksum failure detected on fallback mirror: \${fallback_mirror}"
+  done
+
+  log "Fallback mirror exhausted: \${fallback_mirror}"
+done
+
+# All mirrors exhausted
+log "ERROR: All mirrors exhausted. Build failed with checksum errors on all attempted mirrors."
+log "Attempted mirrors (\${#MIRRORS_TRIED[@]} total attempts):"
+for tried_mirror in "\${MIRRORS_TRIED[@]}"; do
+  log "  - \${tried_mirror}"
+done
+exit 1
 `;
 }
 
