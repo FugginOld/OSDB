@@ -195,7 +195,7 @@ chroot "${ROOTFS}" apt-get install -y \
   linux-raspi raspi-firmware u-boot-rpi flash-kernel \
   systemd-sysv sudo adduser locales \
   rpi-eeprom \
-  gnome-shell gnome-session gdm3 gnome-control-center nautilus firefox chromium-browser vlc git cups network-manager cups bluez unattended-upgrades rpi-eeprom
+  gnome-shell gnome-session gdm3 gnome-control-center nautilus firefox-esr chromium-browser vlc git cups network-manager cups bluez unattended-upgrades rpi-eeprom
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."

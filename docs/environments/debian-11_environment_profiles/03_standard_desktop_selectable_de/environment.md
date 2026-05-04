@@ -79,7 +79,7 @@ vim
 vlc
 wget
 wireless-tools
-wireplumber
+pipewire-media-session
 wpasupplicant
 ```
 

@@ -237,7 +237,7 @@ PRESEED_EOF
   log "Writing package lists..."
   mkdir -p config/package-lists
   printf '%s\n' "gnome-shell" "gnome-session" "gdm3" "gnome-control-center" "nautilus" > config/package-lists/desktop.list.chroot
-  printf '%s\n' "firefox" "vlc" "git" "cups" > config/package-lists/user.list.chroot
+  printf '%s\n' "firefox-esr" "vlc" "git" "cups" > config/package-lists/user.list.chroot
   printf '%s\n' "network-manager" "cups" "bluez" "unattended-upgrades" > config/package-lists/services.list.chroot
   printf '%s\n' "live-boot" "live-config" "live-config-systemd" > config/package-lists/live.list.chroot
   

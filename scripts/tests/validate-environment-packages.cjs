@@ -8,6 +8,20 @@ const repoRoot = path.resolve(__dirname, '..', '..');
 const wizardPath = path.join(repoRoot, 'docs', 'wizard.js');
 const envRoot = path.join(repoRoot, 'docs', 'environments');
 
+function extractPackageCompatMap(src) {
+  const start = src.indexOf('const PACKAGE_COMPAT = {');
+  if (start === -1) throw new Error('Could not locate PACKAGE_COMPAT in docs/wizard.js');
+  const end = src.indexOf('\n};', start);
+  if (end === -1) throw new Error('Could not locate end of PACKAGE_COMPAT block');
+
+  const block = src.slice(start, end + 3);
+  const js = `${block}\n;return PACKAGE_COMPAT;`;
+  // PACKAGE_COMPAT is static data; evaluate in a fresh Function to avoid
+  // bringing any wizard runtime code into this validator.
+  // eslint-disable-next-line no-new-func
+  return new Function(js)();
+}
+
 function readText(p) {
   return fs.readFileSync(p, 'utf8');
 }
@@ -91,7 +105,7 @@ function detectBaseIdFromPath(p, baseMap) {
   }  return null;
 }
 
-function validatePackages(base, pkgs) {
+function validatePackages(baseId, base, pkgs, compatMap) {
   const issues = [];
   const seen = new Set();
 
@@ -111,18 +125,18 @@ function validatePackages(base, pkgs) {
     }
   }
 
-  if (base.family === 'debian') {
-    for (const p of pkgs) {
-      if (p === 'firefox') {
-        issues.push({ code: 'debian-firefox-name', pkg: p, msg: "Debian profiles should use 'firefox-esr' instead of 'firefox'" });
-      }
+  for (const p of pkgs) {
+    const compat = compatMap && compatMap[p];
+    if (compat && Array.isArray(compat.incompatibleBases) && compat.incompatibleBases.includes(baseId)) {
+      issues.push({ code: 'incompatible-package', pkg: p, msg: `Package token '${p}' is incompatible with base '${baseId}'` });
+      continue;
     }
-  }
-  if (base.family === 'ubuntu' || base.family === 'rpi-ubuntu') {
-    for (const p of pkgs) {
-      if (p === 'firefox-esr') {
-        issues.push({ code: 'ubuntu-firefox-name', pkg: p, msg: "Ubuntu profiles should generally use 'firefox' instead of 'firefox-esr'" });
-      }
+    if (compat && compat.overrides && compat.overrides[baseId] && compat.overrides[baseId] !== p) {
+      issues.push({
+        code: 'package-name-override',
+        pkg: p,
+        msg: `Package token '${p}' should be '${compat.overrides[baseId]}' for base '${baseId}'`,
+      });
     }
   }
 
@@ -132,6 +146,7 @@ function validatePackages(base, pkgs) {
 function main() {
   const wizard = readText(wizardPath);
   const baseMap = extractBasesMap(wizard);
+  const compatMap = extractPackageCompatMap(wizard);
   const envFiles = findEnvironmentFiles(envRoot);
 
   const findings = [];
@@ -149,7 +164,7 @@ function main() {
       });
       continue;
     }
-    const issues = validatePackages(base, pkgs);
+    const issues = validatePackages(baseId, base, pkgs, compatMap);
     if (issues.length) {
       findings.push({
         file: path.relative(repoRoot, file).replace(/\\/g, '/'),
