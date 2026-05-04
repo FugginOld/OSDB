@@ -7,6 +7,8 @@ const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
 
 const snapshotDir = path.resolve(__dirname, 'snapshots');
 
+const REQUIRED_HEADER_MARKERS = ['cleanup_build_dir()', 'finish_build()', 'start_logging()'];
+
 function normalizeTimestamp(script) {
   return script.replace(/^# Generated At \(UTC\): .+$/m, '# Generated At (UTC): <TIMESTAMP>');
 }
@@ -123,6 +125,16 @@ for (const baseId of stableBaseIds) {
   initDefaultServices();
 
   const fresh = normalizeTimestamp(generateScript());
+
+  for (const marker of REQUIRED_HEADER_MARKERS) {
+    if (!fresh.includes(marker)) {
+      failures.push(`${baseId}:${marker}`);
+      if (firstFailure === null) {
+        firstFailure = { baseId, diff: `Missing required script header marker: ${marker}` };
+      }
+    }
+  }
+
   const stored = fs.readFileSync(snapshotFile, 'utf8');
 
   if (fresh !== stored) {
