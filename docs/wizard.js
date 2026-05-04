@@ -1800,7 +1800,7 @@ BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
 : > "\${BUILD_MARKER}"
 start_logging\n`;
 
-  const container = () => (containerImage ? `${containerPreamble(containerImage)}\n` : '');
+  const container = () => (containerImage ? `${containerPreamble(containerImage)}\n` : '\n');
 
   return [
     headerMetadata(),
