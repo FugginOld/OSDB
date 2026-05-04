@@ -38,12 +38,12 @@ function buildDefaultServices(base, servicesData) {
  * Resolves the package name for a given PACKAGES entry and base.
  * Handles per-distro exceptions (firefox-esr/firefox split, vscode Ubuntu exclusion).
  *
- * @param {object} pkg  - A PACKAGES entry (with .id, .pkgName fields)
- * @param {object} base - A BASES entry (with .pkg, .family fields)
+ * @param {object} pkg    - A PACKAGES entry (with .id, .pkgName fields)
+ * @param {object} base   - A BASES entry (with .pkg, .family fields)
+ * @param {string} baseId - The key used to look up base in BASES (e.g. 'debian-12')
  * @returns {string} Resolved package name, or '' to skip this package
  */
-function resolvePkgName(pkg, base) {
-  const baseId = base && base.id ? base.id : null;
+function resolvePkgName(pkg, base, baseId) {
   const candidate = pkg.pkgName && pkg.pkgName[base.pkg] ? pkg.pkgName[base.pkg] : pkg.id;
   const compat = wizard.PACKAGE_COMPAT && wizard.PACKAGE_COMPAT[candidate];
   if (baseId && compat && Array.isArray(compat.incompatibleBases) && compat.incompatibleBases.includes(baseId)) {
@@ -63,12 +63,13 @@ function resolvePkgName(pkg, base) {
  * @param {object}   pkgs          - Map of packageId -> boolean (enabled state)
  * @param {string[]} presetCorePkgs - Array of preset package name strings
  * @param {object[]} packages      - PACKAGES array from wizard data
+ * @param {string}   [baseId]      - The key used to look up base in BASES (e.g. 'debian-12')
  * @returns {string[]} Flat array of resolved, deduplicated package name tokens
  */
-function getEnabledPackages(base, pkgs, presetCorePkgs, packages) {
+function getEnabledPackages(base, pkgs, presetCorePkgs, packages, baseId) {
   const selectedTogglePkgs = packages
     .filter((p) => p.families.includes(base.family) && pkgs[p.id])
-    .map((p) => resolvePkgName(p, base))
+    .map((p) => resolvePkgName(p, base, baseId))
     .filter(Boolean)
     .flatMap((name) => String(name).split(/\s+/).filter(Boolean));
 
@@ -76,7 +77,6 @@ function getEnabledPackages(base, pkgs, presetCorePkgs, packages) {
     const n = String(name || '').trim();
     if (!n) return '';
     const compat = wizard.PACKAGE_COMPAT && wizard.PACKAGE_COMPAT[n];
-    const baseId = base && base.id ? base.id : null;
     if (baseId && compat && Array.isArray(compat.incompatibleBases) && compat.incompatibleBases.includes(baseId)) {
       return '';
     }

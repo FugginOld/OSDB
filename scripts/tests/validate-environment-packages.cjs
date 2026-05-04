@@ -4,49 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 
+const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
+
 const repoRoot = path.resolve(__dirname, '..', '..');
-const wizardPath = path.join(repoRoot, 'docs', 'wizard.js');
 const envRoot = path.join(repoRoot, 'docs', 'environments');
-
-function extractPackageCompatMap(src) {
-  const start = src.indexOf('const PACKAGE_COMPAT = {');
-  if (start === -1) throw new Error('Could not locate PACKAGE_COMPAT in docs/wizard.js');
-  const end = src.indexOf('\n};', start);
-  if (end === -1) throw new Error('Could not locate end of PACKAGE_COMPAT block');
-
-  const block = src.slice(start, end + 3);
-  const js = `${block}\n;return PACKAGE_COMPAT;`;
-  // PACKAGE_COMPAT is static data; evaluate in a fresh Function to avoid
-  // bringing any wizard runtime code into this validator.
-  // eslint-disable-next-line no-new-func
-  return new Function(js)();
-}
-
-function readText(p) {
-  return fs.readFileSync(p, 'utf8');
-}
-
-function extractBasesMap(src) {
-  const start = src.indexOf('const BASES = {');
-  if (start === -1) throw new Error('Could not locate BASES in docs/wizard.js');
-  const end = src.indexOf('\n};', start);
-  if (end === -1) throw new Error('Could not locate end of BASES block');
-  const block = src.slice(start, end);
-
-  const baseRe = /'([^']+)'\s*:\s*\{([\s\S]*?)\n\s*\},/g;
-  const out = {};
-  let m;
-  while ((m = baseRe.exec(block)) !== null) {
-    const baseId = m[1];
-    const body = m[2];
-    const fam = /family:\s*'([^']+)'/.exec(body);
-    const pkg = /pkg:\s*'([^']+)'/.exec(body);
-    if (fam && pkg) {
-      out[baseId] = { family: fam[1], pkg: pkg[1] };
-    }
-  }
-  return out;
-}
 
 function walkDirs(dir) {
   const out = [];
@@ -144,17 +105,15 @@ function validatePackages(baseId, base, pkgs, compatMap) {
 }
 
 function main() {
-  const wizard = readText(wizardPath);
-  const baseMap = extractBasesMap(wizard);
-  const compatMap = extractPackageCompatMap(wizard);
+  const { BASES, PACKAGE_COMPAT } = loadWizard();
   const envFiles = findEnvironmentFiles(envRoot);
 
   const findings = [];
   for (const file of envFiles) {
-    const baseId = detectBaseIdFromPath(file, baseMap);
-    if (!baseId || !baseMap[baseId]) continue;
-    const base = baseMap[baseId];
-    const md = readText(file);
+    const baseId = detectBaseIdFromPath(file, BASES);
+    if (!baseId || !BASES[baseId]) continue;
+    const base = BASES[baseId];
+    const md = fs.readFileSync(file, 'utf8');
     const pkgs = extractCorePackages(md);
     if (!pkgs.length) {
       findings.push({
@@ -164,7 +123,7 @@ function main() {
       });
       continue;
     }
-    const issues = validatePackages(baseId, base, pkgs, compatMap);
+    const issues = validatePackages(baseId, base, pkgs, PACKAGE_COMPAT);
     if (issues.length) {
       findings.push({
         file: path.relative(repoRoot, file).replace(/\\/g, '/'),

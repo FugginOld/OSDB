@@ -1565,15 +1565,16 @@ function generateScript() {
 // ─ Helpers used across generators ────────────────────────────
 
 function enabledPkgList(base) {
+  const baseId = state.base;
   const resolvePkgName = (pkgId) => {
     const pkg = PACKAGES.find(p => p.id === pkgId);
     const candidate = pkg ? (pkg.pkgName[base.pkg] || pkg.id) : String(pkgId || '').trim();
 
     const compat = PACKAGE_COMPAT[candidate];
-    const override = compat?.overrides?.[base.id];
+    const override = compat?.overrides?.[baseId];
     if (override) return override;
 
-    if (compat?.incompatibleBases?.includes(base.id)) return '';
+    if (compat?.incompatibleBases?.includes(baseId)) return '';
 
     return candidate;
   };
