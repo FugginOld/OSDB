@@ -37,7 +37,7 @@ const BASES = {
   },
   'debian-13': {
     label: 'Debian 13 Trixie', family: 'debian', suite: 'trixie',
-    track: 'testing', unstable: true, builder: 'live-build', pkg: 'apt',
+    track: 'testing', builder: 'live-build', pkg: 'apt',
     mirror: 'http://deb.debian.org/debian',
     areas: 'main contrib non-free non-free-firmware',
     des: ['gnome','kde','cinnamon','xfce','lxqt','mate','qtile','none'],
