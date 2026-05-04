@@ -533,10 +533,40 @@ let state = {
 let currentStepIndex = 0;
 let baseFilter = 'stable'; // 'stable' | 'unstable'
 
-// Tracks considered "stable" for the base-filter pill
-const STABLE_TRACKS = new Set(['stable', 'current', 'oldstable', 'lts', 'lts-current', 'lts-legacy']);
-// Tracks shown in the beta/testing/rolling filter pill
-const UNSTABLE_TRACKS = new Set(['testing', 'rolling']);
+// ============================================================
+// TRACK STABILITY
+// ============================================================
+//
+// One source of truth for Track stability.
+//
+// IMPORTANT: Every Track used by any BASE must be listed here explicitly.
+// This prevents "drift" where a Track becomes implicitly stable/unstable
+// based on set membership elsewhere.
+const TRACK_STABILITY = {
+  stable: 'stable',
+  current: 'stable',
+  oldstable: 'stable',
+  lts: 'stable',
+  'lts-current': 'stable',
+  'lts-legacy': 'stable',
+
+  legacy: 'unstable',
+
+  testing: 'unstable',
+  rolling: 'unstable',
+};
+
+function trackStability(track) {
+  const stability = TRACK_STABILITY[track];
+  if (!stability) {
+    throw new Error(`Unknown Track: ${track}`);
+  }
+  return stability;
+}
+
+function isStableTrack(track) {
+  return trackStability(track) === 'stable';
+}
 
 // ============================================================
 // STEP COMPUTATION
@@ -841,8 +871,8 @@ function renderStepBase() {
     keys = keys.filter(k => {
       const b = BASES[k];
       return stableActive
-        ? STABLE_TRACKS.has(b.track)
-        : (b.unstable || UNSTABLE_TRACKS.has(b.track));
+        ? isStableTrack(b.track)
+        : !isStableTrack(b.track);
     });
     if (!keys.length) continue;
     html += `<div class="family-group">
@@ -852,7 +882,7 @@ function renderStepBase() {
       const b = BASES[key];
       const sel = state.base === key ? 'selected' : '';
       const eolCls = b.eol ? 'eol' : '';
-      const isUnstable = b.unstable || !STABLE_TRACKS.has(b.track);
+      const isUnstable = !isStableTrack(b.track);
       const warn = (b.eol || isUnstable)
         ? `<span title="${b.eol ? 'End of Life' : 'Unstable/Testing'}">⚠️</span>` : '';
       const imgBadge = b.imageType === 'img'

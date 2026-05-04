@@ -16,7 +16,7 @@ This document is for contributors. For usage instructions see the [README](../RE
 | `DE_PACKAGES` | Object | Maps each DE ID → package string per package manager. |
 | `PACKAGES` | Array | 21 optional package toggles. Each has `families`, `pkgName` per manager, `defaultOn`. |
 | `SERVICES` | Array | 11 system service toggles. Each has `unit`, `rcName`, `families`, `defaultOn`, `pkgName`. |
-| `STABLE_TRACKS` / `UNSTABLE_TRACKS` | Sets | Track names used to filter Bases in the test matrix and UI. |
+| `TRACK_STABILITY` / `isStableTrack()` | Map / predicate | One source of truth for Track stability, used by both UI filtering and stable test matrix generation. |
 
 ### State & UI (`docs/wizard.js` — lines ~564–750)
 
@@ -182,7 +182,7 @@ Key fields:
 - `family` — used to filter `PACKAGES` and `SERVICES`; add `'void'` to the `families` array of any package or service you want available for this distro
 - `builder` — must match the string used in `generateScript()`'s dispatch
 - `pkg` — package manager key used in `DE_PACKAGES` and `PACKAGES[n].pkgName`
-- `track` — determines whether the Base appears in the stable test matrix (`STABLE_TRACKS`)
+- `track` — determines whether the Base appears in the stable test matrix (`isStableTrack(track)`)
 
 ### 2. Add DE package names
 
@@ -244,7 +244,7 @@ node scripts/tests/validate-environment-packages.cjs
 
 ### 5. Regenerate and run tests
 
-The test matrix is generated automatically from `BASES`. If your new Base has a Track in `STABLE_TRACKS`, `generate-stable-base-tests.cjs` will include it.
+The test matrix is generated automatically from `BASES`. If your new Base has a Track that `isStableTrack(track)` considers stable, `generate-stable-base-tests.cjs` will include it.
 
 ```bash
 node scripts/tests/generate-stable-base-tests.cjs

@@ -12,7 +12,7 @@ const {
   BASES,
   PACKAGES,
   SERVICES,
-  STABLE_TRACKS,
+  isStableTrack,
   state,
   initDefaultPkgs,
   initDefaultServices,
@@ -25,7 +25,7 @@ function installerFor(base) {
 }
 
 const stableBaseIds = Object.entries(BASES)
-  .filter(([, b]) => STABLE_TRACKS.has(b.track) && !b.eol)
+  .filter(([, b]) => isStableTrack(b.track) && !b.eol)
   .map(([id]) => id)
   .sort();
 
