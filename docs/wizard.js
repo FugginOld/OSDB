@@ -2613,6 +2613,15 @@ function generatePiGen(ctx) {
   const sshEnabled = state.services['sshd'] ? '1' : '0';
   const containerImage = 'debian:bookworm';
 
+  const primaryGitMirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    'https://github.com/RPi-Distro/pi-gen.git'
+  );
+
+  const fallbackMirrors = [
+    'https://github.com/raspberrypi/pi-gen.git'
+  ].filter(m => m !== primaryGitMirror);
+
   const configTxtLines = buildConfigTxt(is64);
 
   const skipStages = tier === 'lite'
@@ -2631,14 +2640,29 @@ apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree 
   zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git \\
   curl bc gpg
 
-# ── Clone pi-gen ──────────────────────────────────────────────
+
+FALLBACK_MIRRORS=(${fallbackMirrors.map(m => `"${m}"`).join(' ')})
+
+${selfHealingBashFragment({
+  primaryMirror: primaryGitMirror,
+  checksumFailureCondition: `grep -qE '(checksum|Checksum|hash|Hash|sha256|sha1|Digest|BAD\s+signature|Signature verification failed|\b404\b|Not Found|RPC failed|HTTP.*5\d\d)' "$build_log"`,
+  mirrorInjectionBlock: `PIGEN_GIT_URL="$mirror_url"`,
+  cleanRestartBlock: `rm -rf "$PIGEN_DIR"`,
+  buildBlock: `# ── Clone pi-gen ──────────────────────────────────────────────
 log "Cloning pi-gen..."
-if [ -d "\${PIGEN_DIR}" ]; then
-  git -C "\${PIGEN_DIR}" pull
+
+build_log="$(mktemp)"
+
+if [ -d "$PIGEN_DIR/.git" ]; then
+  git -C "$PIGEN_DIR" remote set-url origin "$PIGEN_GIT_URL" 2>&1 | tee "$build_log"
+  git -C "$PIGEN_DIR" pull 2>&1 | tee -a "$build_log"
 else
-  git clone https://github.com/RPi-Distro/pi-gen.git "\${PIGEN_DIR}"
+  git clone "$PIGEN_GIT_URL" "$PIGEN_DIR" 2>&1 | tee "$build_log"
 fi
-cd "\${PIGEN_DIR}"
+
+cd "$PIGEN_DIR"`,
+  successBlock: `rm -f "$build_log"`,
+})}
 
 # ── User password ─────────────────────────────────────────────
 # Set PIGEN_USER_PASS env var before running, or it defaults to "raspberry".
@@ -2737,6 +2761,14 @@ function generateUbuntuRpi(ctx) {
 ROOTFS="\${BUILD_DIR}/rootfs"
 IMG_SIZE="8G"
 IMG_FILE="\${OUTPUT_DIR}/\${DISTRO_NAME}.img"
+APT_MIRROR="${mirror}"
+
+FALLBACK_MIRRORS_RAW=("http://us.archive.ubuntu.com/ubuntu" "http://uk.archive.ubuntu.com/ubuntu")
+FALLBACK_MIRRORS=()
+for m in "\${FALLBACK_MIRRORS_RAW[@]}"; do
+  [ "$m" = "${mirror}" ] && continue
+  FALLBACK_MIRRORS+=("\${m}")
+done
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing build dependencies..."
@@ -2765,34 +2797,49 @@ mount "\${LOOP_DEV}p2" "\${ROOTFS}"
 mkdir -p "\${ROOTFS}/boot/firmware"
 mount "\${LOOP_DEV}p1" "\${ROOTFS}/boot/firmware"
 
-# ── debootstrap stage 1 ───────────────────────────────────────
+
+${selfHealingBashFragment({
+  primaryMirror: '${mirror}',
+  checksumFailureCondition: `grep -qE '(Hash Sum mismatch|Hash mismatch|checksum|Checksum|NO_PUBKEY|The following signatures couldn\x27t be verified|Clearsigned file isn\x27t valid|Bad header line|BADSIG)' "$build_log"`,
+  mirrorInjectionBlock: `APT_MIRROR="$mirror_url"`,
+  cleanRestartBlock: `rm -rf "$ROOTFS"
+mkdir -p "$ROOTFS"
+mount "$LOOP_DEV"p2 "$ROOTFS"
+mkdir -p "$ROOTFS/boot/firmware"
+mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"`,
+  buildBlock: `# ── debootstrap stage 1 ───────────────────────────────────────
 log "Running debootstrap stage 1..."
+
+build_log="$(mktemp)"
+
 debootstrap --arch="${arch}" --foreign --include=ca-certificates \\
-  "${suite}" "\${ROOTFS}" "${mirror}"
+  "${suite}" "$ROOTFS" "$APT_MIRROR" 2>&1 | tee "$build_log"
 
 # ── Copy QEMU for cross-arch ──────────────────────────────────
-cp /usr/bin/qemu-${arch === 'aarch64' ? 'aarch64' : 'arm'}-static "\${ROOTFS}/usr/bin/" 2>/dev/null || true
+cp /usr/bin/qemu-${arch === 'aarch64' ? 'aarch64' : 'arm'}-static "$ROOTFS/usr/bin/" 2>/dev/null || true
 
 # ── debootstrap stage 2 ───────────────────────────────────────
 log "Running debootstrap stage 2 (inside chroot)..."
-chroot "\${ROOTFS}" /debootstrap/debootstrap --second-stage
+chroot "$ROOTFS" /debootstrap/debootstrap --second-stage 2>&1 | tee -a "$build_log"
 
 # ── APT sources ───────────────────────────────────────────────
 log "Configuring APT sources..."
-cat > "\${ROOTFS}/etc/apt/sources.list" << 'SOURCES_EOF'
-deb ${mirror} ${suite} ${areas}
-deb ${mirror} ${suite}-updates ${areas}
-deb ${mirror} ${suite}-security ${areas}
+cat > "$ROOTFS/etc/apt/sources.list" << SOURCES_EOF
+deb $APT_MIRROR ${suite} ${areas}
+deb $APT_MIRROR ${suite}-updates ${areas}
+deb $APT_MIRROR ${suite}-security ${areas}
 SOURCES_EOF
 
 # ── Install core packages ─────────────────────────────────────
 log "Installing core packages..."
-chroot "\${ROOTFS}" apt-get update -qq
-chroot "\${ROOTFS}" apt-get install -y \\
+chroot "$ROOTFS" apt-get update -qq 2>&1 | tee -a "$build_log"
+chroot "$ROOTFS" apt-get install -y \\
   linux-raspi raspi-firmware u-boot-rpi flash-kernel \\
   systemd-sysv sudo adduser locales \\
   ${needsEeprom ? 'rpi-eeprom' : ''} \\
-  ${dePackages} ${userPkgs} ${servicePkgs}
+  ${dePackages} ${userPkgs} ${servicePkgs} 2>&1 | tee -a "$build_log"`,
+  successBlock: `rm -f "$build_log"`,
+})}
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."

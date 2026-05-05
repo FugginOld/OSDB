@@ -146,14 +146,105 @@ apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree 
   zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git \
   curl bc gpg
 
-# ── Clone pi-gen ──────────────────────────────────────────────
+
+FALLBACK_MIRRORS=("https://github.com/raspberrypi/pi-gen.git")
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="https://github.com/RPi-Distro/pi-gen.git"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(checksum|Checksum|hash|Hash|sha256|sha1|Digest|BADs+signature|Signature verification failed|404|Not Found|RPC failed|HTTP.*5dd)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  PIGEN_GIT_URL="$mirror_url"
+
+  # ── Clone pi-gen ──────────────────────────────────────────────
 log "Cloning pi-gen..."
-if [ -d "${PIGEN_DIR}" ]; then
-  git -C "${PIGEN_DIR}" pull
+
+build_log="$(mktemp)"
+
+if [ -d "$PIGEN_DIR/.git" ]; then
+  git -C "$PIGEN_DIR" remote set-url origin "$PIGEN_GIT_URL" 2>&1 | tee "$build_log"
+  git -C "$PIGEN_DIR" pull 2>&1 | tee -a "$build_log"
 else
-  git clone https://github.com/RPi-Distro/pi-gen.git "${PIGEN_DIR}"
+  git clone "$PIGEN_GIT_URL" "$PIGEN_DIR" 2>&1 | tee "$build_log"
 fi
-cd "${PIGEN_DIR}"
+
+cd "$PIGEN_DIR"
+}
+
+log "Starting self-healing build with primary mirror: ${PRIMARY_MIRROR}"
+
+attempt=0
+while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+  if [ "$attempt" -gt 0 ]; then
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
+    rm -rf "$PIGEN_DIR"
+  else
+    log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("${PRIMARY_MIRROR}")
+  build_with_mirror "${PRIMARY_MIRROR}"; result=$?
+
+  if [ "$result" -eq 0 ]; then
+    rm -f "$build_log"
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  rm -rf "$PIGEN_DIR"
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      rm -rf "$PIGEN_DIR"
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+    build_with_mirror "${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      rm -f "$build_log"
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${m}"
+done
+die "Build failed after exhausting all mirrors"
+
 
 # ── User password ─────────────────────────────────────────────
 # Set PIGEN_USER_PASS env var before running, or it defaults to "raspberry".

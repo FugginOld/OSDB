@@ -140,6 +140,14 @@ start_logging
 ROOTFS="${BUILD_DIR}/rootfs"
 IMG_SIZE="8G"
 IMG_FILE="${OUTPUT_DIR}/${DISTRO_NAME}.img"
+APT_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
+
+FALLBACK_MIRRORS_RAW=("http://us.archive.ubuntu.com/ubuntu" "http://uk.archive.ubuntu.com/ubuntu")
+FALLBACK_MIRRORS=()
+for m in "${FALLBACK_MIRRORS_RAW[@]}"; do
+  [ "$m" = "http://ports.ubuntu.com/ubuntu-ports" ] && continue
+  FALLBACK_MIRRORS+=("${m}")
+done
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing build dependencies..."
@@ -168,34 +176,133 @@ mount "${LOOP_DEV}p2" "${ROOTFS}"
 mkdir -p "${ROOTFS}/boot/firmware"
 mount "${LOOP_DEV}p1" "${ROOTFS}/boot/firmware"
 
-# ── debootstrap stage 1 ───────────────────────────────────────
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="${mirror}"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(Hash Sum mismatch|Hash mismatch|checksum|Checksum|NO_PUBKEY|The following signatures couldn't be verified|Clearsigned file isn't valid|Bad header line|BADSIG)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  APT_MIRROR="$mirror_url"
+
+  # ── debootstrap stage 1 ───────────────────────────────────────
 log "Running debootstrap stage 1..."
+
+build_log="$(mktemp)"
+
 debootstrap --arch="aarch64" --foreign --include=ca-certificates \
-  "noble" "${ROOTFS}" "http://ports.ubuntu.com/ubuntu-ports"
+  "noble" "$ROOTFS" "$APT_MIRROR" 2>&1 | tee "$build_log"
 
 # ── Copy QEMU for cross-arch ──────────────────────────────────
-cp /usr/bin/qemu-aarch64-static "${ROOTFS}/usr/bin/" 2>/dev/null || true
+cp /usr/bin/qemu-aarch64-static "$ROOTFS/usr/bin/" 2>/dev/null || true
 
 # ── debootstrap stage 2 ───────────────────────────────────────
 log "Running debootstrap stage 2 (inside chroot)..."
-chroot "${ROOTFS}" /debootstrap/debootstrap --second-stage
+chroot "$ROOTFS" /debootstrap/debootstrap --second-stage 2>&1 | tee -a "$build_log"
 
 # ── APT sources ───────────────────────────────────────────────
 log "Configuring APT sources..."
-cat > "${ROOTFS}/etc/apt/sources.list" << 'SOURCES_EOF'
-deb http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse
-deb http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse
-deb http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse
+cat > "$ROOTFS/etc/apt/sources.list" << SOURCES_EOF
+deb $APT_MIRROR noble main restricted universe multiverse
+deb $APT_MIRROR noble-updates main restricted universe multiverse
+deb $APT_MIRROR noble-security main restricted universe multiverse
 SOURCES_EOF
 
 # ── Install core packages ─────────────────────────────────────
 log "Installing core packages..."
-chroot "${ROOTFS}" apt-get update -qq
-chroot "${ROOTFS}" apt-get install -y \
+chroot "$ROOTFS" apt-get update -qq 2>&1 | tee -a "$build_log"
+chroot "$ROOTFS" apt-get install -y \
   linux-raspi raspi-firmware u-boot-rpi flash-kernel \
   systemd-sysv sudo adduser locales \
   rpi-eeprom \
-  gnome-shell gnome-session gdm3 gnome-control-center nautilus firefox chromium-browser vlc git cups network-manager cups bluez unattended-upgrades rpi-eeprom
+  gnome-shell gnome-session gdm3 gnome-control-center nautilus firefox chromium-browser vlc git cups network-manager cups bluez unattended-upgrades rpi-eeprom 2>&1 | tee -a "$build_log"
+}
+
+log "Starting self-healing build with primary mirror: ${PRIMARY_MIRROR}"
+
+attempt=0
+while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+  if [ "$attempt" -gt 0 ]; then
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
+    rm -rf "$ROOTFS"
+mkdir -p "$ROOTFS"
+mount "$LOOP_DEV"p2 "$ROOTFS"
+mkdir -p "$ROOTFS/boot/firmware"
+mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
+  else
+    log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("${PRIMARY_MIRROR}")
+  build_with_mirror "${PRIMARY_MIRROR}"; result=$?
+
+  if [ "$result" -eq 0 ]; then
+    rm -f "$build_log"
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  rm -rf "$ROOTFS"
+mkdir -p "$ROOTFS"
+mount "$LOOP_DEV"p2 "$ROOTFS"
+mkdir -p "$ROOTFS/boot/firmware"
+mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      rm -rf "$ROOTFS"
+mkdir -p "$ROOTFS"
+mount "$LOOP_DEV"p2 "$ROOTFS"
+mkdir -p "$ROOTFS/boot/firmware"
+mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+    build_with_mirror "${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      rm -f "$build_log"
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${m}"
+done
+die "Build failed after exhausting all mirrors"
+
 
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."
