@@ -41,6 +41,7 @@ assert(archCtx.mirror.includes('$repo/os/$arch'), 'Arch mirror should preserve $
 const gentooCtx = wiz.buildBuildContext(gentooBase, name);
 assertCommonShape(gentooCtx);
 assert.strictEqual(gentooCtx.containerImage, 'gentoo/stage3:amd64-openrc');
-assert(gentooCtx.mirror.includes('distfiles.gentoo.org'), 'Gentoo mirror should default to distfiles.gentoo.org');
+const gentooMirrorUrl = new URL(gentooCtx.mirror);
+assert.strictEqual(gentooMirrorUrl.hostname, 'distfiles.gentoo.org', 'Gentoo mirror should default to distfiles.gentoo.org');
 
 console.log('All build context tests passed.');
