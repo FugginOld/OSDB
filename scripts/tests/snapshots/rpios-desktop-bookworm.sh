@@ -146,15 +146,54 @@ apt-get install -y coreutils quilt parted qemu-user-static debootstrap zerofree 
   zip dosfstools libarchive-tools libcap2-bin grep rsync xz-utils file git \
   curl bc gpg
 
-# ── Clone pi-gen ──────────────────────────────────────────────
-log "Cloning pi-gen..."
-if [ -d "${PIGEN_DIR}" ]; then
-  git -C "${PIGEN_DIR}" pull
-else
-  git clone https://github.com/RPi-Distro/pi-gen.git "${PIGEN_DIR}"
-fi
-cd "${PIGEN_DIR}"
 
+FALLBACK_MIRRORS=("https://github.com/raspberrypi/pi-gen.git")
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="https://github.com/RPi-Distro/pi-gen.git"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(checksum|Checksum|hash|Hash|sha256|sha1|Digest|BAD\s+signature|Signature verification failed|\b404\b|Not Found|RPC failed|HTTP.*5\d\d)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  PIGEN_GIT_URL="$mirror_url"
+
+  # ── Clone pi-gen ──────────────────────────────────────────────
+log "Cloning pi-gen..."
+
+build_log="$(mktemp)"
+
+if [ -d "$PIGEN_DIR/.git" ]; then
+  git -C "$PIGEN_DIR" remote set-url origin "$PIGEN_GIT_URL" 2>&1 | tee "$build_log"
+  git -C "$PIGEN_DIR" pull 2>&1 | tee -a "$build_log"
+else
+  git clone "$PIGEN_GIT_URL" "$PIGEN_DIR" 2>&1 | tee "$build_log"
+fi
+
+cd "$PIGEN_DIR"
+}
+
+log "Starting self-healing build with primary mirror: ${PRIMARY_MIRROR}"
+
+attempt=0
+while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+  if [ "$attempt" -gt 0 ]; then
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
+    rm -rf "$PIGEN_DIR"
+  else
+    log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("${PRIMARY_MIRROR}")
+  build_with_mirror "${PRIMARY_MIRROR}"; result=$?
+
+  if [ "$result" -eq 0 ]; then
+    rm -f "$build_log"
 # ── User password ─────────────────────────────────────────────
 # Set PIGEN_USER_PASS env var before running, or it defaults to "raspberry".
 # WARNING: the default password is insecure — change it for production images.
@@ -248,3 +287,147 @@ log "Image:    ${OUTPUT_DIR}/${DISTRO_NAME}.img.xz"
 log ""
 log "# Flash to SD card (replace /dev/sdX with your device):"
 log "# xzcat ${OUTPUT_DIR}/${DISTRO_NAME}.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync"
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  rm -rf "$PIGEN_DIR"
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      rm -rf "$PIGEN_DIR"
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+    build_with_mirror "${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      rm -f "$build_log"
+# ── User password ─────────────────────────────────────────────
+# Set PIGEN_USER_PASS env var before running, or it defaults to "raspberry".
+# WARNING: the default password is insecure — change it for production images.
+: "${PIGEN_USER_PASS:=raspberry}"
+
+# ── Main config ───────────────────────────────────────────────
+log "Writing pi-gen config..."
+cat > config << CONFIG_EOF
+IMG_NAME="osdb-rpios-desktop-bookworm"
+RELEASE="bookworm"
+LOCALE_DEFAULT="en_US.UTF-8"
+KEYBOARD_KEYMAP="us"
+KEYBOARD_LAYOUT="English (US)"
+TIMEZONE_DEFAULT="America/New_York"
+FIRST_USER_NAME="pi"
+FIRST_USER_PASS="${PIGEN_USER_PASS}"
+ENABLE_SSH=0
+STAGE_LIST="stage0 stage1 stage2 stage-custom"
+CONFIG_EOF
+
+# ── Skip stages not needed ────────────────────────────────────
+touch ./stage5/SKIP
+touch ./stage5/SKIP_IMAGES
+
+# ── Custom stage: packages ────────────────────────────────────
+log "Writing custom stage..."
+mkdir -p stage-custom/01-packages
+EXTRA_PKGS="labwc waybar wlopm wlr-randr chromium-browser git raspi-config rpi-eeprom network-manager cups bluez unattended-upgrades rpi-eeprom raspi-config"
+printf '%s' "${EXTRA_PKGS}" > stage-custom/01-packages/packages
+
+# ── Custom stage: services + config.txt ──────────────────────
+mkdir -p stage-custom/03-run
+cat > stage-custom/03-run/01-run.sh << 'RUN_EOF'
+#!/bin/bash
+on_chroot << 'CHROOT'
+set -e
+
+# Enable services
+if systemctl list-unit-files "NetworkManager.service" 2>/dev/null | grep -q "^NetworkManager.service"; then
+  systemctl enable "NetworkManager.service"
+else
+  echo "Skipping NetworkManager.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "cups.service" 2>/dev/null | grep -q "^cups.service"; then
+  systemctl enable "cups.service"
+else
+  echo "Skipping cups.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "bluetooth.service" 2>/dev/null | grep -q "^bluetooth.service"; then
+  systemctl enable "bluetooth.service"
+else
+  echo "Skipping bluetooth.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "unattended-upgrades.service" 2>/dev/null | grep -q "^unattended-upgrades.service"; then
+  systemctl enable "unattended-upgrades.service"
+else
+  echo "Skipping unattended-upgrades.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "rpi-eeprom-update.service" 2>/dev/null | grep -q "^rpi-eeprom-update.service"; then
+  systemctl enable "rpi-eeprom-update.service"
+else
+  echo "Skipping rpi-eeprom-update.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "raspi-config.service" 2>/dev/null | grep -q "^raspi-config.service"; then
+  systemctl enable "raspi-config.service"
+else
+  echo "Skipping raspi-config.service (unit not found - package may not be installed)"
+fi
+
+# config.txt flags
+CONFIG_TXT="/boot/firmware/config.txt"
+[ -f "${CONFIG_TXT}" ] || CONFIG_TXT="/boot/config.txt"
+echo "arm_64bit=1" >> "${CONFIG_TXT}"
+echo "gpu_mem=128" >> "${CONFIG_TXT}"
+CHROOT
+RUN_EOF
+chmod +x stage-custom/03-run/01-run.sh
+
+# ── Build ──────────────────────────────────────────────────────
+log "Starting pi-gen build (this may take 30–90 minutes)..."
+sudo ./build.sh
+
+# ── Copy output ────────────────────────────────────────────────
+LATEST_XZ=$(find deploy -name '*.img.xz' | head -1)
+LATEST_IMG=$(find deploy -name '*.img' -not -name '*.img.xz' | head -1)
+[ -n "${LATEST_XZ}"  ] && cp "${LATEST_XZ}"  "${OUTPUT_DIR}/${DISTRO_NAME}.img.xz" || true
+[ -n "${LATEST_IMG}" ] && cp "${LATEST_IMG}" "${OUTPUT_DIR}/${DISTRO_NAME}.img"    || true
+
+log "Build complete!"
+log "Image:    ${OUTPUT_DIR}/${DISTRO_NAME}.img.xz"
+log ""
+log "# Flash to SD card (replace /dev/sdX with your device):"
+log "# xzcat ${OUTPUT_DIR}/${DISTRO_NAME}.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync"
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${m}"
+done
+die "Build failed after exhausting all mirrors"
+

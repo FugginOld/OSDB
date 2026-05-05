@@ -66,6 +66,7 @@ network-manager
 network-manager-gnome
 pavucontrol
 pipewire
+pipewire-media-session
 printer-driver-all
 rsync
 sane-airscan
@@ -78,7 +79,6 @@ vim
 vlc
 wget
 wireless-tools
-pipewire-media-session
 wpasupplicant
 ```
 

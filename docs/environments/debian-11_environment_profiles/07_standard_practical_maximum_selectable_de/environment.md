@@ -170,6 +170,7 @@ pciutils
 perl
 php-cli
 pipewire
+pipewire-media-session
 pipx
 pkg-config
 plantuml
@@ -230,7 +231,6 @@ wget
 wine
 winetricks
 wireless-tools
-pipewire-media-session
 wpasupplicant
 xfsprogs
 xz-utils

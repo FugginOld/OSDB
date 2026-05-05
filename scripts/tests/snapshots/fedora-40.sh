@@ -140,6 +140,7 @@ start_logging
 LORAX_OUT="${OUTPUT_DIR}/lorax"
 KS_FILE="${BUILD_DIR}/${DISTRO_NAME}.ks"
 FEDORA_VERSION="40"
+FEDORA_MIRROR="https://download.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/"
 LORAX_ROOTFS_SIZE_MB="${LORAX_ROOTFS_SIZE_MB:-9216}"
 
 # ── Prerequisites ─────────────────────────────────────────────
@@ -168,8 +169,24 @@ if [ "${LORAX_USER_PASSWORD}" = "fedora" ]; then
 fi
 USER_PASSWORD_HASH=$(openssl passwd -6 "${LORAX_USER_PASSWORD}")
 
-# ── Kickstart file ─────────────────────────────────────────────
-log "Writing kickstart file..."
+
+FALLBACK_MIRRORS=("https://dl.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/")
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="https://download.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(FAILED|\bChecksum\b|checksum|GPG check FAILED|repomd\.xml.*mismatch)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  FEDORA_MIRROR="$mirror_url"
+
+  log "Writing kickstart file..."
 cat > "${KS_FILE}" << KS_EOF
 # osdb-fedora-40 Kickstart
 text
@@ -183,7 +200,7 @@ bootloader --location=mbr
 zerombr
 clearpart --all --initlabel
 part / --fstype=ext4 --size=${LORAX_ROOTFS_SIZE_MB}
-repo --name=fedora --baseurl=https://download.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/
+repo --name=fedora --baseurl=${FEDORA_MIRROR}
 
 %packages
 @core
@@ -220,30 +237,104 @@ fi
 %end
 KS_EOF
 
-# ── Build ──────────────────────────────────────────────────────
 log "Running lorax (this may take 30–60 minutes)..."
-rm -rf "${LORAX_OUT}"
+rm -rf "$LORAX_OUT"
+
+build_log="$(mktemp)"
 lorax \
   --product "osdb-fedora-40" \
-  --version "${FEDORA_VERSION}" \
+  --version "$FEDORA_VERSION" \
   --release 1 \
-  --source "https://dl.fedoraproject.org/pub/fedora/linux/releases/${FEDORA_VERSION}/Everything/x86_64/os/" \
-  "${LORAX_OUT}"
+  --source "$FEDORA_MIRROR" \
+  "$LORAX_OUT" 2>&1 | tee "$build_log"
 
-# ── Live CD from kickstart ─────────────────────────────────────
 log "Building live ISO..."
 livecd-creator \
-  --config="${KS_FILE}" \
-  --fslabel="${DISTRO_NAME}" \
-  --title="${DISTRO_NAME}" \
-  --product="${DISTRO_NAME}" \
-  -d -v --cache="${BUILD_DIR}/cache"
+  --config="$KS_FILE" \
+  --fslabel="$DISTRO_NAME" \
+  --title="$DISTRO_NAME" \
+  --product="$DISTRO_NAME" \
+  -d -v --cache="$BUILD_DIR/cache" 2>&1 | tee -a "$build_log"
+}
 
-# ── Checksum ───────────────────────────────────────────────────
+log "Starting self-healing build with primary mirror: ${PRIMARY_MIRROR}"
+
+attempt=0
+while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+  if [ "$attempt" -gt 0 ]; then
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
+    rm -rf "$LORAX_OUT" "$BUILD_DIR/cache"
+  else
+    log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("${PRIMARY_MIRROR}")
+  build_with_mirror "${PRIMARY_MIRROR}"; result=$?
+
+  if [ "$result" -eq 0 ]; then
+    rm -f "$build_log"
 log "Generating checksum..."
-find . -maxdepth 1 -name '*.iso' -exec mv {} "${OUTPUT_DIR}/${DISTRO_NAME}.iso" \;
-sha256sum "${OUTPUT_DIR}/${DISTRO_NAME}.iso" > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+find . -maxdepth 1 -name '*.iso' -exec mv {} "$OUTPUT_DIR/$DISTRO_NAME.iso" \;
+sha256sum "$OUTPUT_DIR/$DISTRO_NAME.iso" > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
 
 log "Build complete!"
-log "ISO:      ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso"
-log "Checksum: ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+log "ISO:      $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  rm -rf "$LORAX_OUT" "$BUILD_DIR/cache"
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      rm -rf "$LORAX_OUT" "$BUILD_DIR/cache"
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+    build_with_mirror "${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      rm -f "$build_log"
+log "Generating checksum..."
+find . -maxdepth 1 -name '*.iso' -exec mv {} "$OUTPUT_DIR/$DISTRO_NAME.iso" \;
+sha256sum "$OUTPUT_DIR/$DISTRO_NAME.iso" > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+
+log "Build complete!"
+log "ISO:      $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${m}"
+done
+die "Build failed after exhausting all mirrors"
+
