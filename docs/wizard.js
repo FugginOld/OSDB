@@ -2855,6 +2855,16 @@ function generateAlarmRpi(ctx) {
   const tarball = 'ArchLinuxARM-rpi-aarch64-latest.tar.gz';
   const tarballUrl = 'http://os.archlinuxarm.org/os/' + tarball;
 
+  const alarmMirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    tarballUrl
+  );
+
+  const fallbackMirrors = [
+    'https://uk.mirror.archlinuxarm.org/os/' + tarball,
+    'https://de.mirror.archlinuxarm.org/os/' + tarball,
+  ].filter(m => m !== alarmMirror);
+
   const configTxtLines = buildConfigTxt(true);
 
   return `${scriptHeader(name, 'alarm-rpi')}
@@ -2869,19 +2879,28 @@ fi
 TARBALL="${tarball}"
 TARBALL_URL="${tarballUrl}"
 
-# ── Download tarball ──────────────────────────────────────────
-log "Downloading Arch Linux ARM tarball..."
-mkdir -p "\${BUILD_DIR}"
-cd "\${BUILD_DIR}"
+FALLBACK_MIRRORS=(${fallbackMirrors.map(m => `"${m}"`).join(' ')})
 
-if [ ! -f "\${TARBALL}" ]; then
-  curl -L -o "\${TARBALL}" "\${TARBALL_URL}"
-  curl -L -o "\${TARBALL}.sig" "\${TARBALL_URL}.sig"
-fi
+${selfHealingBashFragment({
+  primaryMirror: alarmMirror,
+  checksumFailureCondition: `grep -qE '(checksum|Checksum|Hash mismatch|sha256|sha512|BAD\s+signature|Signature verification failed|\b404\b|Not Found)' "$build_log"`,
+  mirrorInjectionBlock: `TARBALL_URL="$mirror_url"`,
+  cleanRestartBlock: `rm -f "$BUILD_DIR/$TARBALL" "$BUILD_DIR/$TARBALL.sig"`,
+  buildBlock: `# ── Download tarball ──────────────────────────────────────────
+log "Downloading Arch Linux ARM tarball..."
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR"
+
+build_log="$(mktemp)"
+
+curl -L -o "$TARBALL" "$TARBALL_URL" 2>&1 | tee "$build_log"
+curl -L -o "$TARBALL.sig" "$TARBALL_URL.sig" 2>&1 | tee -a "$build_log"
 
 # ── Verify signature (optional — requires alarm GPG key) ──────
 # gpg --keyserver keyserver.ubuntu.com --recv-keys 68B3537F39A313B3E574D06777193F152BDBE6A6
-# gpg --verify "\${TARBALL}.sig" "\${TARBALL}"
+# gpg --verify "$TARBALL.sig" "$TARBALL"`,
+  successBlock: `rm -f "$build_log"`,
+})}
 
 # ── Partition SD card ─────────────────────────────────────────
 log "Partitioning \${SD_DEVICE}..."
