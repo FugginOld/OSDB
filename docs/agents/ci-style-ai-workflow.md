@@ -1,4 +1,4 @@
-# CI-Style AI Workflow
+﻿# CI-Style AI Workflow
 
 ## Purpose
 
@@ -17,22 +17,23 @@ It ensures:
 ## Workflow Overview (Mandatory Order)
 
 ```text
-Context → Plan → Issue → Branch → Test → Change → Diagnose → Review → PR → Merge
+Context -> Plan -> Issue -> Branch -> Test -> Change
+-> Diagnose -> Review -> PR -> Merge
 ```
 
 Agents MUST NOT skip steps.
 
 ---
 
-# Gate 0 — Repo Setup (Run Once)
+## Gate 0 â€” Repo Setup (Run Once)
 
-### Command
+Command:
 
 ```text
 /setup-matt-pocock-skills
 ```
 
-### Verify Files Exist
+Verify files exist:
 
 ```text
 AGENTS.md
@@ -44,20 +45,20 @@ docs/adr/
 .github templates
 ```
 
-### Pass Condition
+Pass condition:
 
 * Repo is AI-ready
 * Workflow + rules are enforced
 
 ---
 
-# Gate 1 — Context (Claude)
+## Gate 1 â€” Context (Claude)
 
-### Agent
+Agent:
 
 Claude
 
-### Commands
+Commands:
 
 ```text
 /caveman lite
@@ -65,7 +66,7 @@ Claude
 /zoom-out
 ```
 
-### Prompt
+Prompt:
 
 ```text
 Use AGENTS.md and CONTEXT.md.
@@ -79,7 +80,7 @@ Identify:
 Do NOT propose implementation yet.
 ```
 
-### Pass Condition
+Pass condition:
 
 * Scope is clearly defined
 * No unknown domain terms
@@ -87,16 +88,16 @@ Do NOT propose implementation yet.
 
 ---
 
-# Gate 2 — Plan → Issue (Claude)
+## Gate 2 â€” Plan â†’ Issue (Claude)
 
-### Commands
+Commands:
 
 ```text
 /to-prd
 /to-issues
 ```
 
-### Prompt
+Prompt:
 
 ```text
 Break this work into the smallest independent issue.
@@ -112,7 +113,7 @@ Include:
 Do NOT combine multiple concerns.
 ```
 
-### Pass Condition
+Pass condition:
 
 * Issue is independently completable
 * Fits in one branch
@@ -120,31 +121,31 @@ Do NOT combine multiple concerns.
 
 ---
 
-# Gate 3 — Branch (Human or Codex)
+## Gate 3 â€” Branch (Human or Codex)
 
-### Command
+Command:
 
 ```bash
 git checkout -b agent/<issue-number>-short-name
 ```
 
-### Rules
+Rules:
 
 * One branch per issue
 * Clean working tree required
 
 ---
 
-# Gate 4 — TDD Loop (Codex / ChatGPT)
+## Gate 4 â€” TDD Loop (Codex / ChatGPT)
 
-### Commands
+Commands:
 
 ```text
 /caveman full
 /tdd
 ```
 
-### Prompt
+Prompt:
 
 ```text
 Use AGENTS.md and CONTEXT.md.
@@ -164,7 +165,7 @@ Do NOT:
 - skip tests unless justified
 ```
 
-### Pass Condition
+Pass condition:
 
 * Tests exist or justification provided
 * Smallest change implemented
@@ -172,15 +173,15 @@ Do NOT:
 
 ---
 
-# Gate 5 — Diagnose (Codex → Claude if needed)
+## Gate 5 â€” Diagnose (Codex â†’ Claude if needed)
 
-### Command
+Command:
 
 ```text
 /diagnose
 ```
 
-### Prompt
+Prompt:
 
 ```text
 Validate this change.
@@ -194,7 +195,7 @@ Check:
 List any risks or gaps.
 ```
 
-### Pass Condition
+Pass condition:
 
 * No unresolved blockers
 * Critical paths tested
@@ -202,15 +203,15 @@ List any risks or gaps.
 
 ---
 
-# Gate 6 — Architecture Check (Claude, if needed)
+## Gate 6 â€” Architecture Check (Claude, if needed)
 
-### Command
+Command:
 
 ```text
 /improve-codebase-architecture
 ```
 
-### Prompt
+Prompt:
 
 ```text
 Evaluate ONLY if needed.
@@ -224,7 +225,7 @@ Did this change:
 Reject overengineering.
 ```
 
-### Pass Condition
+Pass condition:
 
 * No unnecessary abstraction
 * No duplication introduced
@@ -232,9 +233,9 @@ Reject overengineering.
 
 ---
 
-# Gate 7 — Local CI (Codex / Human)
+## Gate 7 â€” Local CI (Codex / Human)
 
-### Run Checks (examples)
+Run checks (examples):
 
 ```bash
 git status
@@ -245,23 +246,23 @@ ruff check .
 mypy .
 ```
 
-### Pass Condition
+Pass condition:
 
 * All checks pass
 * Failures fixed or documented
 
 ---
 
-# Gate 8 — Final Review (Claude)
+## Gate 8 â€” Final Review (Claude)
 
-### Commands
+Commands:
 
 ```text
 /caveman lite
 /diagnose
 ```
 
-### Prompt
+Prompt:
 
 ```text
 Use AGENTS.md.
@@ -278,22 +279,22 @@ Block for:
 Do NOT review entire repo.
 ```
 
-### Pass Condition
+Pass condition:
 
 * Issues resolved
 * Risks documented
 
 ---
 
-# Gate 9 — Pull Request
+## Gate 9 â€” Pull Request
 
-### Command
+Command:
 
 ```bash
 gh pr create --fill
 ```
 
-### PR Must Include
+PR must include:
 
 * linked issue
 * summary
@@ -303,16 +304,16 @@ gh pr create --fill
 
 ---
 
-# Gate 10 — Merge
+## Gate 10 â€” Merge
 
-### Commands
+Commands:
 
 ```bash
 git status
 git pull --rebase
 ```
 
-### Merge Only If
+Merge only if:
 
 * acceptance criteria met
 * tests pass
@@ -321,7 +322,7 @@ git pull --rebase
 
 ---
 
-# Agent Usage Rules (Enforced)
+## Agent Usage Rules (Enforced)
 
 ### Claude
 
@@ -341,15 +342,15 @@ git pull --rebase
 
 ---
 
-# Token Optimization Rules
+## Token Optimization Rules
 
-### NEVER
+Never:
 
 * send full repo repeatedly
 * resend unchanged context
 * include long logs untrimmed
 
-### ALWAYS
+Always:
 
 * send minimal diff
 * send relevant files only
@@ -357,7 +358,7 @@ git pull --rebase
 
 ---
 
-# Required Output Format (All Agents)
+## Required Output Format (All Agents)
 
 ```text
 Changed files:
@@ -369,7 +370,7 @@ Next step:
 
 ---
 
-# Handoff Rule (Mandatory)
+## Handoff Rule (Mandatory)
 
 When switching agents:
 
@@ -387,7 +388,7 @@ Rules:
 
 ---
 
-# Escalation Rules
+## Escalation Rules
 
 Escalate to Claude ONLY when:
 
@@ -404,10 +405,10 @@ DO NOT escalate for:
 
 ---
 
-# Core Principles
+## Core Principles
 
 * Small changes win
 * Tests validate behavior
 * Scope must stay tight
-* Tokens are limited → use them intentionally
+* Tokens are limited â†’ use them intentionally
 * Workflow discipline > speed
