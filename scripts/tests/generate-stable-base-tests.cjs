@@ -37,7 +37,7 @@ for (const baseId of stableBaseIds) {
 
   const defaultPkgs = buildDefaultPkgs(base, PACKAGES);
   const defaultServices = buildDefaultServices(base, SERVICES);
-  const defaultPkgTokens = getEnabledPackages(base, defaultPkgs, [], PACKAGES);
+  const defaultPkgTokens = getEnabledPackages(base, defaultPkgs, [], PACKAGES, baseId);
   const defaultSvcPkgTokens = getEnabledServicePackages(base, defaultServices, SERVICES, baseId);
   const expectedUnits = getEnabledServiceUnits(base, defaultServices, SERVICES, baseId);
 

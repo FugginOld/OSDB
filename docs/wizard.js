@@ -369,6 +369,48 @@ const PACKAGES = [
   { id: 'gpio-tools',   label: 'GPIO tools',          families: ['rpi','rpi-ubuntu','rpi-arch'],                                            pkgName: { apt: 'gpiod python3-gpiozero', pacman: 'libgpiod'                                                                                    }, defaultOn: false },
 ];
 
+// Package compatibility policy (per Base), expressed as data.
+// This keeps distro-specific exceptions out of resolver logic.
+const PACKAGE_COMPAT = {
+  // NOTE: Keys are *resolved package tokens* (what ends up in scripts), not package IDs.
+  // This allows environment profile validation to work on core package lists.
+  firefox: {
+    overrides: {
+      'debian-11': 'firefox-esr',
+      'debian-12': 'firefox-esr',
+    },
+  },
+  'firefox-esr': {
+    overrides: {
+      'ubuntu-2004': 'firefox',
+      'ubuntu-2204': 'firefox',
+      'ubuntu-2404': 'firefox',
+      'ubuntu-2410': 'firefox',
+      'ubuntu-2504': 'firefox',
+      'ubuntu-rpi-2204': 'firefox',
+      'ubuntu-rpi-2404': 'firefox',
+    },
+  },
+  code: {
+    // VS Code ("code") is not in Ubuntu's default apt repos.
+    incompatibleBases: [
+      'ubuntu-2004','ubuntu-2204','ubuntu-2404','ubuntu-2410','ubuntu-2504',
+      'ubuntu-rpi-2204','ubuntu-rpi-2404',
+    ],
+  },
+  wireplumber: {
+    // Older apt-based releases may not provide wireplumber consistently.
+    overrides: {
+      'debian-11': 'pipewire-media-session',
+      'ubuntu-2004': 'pipewire-media-session',
+    },
+  },
+  'pipewire-media-session': {
+    // Preferred fallback on older apt-based releases.
+    incompatibleBases: [],
+  },
+};
+
 const QUICK_PRESET_DEFS = [
   { id: 'minimum-headless', label: 'Minimum Headless', dir: '01_minimum_headless_optional_de' },
   { id: 'standard-server-headless', label: 'Standard Server Headless', dir: '02_standard_server_headless_optional_de' },
@@ -1523,44 +1565,29 @@ function generateScript() {
 // ─ Helpers used across generators ────────────────────────────
 
 function enabledPkgList(base) {
-  const resolvePkgName = (pkg) => {
-    // firefox-esr is Debian-specific; Ubuntu uses firefox.
-    if (pkg.id === 'firefox' && base.pkg === 'apt') {
-      return base.family === 'debian' ? 'firefox-esr' : 'firefox';
-    }
+  const baseId = state.base;
+  const resolvePkgName = (pkgId) => {
+    const pkg = PACKAGES.find(p => p.id === pkgId);
+    const candidate = pkg ? (pkg.pkgName[base.pkg] || pkg.id) : String(pkgId || '').trim();
 
-    // VS Code ("code") is not in Ubuntu's default apt repos.
-    // Keep it for distros where the package is expected natively.
-    if (pkg.id === 'vscode' && base.pkg === 'apt' && base.family === 'ubuntu') {
-      return '';
-    }
+    const compat = PACKAGE_COMPAT[candidate];
+    const override = compat?.overrides?.[baseId];
+    if (override) return override;
 
-    return pkg.pkgName[base.pkg] || pkg.id;
+    if (compat?.incompatibleBases?.includes(baseId)) return '';
+
+    return candidate;
   };
 
   const normalizePresetPkgName = (name) => {
     const n = String(name || '').trim();
     if (!n) return '';
-    // Debian uses firefox-esr in official repos for current supported releases.
-    if (base.pkg === 'apt' && base.family === 'debian' && n === 'firefox') {
-      return 'firefox-esr';
-    }
-    // Older apt-based releases may not provide either wireplumber or
-    // pipewire-media-session consistently. Skip it there to avoid
-    // hard install failures from unavailable audio session packages.
-    if (base.pkg === 'apt' && n === 'wireplumber') {
-      const oldDebian = base.family === 'debian' && ['stretch', 'buster', 'bullseye'].includes(base.suite || '');
-      const oldUbuntu = (base.family === 'ubuntu' || base.family === 'rpi-ubuntu') && ['focal'].includes(base.suite || '');
-      if (oldDebian || oldUbuntu) {
-        return '';
-      }
-    }
-    return n;
+    return resolvePkgName(n);
   };
 
   const selectedTogglePkgs = PACKAGES
     .filter(p => p.families.includes(base.family) && state.pkgs[p.id])
-    .map(resolvePkgName)
+    .map(p => resolvePkgName(p.id))
     .filter(Boolean);
   const presetPkgs = Array.isArray(state.presetCorePkgs)
     ? state.presetCorePkgs.map(normalizePresetPkgName).filter(Boolean)

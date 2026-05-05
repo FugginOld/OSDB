@@ -1,5 +1,9 @@
 'use strict';
 
+const { loadWizard } = require('./osdb-wizard-harness.cjs');
+
+const wizard = loadWizard();
+
 /**
  * Builds default package state for a given base.
  * Mirrors initDefaultPkgs() in wizard.js.
@@ -34,22 +38,21 @@ function buildDefaultServices(base, servicesData) {
  * Resolves the package name for a given PACKAGES entry and base.
  * Handles per-distro exceptions (firefox-esr/firefox split, vscode Ubuntu exclusion).
  *
- * @param {object} pkg  - A PACKAGES entry (with .id, .pkgName fields)
- * @param {object} base - A BASES entry (with .pkg, .family fields)
+ * @param {object} pkg    - A PACKAGES entry (with .id, .pkgName fields)
+ * @param {object} base   - A BASES entry (with .pkg, .family fields)
+ * @param {string} baseId - The key used to look up base in BASES (e.g. 'debian-12')
  * @returns {string} Resolved package name, or '' to skip this package
  */
-function resolvePkgName(pkg, base) {
-  // firefox-esr is Debian-specific; Ubuntu uses firefox.
-  if (pkg.id === 'firefox' && base.pkg === 'apt') {
-    return base.family === 'debian' ? 'firefox-esr' : 'firefox';
-  }
-
-  // VS Code ("code") is not in Ubuntu's default apt repos.
-  if (pkg.id === 'vscode' && base.pkg === 'apt' && base.family === 'ubuntu') {
+function resolvePkgName(pkg, base, baseId) {
+  const candidate = pkg.pkgName && pkg.pkgName[base.pkg] ? pkg.pkgName[base.pkg] : pkg.id;
+  const compat = wizard.PACKAGE_COMPAT && wizard.PACKAGE_COMPAT[candidate];
+  if (baseId && compat && Array.isArray(compat.incompatibleBases) && compat.incompatibleBases.includes(baseId)) {
     return '';
   }
-
-  return pkg.pkgName && pkg.pkgName[base.pkg] ? pkg.pkgName[base.pkg] : pkg.id;
+  if (baseId && compat && compat.overrides && compat.overrides[baseId]) {
+    return compat.overrides[baseId];
+  }
+  return candidate;
 }
 
 /**
@@ -60,30 +63,25 @@ function resolvePkgName(pkg, base) {
  * @param {object}   pkgs          - Map of packageId -> boolean (enabled state)
  * @param {string[]} presetCorePkgs - Array of preset package name strings
  * @param {object[]} packages      - PACKAGES array from wizard data
+ * @param {string}   [baseId]      - The key used to look up base in BASES (e.g. 'debian-12')
  * @returns {string[]} Flat array of resolved, deduplicated package name tokens
  */
-function getEnabledPackages(base, pkgs, presetCorePkgs, packages) {
+function getEnabledPackages(base, pkgs, presetCorePkgs, packages, baseId) {
   const selectedTogglePkgs = packages
     .filter((p) => p.families.includes(base.family) && pkgs[p.id])
-    .map((p) => resolvePkgName(p, base))
+    .map((p) => resolvePkgName(p, base, baseId))
     .filter(Boolean)
     .flatMap((name) => String(name).split(/\s+/).filter(Boolean));
 
   const normalizePresetPkgName = (name) => {
     const n = String(name || '').trim();
     if (!n) return '';
-    // Debian uses firefox-esr in official repos for current supported releases.
-    if (base.pkg === 'apt' && base.family === 'debian' && n === 'firefox') {
-      return 'firefox-esr';
+    const compat = wizard.PACKAGE_COMPAT && wizard.PACKAGE_COMPAT[n];
+    if (baseId && compat && Array.isArray(compat.incompatibleBases) && compat.incompatibleBases.includes(baseId)) {
+      return '';
     }
-    // Older apt-based releases may not provide wireplumber consistently.
-    // Skip it there to avoid hard install failures from unavailable audio session packages.
-    if (base.pkg === 'apt' && n === 'wireplumber') {
-      const oldDebian = base.family === 'debian' && ['stretch', 'buster', 'bullseye'].includes(base.suite || '');
-      const oldUbuntu = (base.family === 'ubuntu' || base.family === 'rpi-ubuntu') && ['focal'].includes(base.suite || '');
-      if (oldDebian || oldUbuntu) {
-        return '';
-      }
+    if (baseId && compat && compat.overrides && compat.overrides[baseId]) {
+      return compat.overrides[baseId];
     }
     return n;
   };

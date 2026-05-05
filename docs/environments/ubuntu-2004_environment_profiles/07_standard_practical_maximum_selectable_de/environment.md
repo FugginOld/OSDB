@@ -229,7 +229,7 @@ wget
 wine
 winetricks
 wireless-tools
-wireplumber
+pipewire-media-session
 wpasupplicant
 xfsprogs
 xz-utils

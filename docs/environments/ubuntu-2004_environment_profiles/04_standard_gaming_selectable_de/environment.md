@@ -71,7 +71,7 @@ vulkan-tools
 wget
 wine
 winetricks
-wireplumber
+pipewire-media-session
 ```
 
 ## Selectable Desktop Environment Options

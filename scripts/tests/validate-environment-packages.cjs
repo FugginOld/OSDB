@@ -4,35 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 
+const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
+
 const repoRoot = path.resolve(__dirname, '..', '..');
-const wizardPath = path.join(repoRoot, 'docs', 'wizard.js');
 const envRoot = path.join(repoRoot, 'docs', 'environments');
-
-function readText(p) {
-  return fs.readFileSync(p, 'utf8');
-}
-
-function extractBasesMap(src) {
-  const start = src.indexOf('const BASES = {');
-  if (start === -1) throw new Error('Could not locate BASES in docs/wizard.js');
-  const end = src.indexOf('\n};', start);
-  if (end === -1) throw new Error('Could not locate end of BASES block');
-  const block = src.slice(start, end);
-
-  const baseRe = /'([^']+)'\s*:\s*\{([\s\S]*?)\n\s*\},/g;
-  const out = {};
-  let m;
-  while ((m = baseRe.exec(block)) !== null) {
-    const baseId = m[1];
-    const body = m[2];
-    const fam = /family:\s*'([^']+)'/.exec(body);
-    const pkg = /pkg:\s*'([^']+)'/.exec(body);
-    if (fam && pkg) {
-      out[baseId] = { family: fam[1], pkg: pkg[1] };
-    }
-  }
-  return out;
-}
 
 function walkDirs(dir) {
   const out = [];
@@ -91,7 +66,7 @@ function detectBaseIdFromPath(p, baseMap) {
   }  return null;
 }
 
-function validatePackages(base, pkgs) {
+function validatePackages(baseId, base, pkgs, compatMap) {
   const issues = [];
   const seen = new Set();
 
@@ -111,18 +86,18 @@ function validatePackages(base, pkgs) {
     }
   }
 
-  if (base.family === 'debian') {
-    for (const p of pkgs) {
-      if (p === 'firefox') {
-        issues.push({ code: 'debian-firefox-name', pkg: p, msg: "Debian profiles should use 'firefox-esr' instead of 'firefox'" });
-      }
+  for (const p of pkgs) {
+    const compat = compatMap && compatMap[p];
+    if (compat && Array.isArray(compat.incompatibleBases) && compat.incompatibleBases.includes(baseId)) {
+      issues.push({ code: 'incompatible-package', pkg: p, msg: `Package token '${p}' is incompatible with base '${baseId}'` });
+      continue;
     }
-  }
-  if (base.family === 'ubuntu' || base.family === 'rpi-ubuntu') {
-    for (const p of pkgs) {
-      if (p === 'firefox-esr') {
-        issues.push({ code: 'ubuntu-firefox-name', pkg: p, msg: "Ubuntu profiles should generally use 'firefox' instead of 'firefox-esr'" });
-      }
+    if (compat && compat.overrides && compat.overrides[baseId] && compat.overrides[baseId] !== p) {
+      issues.push({
+        code: 'package-name-override',
+        pkg: p,
+        msg: `Package token '${p}' should be '${compat.overrides[baseId]}' for base '${baseId}'`,
+      });
     }
   }
 
@@ -130,16 +105,15 @@ function validatePackages(base, pkgs) {
 }
 
 function main() {
-  const wizard = readText(wizardPath);
-  const baseMap = extractBasesMap(wizard);
+  const { BASES, PACKAGE_COMPAT } = loadWizard();
   const envFiles = findEnvironmentFiles(envRoot);
 
   const findings = [];
   for (const file of envFiles) {
-    const baseId = detectBaseIdFromPath(file, baseMap);
-    if (!baseId || !baseMap[baseId]) continue;
-    const base = baseMap[baseId];
-    const md = readText(file);
+    const baseId = detectBaseIdFromPath(file, BASES);
+    if (!baseId || !BASES[baseId]) continue;
+    const base = BASES[baseId];
+    const md = fs.readFileSync(file, 'utf8');
     const pkgs = extractCorePackages(md);
     if (!pkgs.length) {
       findings.push({
@@ -149,7 +123,7 @@ function main() {
       });
       continue;
     }
-    const issues = validatePackages(base, pkgs);
+    const issues = validatePackages(baseId, base, pkgs, PACKAGE_COMPAT);
     if (issues.length) {
       findings.push({
         file: path.relative(repoRoot, file).replace(/\\/g, '/'),
