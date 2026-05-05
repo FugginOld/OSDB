@@ -2487,13 +2487,13 @@ log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
 
 // ─ lorax (Fedora) ─────────────────────────────────────────────
 function generateLorax(ctx) {
-  const { base, name, dePackages, userPkgs, servicePkgs, services, containerImage: ctxContainerImage } = ctx;
+  const { base, name, dePackages, userPkgs, servicePkgs, services, containerImage } = ctx;
   const loraxImageSizeMb = estimateLoraxImageSizeMb(base, dePackages, userPkgs, servicePkgs);
   const suite = base.suite; // f40, f41 …
   const version = suite.replace('f', '');
-  const containerImage = ctxContainerImage || `fedora:${version}`;
+  const loraxContainerImage = containerImage || `fedora:${version}`;
 
-  return `${scriptHeader(name, 'lorax', containerImage)}
+  return `${scriptHeader(name, 'lorax', loraxContainerImage)}
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
 FEDORA_VERSION="${version}"
@@ -3018,7 +3018,6 @@ log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 // ── catalyst (Gentoo) ─────────────────────────────────────────
 function generateCatalyst(ctx) {
   const { base, name, dePackages, userPkgs, servicePkgs, mirror, serviceRcNames } = ctx;
-  const rcServices = serviceRcNames;
   const installerPkgs = state.installer === 'calamares' ? ['app-admin/calamares'] : [];
 
   const effectiveMirror = mirror || validateMirrorUrl(
@@ -3041,12 +3040,12 @@ function generateCatalyst(ctx) {
     ].filter(Boolean).join(' ').split(/\s+/).filter(Boolean)
   )];
 
-  const rcAddSpecLines = rcServices
-    ? rcServices.split(/\s+/).filter(Boolean).map(n => `  ${n}|default`).join('\n')
+  const rcAddSpecLines = serviceRcNames
+    ? serviceRcNames.split(/\s+/).filter(Boolean).map(n => `  ${n}|default`).join('\n')
     : '';
 
   const autologin = autologinHook(base);
-  const rcEnableBlock = serviceEnableBlockOpenRC(rcServices);
+  const rcEnableBlock = serviceEnableBlockOpenRC(serviceRcNames);
 
   return `${scriptHeader(name, 'catalyst', containerImage)}
 STOREDIR="\${BUILD_DIR}/catalyst-store"
