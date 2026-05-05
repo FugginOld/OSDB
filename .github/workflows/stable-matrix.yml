@@ -76,5 +76,8 @@ jobs:
       - name: Verify CONFIG_TXT variable definitions
         run: node scripts/tests/test-config-txt-definition.cjs
 
+      - name: Run build context smoke tests
+        run: node scripts/tests/test-build-context.cjs
+
       - name: Run stable default matrix tests
         run: bash scripts/tests/run-stable-default-matrix.sh

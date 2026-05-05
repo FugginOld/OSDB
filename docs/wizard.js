@@ -2487,11 +2487,11 @@ log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
 
 // ─ lorax (Fedora) ─────────────────────────────────────────────
 function generateLorax(ctx) {
-  const { base, name, dePackages, userPkgs, servicePkgs, services } = ctx;
+  const { base, name, dePackages, userPkgs, servicePkgs, services, containerImage: ctxContainerImage } = ctx;
   const loraxImageSizeMb = estimateLoraxImageSizeMb(base, dePackages, userPkgs, servicePkgs);
   const suite = base.suite; // f40, f41 …
   const version = suite.replace('f', '');
-  const containerImage = resolveContainerImage(base) || `fedora:${version}`;
+  const containerImage = ctxContainerImage || `fedora:${version}`;
 
   return `${scriptHeader(name, 'lorax', containerImage)}
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
@@ -3017,8 +3017,8 @@ log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 
 // ── catalyst (Gentoo) ─────────────────────────────────────────
 function generateCatalyst(ctx) {
-  const { base, name, dePackages, userPkgs, servicePkgs, mirror } = ctx;
-  const rcServices = enabledServicesRcList();
+  const { base, name, dePackages, userPkgs, servicePkgs, mirror, serviceRcNames } = ctx;
+  const rcServices = serviceRcNames;
   const installerPkgs = state.installer === 'calamares' ? ['app-admin/calamares'] : [];
 
   const effectiveMirror = mirror || validateMirrorUrl(
