@@ -2,112 +2,275 @@
 
 ## Purpose
 
-This repo uses a CI-style AI workflow designed for:
+This repository uses a **CI-style AI workflow** to ensure all AI-assisted changes are:
 
-- Claude Pro (planning / review)
-- ChatGPT / Codex (implementation)
-- GitHub Copilot (inline assistance)
+* Predictable
+* Reviewable
+* Safe
+* Token-efficient
 
-Optimized to minimize session limits and token usage.
+This system is optimized for:
+
+* Claude Pro (planning / architecture / review)
+* ChatGPT / Codex (implementation / testing)
+* GitHub Copilot (inline assistance)
 
 ---
 
 ## Companion Docs
 
-| File | Purpose |
-|------|---------|
-| `docs/agents/ci-style-ai-workflow.md` | Full gate-by-gate workflow (Context → Merge) |
-| `docs/agents/ai-usage-budget.md` | Agent budget rules, session-saving prompts, escalation rules |
-| `docs/agents/agent-handoff-template.md` | Handoff template when switching between agents |
-| `docs/agents/repo-bootstrap-checklist.md` | Checklist for new repo setup |
+| File                                      | Purpose                          |
+| ----------------------------------------- | -------------------------------- |
+| `docs/agents/ci-style-ai-workflow.md`     | Full gate-by-gate workflow       |
+| `docs/agents/ai-usage-budget.md`          | Token usage rules and escalation |
+| `docs/agents/agent-handoff-template.md`   | Required agent handoff format    |
+| `docs/agents/repo-bootstrap-checklist.md` | Repo setup checklist             |
 
 ---
 
-## Workflow Model
+## Workflow Model (Mandatory)
 
 ```text
 Context → Plan → Issue → Branch → Test → Change → Diagnose → Review → Merge
 ```
 
-See `docs/agents/ci-style-ai-workflow.md` for full gate definitions and pass conditions.
+---
+
+## Workflow Enforcement (Non-Negotiable)
+
+All agents **MUST follow workflow gates in order**.
+
+Agents MUST NOT:
+
+* Skip gates
+* Combine multiple issues into one branch
+* Begin implementation without a defined issue
+* Perform large multi-step changes in one pass
+
+If a gate is incomplete:
+→ **STOP and complete it before continuing**
 
 ---
 
-## Quick Start
-
-```text
-Claude:
-/caveman lite
-/zoom-out
-/to-issues
-
-Codex:
-/caveman full
-/tdd
-/diagnose
-
-Claude:
-review diff only
-```
-
----
-
-## Agent Roles
+## Agent Roles (Strict Separation)
 
 ### Claude (Planner / Reviewer)
 
-Use for: `/zoom-out`, `/grill-with-docs`, `/to-prd`, `/to-issues`, `/diagnose` (unclear issues only), PR review, architecture decisions, architecture review, repo planning, issue breakdown, ADR and design review.
+Use for:
 
-Never use for: multi-file implementation, test/debug/fix loops, large code generation, full repo scans, mechanical refactors.
+* `/zoom-out`
+* `/grill-with-docs`
+* `/to-prd`
+* `/to-issues`
+* architecture decisions
+* ADR creation/review
+* final PR review
+* ambiguous `/diagnose`
 
-### Codex / ChatGPT (Builder)
+Do NOT use for:
 
-Use for: `/tdd`, writing tests, debugging, scripts, command-line validation, small-to-medium code changes, updating generated files.
-
-Rules: one issue at a time · write tests first when practical · smallest possible change · run local checks · summarize results.
-
-Never: redesign mid-task · modify unrelated files · work across multiple issues.
-
-### GitHub Copilot (Inline Assistant)
-
-Use for: autocomplete, boilerplate, repetitive edits, small refactors.
-
-Do not use for: repo-wide analysis, architecture decisions, replacing Claude or Codex workflows.
-
----
-
-## Agent Switching
-
-Switch **Claude → Codex** when: issue is clearly defined, implementation begins.
-
-Switch **Codex → Claude** when: implementation is complete, final review needed, or behavior is unclear/risky.
-
-See `docs/agents/agent-handoff-template.md` for the handoff checklist.  
-See `docs/agents/ai-usage-budget.md` for escalation rules and session-saving prompts.
+* implementation loops
+* multi-file edits
+* repeated debugging
+* large code generation
 
 ---
 
-## Matt Pocock Skills
+### ChatGPT / Codex (Builder)
 
-Run once per repo: `/setup-matt-pocock-skills`
+Use for:
+
+* `/tdd`
+* implementation
+* writing tests
+* debugging
+* scripts
+* local validation
+
+Rules:
+
+* One issue at a time
+* Tests first when practical
+* Smallest possible change
+* Run local checks before proceeding
+
+Do NOT:
+
+* redesign architecture mid-task
+* modify unrelated files
+* work across multiple issues
+
+---
+
+### GitHub Copilot (Inline Only)
+
+Use for:
+
+* autocomplete
+* boilerplate
+* repetitive edits
+
+Do NOT use for:
+
+* architecture decisions
+* repo-wide reasoning
+* replacing Codex or Claude roles
+
+---
+
+## Caveman Mode (Required)
 
 ```text
-/grill-with-docs            # build repo/domain context
-/zoom-out                   # understand architecture and impact
-/to-prd                     # define larger work
-/to-issues                  # create small actionable issues
-/tdd                        # implement one issue at a time
-/diagnose                   # verify correctness and regressions
-/improve-codebase-architecture  # use only after behavior works
+/caveman lite   → planning / review
+/caveman full   → implementation
 ```
+
+Use Caveman mode unless writing:
+
+* documentation
+* PR descriptions
+* ADRs
+* README content
 
 ---
 
-## Agent Skills
+## Required Output Format (All Agents)
 
-- **Issue tracker** — GitHub Issues via `gh`. See `docs/agents/issue-tracker.md`.
-- **Triage labels** — `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
-- **Domain docs** — root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
+Every response MUST end with:
+
+```text
+Changed files:
+Commands run:
+Tests passing:
+Known risks:
+Next step:
+```
+
+Failure to include this = incomplete response
+
+---
+
+## Scope Control (Strict)
+
+Agents MUST NOT:
+
+* modify unrelated files
+* refactor outside issue scope
+* introduce new abstractions unless required
+* expand task beyond issue definition
+
+If additional work is discovered:
+→ Create a **new issue**
+
+---
+
+## Token Usage Rules (Enforced)
+
+### Claude Input Constraints
+
+Claude MUST only receive:
+
+* `AGENTS.md`
+* `CONTEXT.md`
+* issue description
+* changed files
+* relevant snippets only
+* `git diff`
+* trimmed test output
+
+Do NOT provide:
+
+* full repo dumps
+* repeated context
+* large generated files
+* long logs without trimming
+
+---
+
+### Work Distribution
+
+| Agent         | Responsibility                     |
+| ------------- | ---------------------------------- |
+| Claude        | planning, architecture, review     |
+| ChatGPT/Codex | implementation, testing, debugging |
+| Copilot       | inline assistance                  |
+
+---
+
+## Escalation Rules
+
+Escalate to Claude ONLY when:
+
+* architecture is unclear
+* requirements conflict
+* behavior is ambiguous
+* change spans multiple subsystems
+* ADR may be required
+
+Do NOT escalate for:
+
+* syntax errors
+* failing tests
+* formatting issues
+* small bugs
+
+---
+
+## Agent Handoff (Required)
+
+When switching agents, you MUST use:
+
+`docs/agents/agent-handoff-template.md`
+
+Agents MUST:
+
+* continue from current branch
+* use existing context only
+* NOT redo completed work
+* NOT expand scope
+
+---
+
+## Agent Switching Rules
+
+Switch **Claude → Codex** when:
+
+* issue is clearly defined
+* implementation begins
+
+Switch **Codex → Claude** when:
+
+* implementation is complete
+* final review is needed
+* risk or ambiguity is detected
+
+---
+
+## Matt Pocock Skills (Required)
+
+Run once per repo:
+
+```text
+/setup-matt-pocock-skills
+```
+
+Core commands:
+
+```text
+/grill-with-docs
+/zoom-out
+/to-prd
+/to-issues
+/tdd
+/diagnose
+/improve-codebase-architecture
+```
+
+Rules:
+
+* `/tdd` is REQUIRED for implementation
+* `/diagnose` is REQUIRED before PR
+* `/improve-codebase-architecture` only after behavior is correct
 
 ---
 
@@ -126,39 +289,28 @@ docs/adr/0000-template.md
 
 ---
 
-## Caveman Usage
-
-```text
-/caveman lite   # planning and review
-/caveman full   # implementation
-```
-
-Avoid terse compression when writing documentation, PRDs, ADRs, user-facing copy, or README sections.
-
----
-
 ## Non-Negotiable Rules
 
-- One issue at a time · one branch per issue
-- Small, reviewable changes
-- No redesign during bug fixes
-- No abstraction before behavior works
-- Tests before implementation when practical
-- Run local checks before PR
-- Update `CONTEXT.md` when domain changes
-- Add ADRs for architecture decisions
+* One issue per branch
+* Small, reviewable changes only
+* Tests before implementation (when practical)
+* No redesign during bug fixes
+* No abstraction before behavior works
+* All checks must pass before PR
+* Update `CONTEXT.md` when domain changes
+* Create ADRs for architecture decisions
 
 ---
 
-## Default Prompt for AI Work
+## Default Prompt (All AI Work)
 
 ```text
-Use the CI-style AI workflow from AGENTS.md.
+Use AGENTS.md and follow the CI workflow strictly.
 Use Caveman mode unless writing docs.
-Work on one small vertical slice only.
-Do not redesign unrelated code.
-Use existing repo conventions.
-Write or update tests first when practical.
-Run available checks.
-Summarize changed files, commands run, and remaining risks.
+Work on one issue only.
+Do not modify unrelated files.
+Do not redesign existing code.
+Write tests first when practical.
+Run all available checks.
+Return results in the required output format.
 ```
