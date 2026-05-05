@@ -169,8 +169,24 @@ if [ "${LORAX_USER_PASSWORD}" = "fedora" ]; then
 fi
 USER_PASSWORD_HASH=$(openssl passwd -6 "${LORAX_USER_PASSWORD}")
 
-# ── Kickstart file ─────────────────────────────────────────────
-log "Writing kickstart file..."
+
+FALLBACK_MIRRORS=("https://dl.fedoraproject.org/pub/fedora/linux/releases/42/Everything/x86_64/os/")
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="https://download.fedoraproject.org/pub/fedora/linux/releases/42/Everything/x86_64/os/"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(FAILED|\bChecksum\b|checksum|GPG check FAILED|repomd\.xml.*mismatch)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  FEDORA_MIRROR="$mirror_url"
+
+  log "Writing kickstart file..."
 cat > "${KS_FILE}" << KS_EOF
 # osdb-fedora-42 Kickstart
 text
@@ -221,24 +237,7 @@ fi
 %end
 KS_EOF
 
-
-FALLBACK_MIRRORS=("https://dl.fedoraproject.org/pub/fedora/linux/releases/42/Everything/x86_64/os/")
-
-
-# ── Self-Healing Mirror Configuration ────────────────────────
-PRIMARY_MIRROR="https://download.fedoraproject.org/pub/fedora/linux/releases/42/Everything/x86_64/os/"
-MAX_RETRIES_PER_MIRROR=2
-MIRRORS_TRIED=()
-
-is_checksum_failure() {
-  grep -qE '(FAILED|Checksum|checksum|GPG check FAILED|repomd.xml.*mismatch)' "$build_log"
-}
-
-build_with_mirror() {
-  local mirror_url="$1"
-  FEDORA_MIRROR="$mirror_url"
-
-  log "Running lorax (this may take 30–60 minutes)..."
+log "Running lorax (this may take 30–60 minutes)..."
 rm -rf "$LORAX_OUT"
 
 build_log="$(mktemp)"

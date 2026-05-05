@@ -17,6 +17,11 @@ const catalystBase = wiz.BASES['gentoo'];
 const alarmBase = wiz.BASES['alarm-rpi4'] || wiz.BASES['alarm-rpi5'];
 const piGenBase = wiz.BASES['rpios-lite-bookworm'];
 const ubuntuRpiBase = wiz.BASES['ubuntu-rpi-2404'] || wiz.BASES['ubuntu-rpi-2204'];
+
+const loraxBaseId = Object.keys(wiz.BASES).find(k => wiz.BASES[k] === loraxBase);
+const kiwiBaseId = Object.keys(wiz.BASES).find(k => wiz.BASES[k] === kiwiBase);
+const alarmBaseId = Object.keys(wiz.BASES).find(k => wiz.BASES[k] === alarmBase);
+const ubuntuRpiBaseId = Object.keys(wiz.BASES).find(k => wiz.BASES[k] === ubuntuRpiBase);
 assert.ok(debianBase, 'debian-12 base should exist');
 assert.ok(archBase, 'arch base should exist');
 assert.ok(loraxBase, 'a fedora base should exist (fedora-41 or fedora-40)');
@@ -35,28 +40,28 @@ wiz.state.pkgs = {};
 wiz.state.distroName = 'TestDistro';
 
 wiz.state.base = 'debian-12';
-const debianScript = wiz.generateScript(debianBase, 'TestDistro');
+const debianScript = wiz.generateScript();
 
 wiz.state.base = 'arch';
-const archScript = wiz.generateScript(archBase, 'TestDistro');
+const archScript = wiz.generateScript();
 
-wiz.state.base = 'fedora-41';
-const loraxScript = wiz.generateScript(loraxBase, 'TestDistro');
+wiz.state.base = loraxBaseId;
+const loraxScript = wiz.generateScript();
 
-wiz.state.base = 'opensuse-tumbleweed';
-const kiwiScript = wiz.generateScript(kiwiBase, 'TestDistro');
+wiz.state.base = kiwiBaseId;
+const kiwiScript = wiz.generateScript();
 
 wiz.state.base = 'gentoo';
-const catalystScript = wiz.generateScript(catalystBase, 'TestDistro');
+const catalystScript = wiz.generateScript();
 
-wiz.state.base = 'alarm-rpi4';
-const alarmScript = wiz.generateScript(alarmBase, 'TestDistro');
+wiz.state.base = alarmBaseId;
+const alarmScript = wiz.generateScript();
 
 wiz.state.base = 'rpios-lite-bookworm';
-const piGenScript = wiz.generateScript(piGenBase, 'TestDistro');
+const piGenScript = wiz.generateScript();
 
-wiz.state.base = 'ubuntu-rpi-2404';
-const ubuntuRpiScript = wiz.generateScript(ubuntuRpiBase, 'TestDistro');
+wiz.state.base = ubuntuRpiBaseId;
+const ubuntuRpiScript = wiz.generateScript();
 
 assert.ok(debianScript.includes('# ── Self-Healing Mirror Configuration'), 'live-build should include helper self-healing header');
 assert.ok(archScript.includes('# ── Self-Healing Mirror Configuration'), 'archiso should include helper self-healing header');

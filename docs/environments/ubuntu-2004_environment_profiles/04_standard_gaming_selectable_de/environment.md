@@ -62,6 +62,7 @@ obs-studio
 p7zip-full
 pavucontrol
 pipewire
+pipewire-media-session
 retroarch
 steam-installer
 sudo
@@ -71,7 +72,6 @@ vulkan-tools
 wget
 wine
 winetricks
-pipewire-media-session
 ```
 
 ## Selectable Desktop Environment Options

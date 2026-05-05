@@ -179,7 +179,7 @@ mount "${LOOP_DEV}p1" "${ROOTFS}/boot/firmware"
 
 
 # ── Self-Healing Mirror Configuration ────────────────────────
-PRIMARY_MIRROR="${mirror}"
+PRIMARY_MIRROR="http://ports.ubuntu.com/ubuntu-ports"
 MAX_RETRIES_PER_MIRROR=2
 MIRRORS_TRIED=()
 
@@ -230,7 +230,8 @@ attempt=0
 while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
   if [ "$attempt" -gt 0 ]; then
     log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
-    rm -rf "$ROOTFS"
+    umount -R "$ROOTFS" 2>/dev/null || true
+rm -rf "$ROOTFS"
 mkdir -p "$ROOTFS"
 mount "$LOOP_DEV"p2 "$ROOTFS"
 mkdir -p "$ROOTFS/boot/firmware"
@@ -244,66 +245,6 @@ mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
 
   if [ "$result" -eq 0 ]; then
     rm -f "$build_log"
-    exit 0
-  fi
-
-  if [ "$result" -ne 2 ]; then
-    log "Build failed with non-checksum error. Not retrying."
-    exit "$result"
-  fi
-
-  log "Checksum failure detected on primary mirror"
-  attempt=$((attempt + 1))
-done
-
-log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
-
-for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
-  log "Switching to fallback mirror: ${fallback_mirror}"
-  rm -rf "$ROOTFS"
-mkdir -p "$ROOTFS"
-mount "$LOOP_DEV"p2 "$ROOTFS"
-mkdir -p "$ROOTFS/boot/firmware"
-mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
-
-  attempt=0
-  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
-    if [ "$attempt" -gt 0 ]; then
-      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
-      rm -rf "$ROOTFS"
-mkdir -p "$ROOTFS"
-mount "$LOOP_DEV"p2 "$ROOTFS"
-mkdir -p "$ROOTFS/boot/firmware"
-mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
-    fi
-
-    MIRRORS_TRIED+=("${fallback_mirror}")
-    build_with_mirror "${fallback_mirror}"; result=$?
-
-    if [ "$result" -eq 0 ]; then
-      rm -f "$build_log"
-      exit 0
-    fi
-
-    if [ "$result" -ne 2 ]; then
-      log "Build failed with non-checksum error. Not retrying."
-      exit "$result"
-    fi
-
-    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
-    attempt=$((attempt + 1))
-  done
-
-  log "Fallback mirror exhausted: ${fallback_mirror}"
-done
-
-log "All mirrors exhausted after checksum failures. Mirrors tried:"
-for m in "${MIRRORS_TRIED[@]}"; do
-  log "  - ${m}"
-done
-die "Build failed after exhausting all mirrors"
-
-
 # ── config.txt ────────────────────────────────────────────────
 log "Writing /boot/firmware/config.txt..."
 CONFIG_TXT="${ROOTFS}/boot/firmware/config.txt"
@@ -380,3 +321,140 @@ log "Checksum: ${IMG_FILE}.xz.sha256"
 log ""
 log "# Flash to SD card:"
 log "# xzcat ${IMG_FILE}.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync"
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  umount -R "$ROOTFS" 2>/dev/null || true
+rm -rf "$ROOTFS"
+mkdir -p "$ROOTFS"
+mount "$LOOP_DEV"p2 "$ROOTFS"
+mkdir -p "$ROOTFS/boot/firmware"
+mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      umount -R "$ROOTFS" 2>/dev/null || true
+rm -rf "$ROOTFS"
+mkdir -p "$ROOTFS"
+mount "$LOOP_DEV"p2 "$ROOTFS"
+mkdir -p "$ROOTFS/boot/firmware"
+mount "$LOOP_DEV"p1 "$ROOTFS/boot/firmware"
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+    build_with_mirror "${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      rm -f "$build_log"
+# ── config.txt ────────────────────────────────────────────────
+log "Writing /boot/firmware/config.txt..."
+CONFIG_TXT="${ROOTFS}/boot/firmware/config.txt"
+echo "arm_64bit=1" >> "${CONFIG_TXT}"
+echo "gpu_mem=128" >> "${CONFIG_TXT}"
+
+# ── Enable services ───────────────────────────────────────────
+log "Enabling systemd services..."
+cat > "${ROOTFS}/tmp/enable-services.sh" << 'SVC_SCRIPT_EOF'
+#!/bin/sh
+set -e
+if systemctl list-unit-files "NetworkManager.service" 2>/dev/null | grep -q "^NetworkManager.service"; then
+  systemctl enable "NetworkManager.service"
+else
+  echo "Skipping NetworkManager.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "cups.service" 2>/dev/null | grep -q "^cups.service"; then
+  systemctl enable "cups.service"
+else
+  echo "Skipping cups.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "bluetooth.service" 2>/dev/null | grep -q "^bluetooth.service"; then
+  systemctl enable "bluetooth.service"
+else
+  echo "Skipping bluetooth.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "unattended-upgrades.service" 2>/dev/null | grep -q "^unattended-upgrades.service"; then
+  systemctl enable "unattended-upgrades.service"
+else
+  echo "Skipping unattended-upgrades.service (unit not found - package may not be installed)"
+fi
+if systemctl list-unit-files "rpi-eeprom-update.service" 2>/dev/null | grep -q "^rpi-eeprom-update.service"; then
+  systemctl enable "rpi-eeprom-update.service"
+else
+  echo "Skipping rpi-eeprom-update.service (unit not found - package may not be installed)"
+fi
+SVC_SCRIPT_EOF
+chmod +x "${ROOTFS}/tmp/enable-services.sh"
+chroot "${ROOTFS}" /tmp/enable-services.sh
+rm -f "${ROOTFS}/tmp/enable-services.sh"
+
+# ── Create default user ───────────────────────────────────────
+log "Creating default user 'ubuntu'..."
+: "${UBUNTU_PASSWORD:?Set UBUNTU_PASSWORD to the desired password for the ubuntu user before running this script.}"
+chroot "${ROOTFS}" useradd -m -s /bin/bash -G sudo,adm ubuntu
+printf '%s:%s
+' "ubuntu" "${UBUNTU_PASSWORD}" | chroot "${ROOTFS}" chpasswd
+chroot "${ROOTFS}" chage -d 0 ubuntu
+
+# ── Hostname & fstab ──────────────────────────────────────────
+echo "${DISTRO_NAME}" > "${ROOTFS}/etc/hostname"
+BOOT_UUID=$(blkid -s UUID -o value "${LOOP_DEV}p1")
+ROOT_UUID=$(blkid -s UUID -o value "${LOOP_DEV}p2")
+cat > "${ROOTFS}/etc/fstab" << FSTAB_EOF
+UUID=${BOOT_UUID}  /boot/firmware  vfat  defaults  0  2
+UUID=${ROOT_UUID}  /               ext4  defaults  0  1
+FSTAB_EOF
+
+# ── Cleanup + unmount ─────────────────────────────────────────
+log "Cleaning up..."
+chroot "${ROOTFS}" apt-get clean
+rm -f "${ROOTFS}/usr/bin/qemu-aarch64-static"
+umount -R "${ROOTFS}"
+losetup -d "${LOOP_DEV}"
+
+# ── Compress ──────────────────────────────────────────────────
+log "Compressing image..."
+xz -T0 -z -k "${IMG_FILE}"
+sha256sum "${IMG_FILE}.xz" > "${IMG_FILE}.xz.sha256"
+
+log "Build complete!"
+log "Image:    ${IMG_FILE}.xz"
+log "Checksum: ${IMG_FILE}.xz.sha256"
+log ""
+log "# Flash to SD card:"
+log "# xzcat ${IMG_FILE}.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync"
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${m}"
+done
+die "Build failed after exhausting all mirrors"
+

@@ -150,11 +150,28 @@ if ! command -v kiwi-ng >/dev/null 2>&1; then
   die "kiwi-ng is unavailable after package installation attempts (kiwi-ng/python3-kiwi/kiwi)."
 fi
 
-# ── KIWI image description ─────────────────────────────────────
+
+FALLBACK_MIRRORS=("https://mirrorcache.opensuse.org/download")
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="https://download.opensuse.org/distribution/leap/15.6/repo/oss/"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(Checksum error|\bchecksum\b|download\s+error|Failed to download|Signature verification failed|Repository.*is invalid)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  OPENSUSE_MIRROR="$mirror_url"
+
+  # ── KIWI image description ───────────────────────────────────
 log "Writing KIWI image description..."
 mkdir -p "${KIWI_DESC}"
 
-cat > "${KIWI_DESC}/config.xml" << 'XML_EOF'
+cat > "${KIWI_DESC}/config.xml" << XML_EOF
 <?xml version="1.0" encoding="utf-8"?>
 <image schemaversion="7.4" name="osdb-opensuse-leap">
   <description type="system">
@@ -221,28 +238,11 @@ SDDM_EOF
 CFG_EOF
 chmod +x "${KIWI_DESC}/config.sh"
 
-
-FALLBACK_MIRRORS=("https://mirrorcache.opensuse.org/download")
-
-
-# ── Self-Healing Mirror Configuration ────────────────────────
-PRIMARY_MIRROR="https://download.opensuse.org/distribution/leap/15.6/repo/oss/"
-MAX_RETRIES_PER_MIRROR=2
-MIRRORS_TRIED=()
-
-is_checksum_failure() {
-  grep -qE '(Checksum error|checksum|downloads+error|Failed to download|Signature verification failed|Repository.*is invalid)' "$build_log"
-}
-
-build_with_mirror() {
-  local mirror_url="$1"
-  OPENSUSE_MIRROR="$mirror_url"
-
-  log "Building openSUSE image (this may take 30–60 minutes)..."
+log "Building openSUSE image (this may take 30–60 minutes)..."
 
 build_log="$(mktemp)"
 kiwi-ng --profile Standard system build \
-  --description "$KIWI_DESC" \
+  --description "${KIWI_DESC}" \
   --target-dir "$OUTPUT_DIR" 2>&1 | tee "$build_log"
 }
 
