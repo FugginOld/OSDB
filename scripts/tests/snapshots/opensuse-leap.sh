@@ -138,6 +138,7 @@ BUILD_MARKER="${BUILD_DIR}/.osdb-build-workspace"
 start_logging
 
 KIWI_DESC="${BUILD_DIR}/kiwi-desc"
+OPENSUSE_MIRROR="https://download.opensuse.org/distribution/leap/15.6/repo/oss/"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing KIWI..."
@@ -169,7 +170,7 @@ cat > "${KIWI_DESC}/config.xml" << 'XML_EOF'
     </type>
   </preferences>
   <repository type="rpm-md" alias="openSUSE-leap">
-    <source path="obs://openSUSE:Leap:15.6/standard"/>
+    <source path="${OPENSUSE_MIRROR}"/>
   </repository>
   <packages type="image">
     <package name="patterns-openSUSE-base"/>
@@ -220,16 +221,109 @@ SDDM_EOF
 CFG_EOF
 chmod +x "${KIWI_DESC}/config.sh"
 
-# ── Build ──────────────────────────────────────────────────────
-log "Building openSUSE image (this may take 30–60 minutes)..."
-kiwi-ng --profile Standard system build \
-  --description "${KIWI_DESC}" \
-  --target-dir "${OUTPUT_DIR}"
 
+FALLBACK_MIRRORS=("https://mirrorcache.opensuse.org/download")
+
+
+# ── Self-Healing Mirror Configuration ────────────────────────
+PRIMARY_MIRROR="https://download.opensuse.org/distribution/leap/15.6/repo/oss/"
+MAX_RETRIES_PER_MIRROR=2
+MIRRORS_TRIED=()
+
+is_checksum_failure() {
+  grep -qE '(Checksum error|checksum|downloads+error|Failed to download|Signature verification failed|Repository.*is invalid)' "$build_log"
+}
+
+build_with_mirror() {
+  local mirror_url="$1"
+  OPENSUSE_MIRROR="$mirror_url"
+
+  log "Building openSUSE image (this may take 30–60 minutes)..."
+
+build_log="$(mktemp)"
+kiwi-ng --profile Standard system build \
+  --description "$KIWI_DESC" \
+  --target-dir "$OUTPUT_DIR" 2>&1 | tee "$build_log"
+}
+
+log "Starting self-healing build with primary mirror: ${PRIMARY_MIRROR}"
+
+attempt=0
+while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+  if [ "$attempt" -gt 0 ]; then
+    log "Retrying primary mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${PRIMARY_MIRROR}"
+    rm -rf "$KIWI_DESC" "$OUTPUT_DIR"/*.iso
+  else
+    log "Attempting build with primary mirror: ${PRIMARY_MIRROR}"
+  fi
+
+  MIRRORS_TRIED+=("${PRIMARY_MIRROR}")
+  build_with_mirror "${PRIMARY_MIRROR}"; result=$?
+
+  if [ "$result" -eq 0 ]; then
+    rm -f "$build_log"
 log "Generating SHA256 checksum..."
-sha256sum "${OUTPUT_DIR}"/*.iso > "${OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256" 2>/dev/null || true
-KIWI_ISO=$(find "${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
+sha256sum "$OUTPUT_DIR"/*.iso > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256" 2>/dev/null || true
+KIWI_ISO=$(find "$OUTPUT_DIR" -maxdepth 1 -name '*.iso' | head -1)
 
 log "Build complete!"
-log "ISO:      ${KIWI_ISO}"
-log "Checksum: ${DISPLAY_OUTPUT_DIR}/${DISTRO_NAME}.iso.sha256"
+log "ISO:      $KIWI_ISO"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+    exit 0
+  fi
+
+  if [ "$result" -ne 2 ]; then
+    log "Build failed with non-checksum error. Not retrying."
+    exit "$result"
+  fi
+
+  log "Checksum failure detected on primary mirror"
+  attempt=$((attempt + 1))
+done
+
+log "Primary mirror exhausted after $((MAX_RETRIES_PER_MIRROR + 1)) attempts"
+
+for fallback_mirror in "${FALLBACK_MIRRORS[@]}"; do
+  log "Switching to fallback mirror: ${fallback_mirror}"
+  rm -rf "$KIWI_DESC" "$OUTPUT_DIR"/*.iso
+
+  attempt=0
+  while [ "$attempt" -le "$MAX_RETRIES_PER_MIRROR" ]; do
+    if [ "$attempt" -gt 0 ]; then
+      log "Retrying fallback mirror (attempt $((attempt + 1))/$((MAX_RETRIES_PER_MIRROR + 1))): ${fallback_mirror}"
+      rm -rf "$KIWI_DESC" "$OUTPUT_DIR"/*.iso
+    fi
+
+    MIRRORS_TRIED+=("${fallback_mirror}")
+    build_with_mirror "${fallback_mirror}"; result=$?
+
+    if [ "$result" -eq 0 ]; then
+      rm -f "$build_log"
+log "Generating SHA256 checksum..."
+sha256sum "$OUTPUT_DIR"/*.iso > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256" 2>/dev/null || true
+KIWI_ISO=$(find "$OUTPUT_DIR" -maxdepth 1 -name '*.iso' | head -1)
+
+log "Build complete!"
+log "ISO:      $KIWI_ISO"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+      exit 0
+    fi
+
+    if [ "$result" -ne 2 ]; then
+      log "Build failed with non-checksum error. Not retrying."
+      exit "$result"
+    fi
+
+    log "Checksum failure detected on fallback mirror: ${fallback_mirror}"
+    attempt=$((attempt + 1))
+  done
+
+  log "Fallback mirror exhausted: ${fallback_mirror}"
+done
+
+log "All mirrors exhausted after checksum failures. Mirrors tried:"
+for m in "${MIRRORS_TRIED[@]}"; do
+  log "  - ${m}"
+done
+die "Build failed after exhausting all mirrors"
+

@@ -2493,10 +2493,20 @@ function generateLorax(ctx) {
   const version = suite.replace('f', '');
   const loraxContainerImage = containerImage || `fedora:${version}`;
 
+  const fedoraMirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    `https://download.fedoraproject.org/pub/fedora/linux/releases/${version}/Everything/x86_64/os/`
+  );
+
+  const fallbackMirrors = [
+    `https://dl.fedoraproject.org/pub/fedora/linux/releases/${version}/Everything/x86_64/os/`
+  ].filter(m => m !== fedoraMirror);
+
   return `${scriptHeader(name, 'lorax', loraxContainerImage)}
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
 FEDORA_VERSION="${version}"
+FEDORA_MIRROR="${fedoraMirror}"
 LORAX_ROOTFS_SIZE_MB="\${LORAX_ROOTFS_SIZE_MB:-${loraxImageSizeMb}}"
 
 # ── Prerequisites ─────────────────────────────────────────────
@@ -2540,7 +2550,7 @@ bootloader --location=mbr
 zerombr
 clearpart --all --initlabel
 part / --fstype=ext4 --size=\${LORAX_ROOTFS_SIZE_MB}
-repo --name=fedora --baseurl=https://download.fedoraproject.org/pub/fedora/linux/releases/${version}/Everything/x86_64/os/
+repo --name=fedora --baseurl=\${FEDORA_MIRROR}
 
 %packages
 @core
@@ -2555,33 +2565,41 @@ ${serviceEnableBlock(services)}
 %end
 KS_EOF
 
-# ── Build ──────────────────────────────────────────────────────
-log "Running lorax (this may take 30–60 minutes)..."
-rm -rf "\${LORAX_OUT}"
+
+FALLBACK_MIRRORS=(${fallbackMirrors.map(m => `"${m}"`).join(' ')})
+
+${selfHealingBashFragment({
+  primaryMirror: fedoraMirror,
+  checksumFailureCondition: `grep -qE '(FAILED|\bChecksum\b|checksum|GPG check FAILED|repomd\.xml.*mismatch)' "$build_log"`,
+  mirrorInjectionBlock: `FEDORA_MIRROR="$mirror_url"`,
+  cleanRestartBlock: `rm -rf "$LORAX_OUT" "$BUILD_DIR/cache"`,
+  buildBlock: `log "Running lorax (this may take 30–60 minutes)..."
+rm -rf "$LORAX_OUT"
+
+build_log="$(mktemp)"
 lorax \\
   --product "${name}" \\
-  --version "\${FEDORA_VERSION}" \\
+  --version "$FEDORA_VERSION" \\
   --release 1 \\
-  --source "https://dl.fedoraproject.org/pub/fedora/linux/releases/\${FEDORA_VERSION}/Everything/x86_64/os/" \\
-  "\${LORAX_OUT}"
+  --source "$FEDORA_MIRROR" \\
+  "$LORAX_OUT" 2>&1 | tee "$build_log"
 
-# ── Live CD from kickstart ─────────────────────────────────────
 log "Building live ISO..."
 livecd-creator \\
-  --config="\${KS_FILE}" \\
-  --fslabel="\${DISTRO_NAME}" \\
-  --title="\${DISTRO_NAME}" \\
-  --product="\${DISTRO_NAME}" \\
-  -d -v --cache="\${BUILD_DIR}/cache"
-
-# ── Checksum ───────────────────────────────────────────────────
+  --config="$KS_FILE" \\
+  --fslabel="$DISTRO_NAME" \\
+  --title="$DISTRO_NAME" \\
+  --product="$DISTRO_NAME" \\
+  -d -v --cache="$BUILD_DIR/cache" 2>&1 | tee -a "$build_log"`,
+  successBlock: `rm -f "$build_log"
 log "Generating checksum..."
-find . -maxdepth 1 -name '*.iso' -exec mv {} "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" \\;
-sha256sum "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso" > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+find . -maxdepth 1 -name '*.iso' -exec mv {} "$OUTPUT_DIR/$DISTRO_NAME.iso" \\;
+sha256sum "$OUTPUT_DIR/$DISTRO_NAME.iso" > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
 
 log "Build complete!"
-log "ISO:      \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso"
-log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+log "ISO:      $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
+})}
 `;
 }
 
@@ -2940,8 +2958,20 @@ function generateKiwi(ctx) {
   // targets to avoid Leap/SLE repository dependency mismatches for kiwi tooling.
   const containerImageEffective = containerImage || 'opensuse/tumbleweed';
 
+  const opensuseMirror = validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    suite === 'leap'
+      ? `https://download.opensuse.org/distribution/leap/${leapVersion}/repo/oss/`
+      : 'https://download.opensuse.org/tumbleweed/repo/oss/'
+  );
+
+  const fallbackMirrors = [
+    'https://mirrorcache.opensuse.org/download'
+  ].filter(m => m !== opensuseMirror);
+
   return `${scriptHeader(name, 'kiwi', containerImageEffective)}
 KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
+OPENSUSE_MIRROR="${opensuseMirror}"
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing KIWI..."
@@ -2975,7 +3005,7 @@ cat > "\${KIWI_DESC}/config.xml" << 'XML_EOF'
     </type>
   </preferences>
   <repository type="rpm-md" alias="openSUSE-${suite}">
-    <source path="obs://openSUSE:${suite === 'leap' ? 'Leap:15.6' : 'Tumbleweed'}/standard"/>
+    <source path="\${OPENSUSE_MIRROR}"/>
   </repository>
   <packages type="image">
     <package name="patterns-openSUSE-base"/>
@@ -2999,19 +3029,29 @@ ${autologinHook(base)}
 CFG_EOF
 chmod +x "\${KIWI_DESC}/config.sh"
 
-# ── Build ──────────────────────────────────────────────────────
-log "Building openSUSE image (this may take 30–60 minutes)..."
-kiwi-ng --profile Standard system build \\
-  --description "\${KIWI_DESC}" \\
-  --target-dir "\${OUTPUT_DIR}"
 
+FALLBACK_MIRRORS=(${fallbackMirrors.map(m => `"${m}"`).join(' ')})
+
+${selfHealingBashFragment({
+  primaryMirror: opensuseMirror,
+  checksumFailureCondition: `grep -qE '(Checksum error|\bchecksum\b|download\s+error|Failed to download|Signature verification failed|Repository.*is invalid)' "$build_log"`,
+  mirrorInjectionBlock: `OPENSUSE_MIRROR="$mirror_url"`,
+  cleanRestartBlock: `rm -rf "$KIWI_DESC" "$OUTPUT_DIR"/*.iso`,
+  buildBlock: `log "Building openSUSE image (this may take 30–60 minutes)..."
+
+build_log="$(mktemp)"
+kiwi-ng --profile Standard system build \\
+  --description "$KIWI_DESC" \\
+  --target-dir "$OUTPUT_DIR" 2>&1 | tee "$build_log"`,
+  successBlock: `rm -f "$build_log"
 log "Generating SHA256 checksum..."
-sha256sum "\${OUTPUT_DIR}"/*.iso > "\${OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256" 2>/dev/null || true
-KIWI_ISO=\$(find "\${OUTPUT_DIR}" -maxdepth 1 -name '*.iso' | head -1)
+sha256sum "$OUTPUT_DIR"/*.iso > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256" 2>/dev/null || true
+KIWI_ISO=$(find "$OUTPUT_DIR" -maxdepth 1 -name '*.iso' | head -1)
 
 log "Build complete!"
-log "ISO:      \${KIWI_ISO}"
-log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
+log "ISO:      $KIWI_ISO"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
+})}
 `;
 }
 
@@ -3046,6 +3086,10 @@ function generateCatalyst(ctx) {
 
   const autologin = autologinHook(base);
   const rcEnableBlock = serviceEnableBlockOpenRC(serviceRcNames);
+
+  const fallbackMirrors = [
+    'https://gentoo.osuosl.org'
+  ].filter(m => m !== effectiveMirror);
 
   return `${scriptHeader(name, 'catalyst', containerImage)}
 STOREDIR="\${BUILD_DIR}/catalyst-store"
@@ -3126,6 +3170,89 @@ mkdir -p "\${STOREDIR}/builds/default"
 curl -fSL -o "\${STOREDIR}/builds/default/\${STAGE3_FILENAME}" "\${STAGE3_URL}"
 # Stable symlink so catalyst can reference it by a fixed name
 ln -sf "\${STAGE3_FILENAME}" "\${STOREDIR}/builds/default/stage3-amd64-openrc-latest.tar.xz"
+
+FALLBACK_MIRRORS=(${fallbackMirrors.map(m => `"${m}"`).join(' ')})
+
+${selfHealingBashFragment({
+  primaryMirror: effectiveMirror,
+  checksumFailureCondition: `grep -qE '(checksum|Checksum|Hash mismatch|sha256|sha512|BLAKE2|Manifest.*mismatch|FAILED|404 Not Found)' "$build_log"`,
+  mirrorInjectionBlock: `MIRROR="$mirror_url"`,
+  cleanRestartBlock: `rm -rf "$STOREDIR" "$SPECDIR"`,
+  buildBlock: `log "Creating Portage snapshot for catalyst builds..."
+env -u BUILD_DIR catalyst --snapshot latest
+
+log "Fetching latest amd64 OpenRC stage3..."
+LATEST_TXT="$MIRROR/releases/amd64/autobuilds/latest-stage3-amd64-openrc.txt"
+STAGE3_SUBPATH=$(curl -fsSL "$LATEST_TXT" | grep -v '^#' | awk '{print $1}' | head -1)
+STAGE3_FILENAME=$(basename "$STAGE3_SUBPATH")
+STAGE3_URL="$MIRROR/releases/amd64/autobuilds/$STAGE3_SUBPATH"
+mkdir -p "$STOREDIR/builds/default"
+
+build_log="$(mktemp)"
+curl -fSL -o "$STOREDIR/builds/default/$STAGE3_FILENAME" "$STAGE3_URL" 2>&1 | tee "$build_log"
+ln -sf "$STAGE3_FILENAME" "$STOREDIR/builds/default/stage3-amd64-openrc-latest.tar.xz"
+
+log "Writing post-install fsscript..."
+mkdir -p "$SPECDIR"
+cat > /tmp/catalyst-fsscript.sh << 'FSSCRIPT_EOF'
+#!/bin/sh
+set -e
+${rcEnableBlock || '# No OpenRC services to enable'}
+${autologin || '# No display manager autologin configured'}
+FSSCRIPT_EOF
+chmod +x /tmp/catalyst-fsscript.sh
+
+log "Writing livecd-stage1 spec..."
+cat > "$SPECDIR/livecd-stage1.spec" << 'STAGE1_EOF'
+subarch: amd64
+target: livecd-stage1
+version_stamp: ${name}
+rel_type: default
+profile: default/linux/amd64/17.1/no-multilib
+snapshot_treeish: latest
+# source_subpath names the file exactly as stored under storedir/builds/;
+# the .tar.xz extension is explicit to match the symlink created above.
+source_subpath: default/stage3-amd64-openrc-latest.tar.xz
+
+livecd/packages:
+${allPkgs.map(p => `  ${p}`).join('\n')}
+${rcAddSpecLines ? `\nlivecd/rcadd:\n${rcAddSpecLines}` : ''}
+livecd/fsscript: /tmp/catalyst-fsscript.sh
+STAGE1_EOF
+
+log "Writing livecd-stage2 spec..."
+cat > "$SPECDIR/livecd-stage2.spec" << 'STAGE2_EOF'
+subarch: amd64
+target: livecd-stage2
+version_stamp: ${name}
+rel_type: default
+snapshot_treeish: latest
+source_subpath: default/livecd-stage1-amd64-${name}
+
+livecd/bootargs: dokeymap
+livecd/iso: ${name}.iso
+STAGE2_EOF
+
+log "Running catalyst livecd-stage1 (this may take 60–120 minutes)..."
+env -u BUILD_DIR catalyst -f "$SPECDIR/livecd-stage1.spec" 2>&1 | tee -a "$build_log"
+
+log "Running catalyst livecd-stage2 (this may take 15–30 minutes)..."
+env -u BUILD_DIR catalyst -f "$SPECDIR/livecd-stage2.spec" 2>&1 | tee -a "$build_log"
+
+log "Moving ISO to output directory..."
+CATALYST_ISO="$STOREDIR/builds/default/${name}.iso"
+if [ ! -f "$CATALYST_ISO" ]; then
+  die "Catalyst stage2 ISO not found at $CATALYST_ISO. Check the catalyst build log for errors."
+fi
+cp "$CATALYST_ISO" "$OUTPUT_DIR/$DISTRO_NAME.iso"`,
+  successBlock: `rm -f "$build_log"
+log "Generating SHA256 checksum..."
+sha256sum "$OUTPUT_DIR/$DISTRO_NAME.iso" > "$OUTPUT_DIR/$DISTRO_NAME.iso.sha256"
+
+log "Build complete!"
+log "ISO:      $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso"
+log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
+})}
 
 # ── Post-install fsscript ─────────────────────────────────────
 log "Writing post-install fsscript..."

@@ -34,10 +34,10 @@ const debianScript = wiz.generateScript(debianBase, 'TestDistro');
 wiz.state.base = 'arch';
 const archScript = wiz.generateScript(archBase, 'TestDistro');
 
-wiz.state.base = loraxBase.id;
+wiz.state.base = 'fedora-41';
 const loraxScript = wiz.generateScript(loraxBase, 'TestDistro');
 
-wiz.state.base = kiwiBase.id;
+wiz.state.base = 'opensuse-tumbleweed';
 const kiwiScript = wiz.generateScript(kiwiBase, 'TestDistro');
 
 wiz.state.base = 'gentoo';
