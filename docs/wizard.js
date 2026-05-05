@@ -1549,20 +1549,36 @@ function generateScript() {
   if (!base) return '# No base selected';
   const name = (state.distroName || 'MyDistro').replace(/[^A-Za-z0-9_-]/g, '_');
 
+  const ctx = buildBuildContext(base, name);
+
   switch (base.builder) {
-    case 'live-build':  return generateLiveBuild(base, name);
-    case 'archiso':     return generateArchiso(base, name);
-    case 'lorax':       return generateLorax(base, name);
-    case 'pi-gen':      return generatePiGen(base, name);
-    case 'ubuntu-rpi':  return generateUbuntuRpi(base, name);
-    case 'alarm-rpi':   return generateAlarmRpi(base, name);
-    case 'kiwi':        return generateKiwi(base, name);
-    case 'catalyst':    return generateCatalyst(base, name);
+    case 'live-build':  return generateLiveBuild(ctx);
+    case 'archiso':     return generateArchiso(ctx);
+    case 'lorax':       return generateLorax(ctx);
+    case 'pi-gen':      return generatePiGen(ctx);
+    case 'ubuntu-rpi':  return generateUbuntuRpi(ctx);
+    case 'alarm-rpi':   return generateAlarmRpi(ctx);
+    case 'kiwi':        return generateKiwi(ctx);
+    case 'catalyst':    return generateCatalyst(ctx);
     default:            return `# Builder '${base.builder}' is not yet implemented`;
   }
 }
 
 // ─ Helpers used across generators ────────────────────────────
+
+function buildBuildContext(base, name) {
+  return {
+    base,
+    name,
+    dePackages: dePkgs(base),
+    userPkgs: enabledPkgList(base),
+    servicePkgs: enabledServicePkgList(base),
+    services: enabledServicesList(),
+    mirror: resolveMirrorUrl(base),
+    containerImage: resolveContainerImage(base),
+    serviceRcNames: enabledServicesRcList(),
+  };
+}
 
 function enabledPkgList(base) {
   const baseId = state.base;
@@ -1857,7 +1873,9 @@ BUILD_MARKER="\${BUILD_DIR}/.osdb-build-workspace"
 : > "\${BUILD_MARKER}"
 start_logging\n`;
 
-  const container = () => (containerImage ? `${containerPreamble(containerImage)}\n` : '\n');
+  // Container re-exec must run before root checks / path normalization.
+  // Otherwise scripts that rely on the preamble will exit early and snapshots break.
+  const container = () => (containerImage ? `${containerPreamble(containerImage)}` : '');
 
   return [
     headerMetadata(),
@@ -1866,6 +1884,7 @@ start_logging\n`;
     logAndDieHelpers(),
     cleanupAndTraps(),
     container(),
+    '\n',
     rootCheck(),
     pathCanonicalization(),
   ].join('');
@@ -1892,6 +1911,41 @@ function validatePpaString(ppa) {
   const trimmed = (ppa || '').trim();
   if (!trimmed) return false;
   return /^ppa:[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(trimmed);
+}
+
+function resolveMirrorUrl(base) {
+  if (base.family === 'arch') {
+    return validateMirrorUrl(
+      state.repoType === 'custom' ? state.customMirrorUrl : '',
+      base.mirror || 'https://mirror.rackspace.com/archlinux/$repo/os/$arch'
+    );
+  }
+
+  if (base.family === 'gentoo') {
+    return validateMirrorUrl(
+      state.repoType === 'custom' ? state.customMirrorUrl : '',
+      base.mirror || 'https://distfiles.gentoo.org'
+    );
+  }
+
+  return validateMirrorUrl(
+    state.repoType === 'custom' ? state.customMirrorUrl : '',
+    base.mirror
+  );
+}
+
+function resolveContainerImage(base) {
+  if (base.family === 'ubuntu') return `ubuntu:${base.suite}`;
+  if (base.family === 'debian') return `debian:${base.suite}`;
+  if (base.builder === 'ubuntu-rpi') return `ubuntu:${base.suite}`;
+  if (base.family === 'arch') return 'archlinux:latest';
+  if (base.family === 'gentoo') return 'gentoo/stage3:amd64-openrc';
+  if (base.family === 'fedora') {
+    const version = String(base.suite || '').replace('f', '');
+    return version ? `fedora:${version}` : '';
+  }
+  if (base.family === 'opensuse') return 'opensuse/tumbleweed';
+  return '';
 }
 
 function selfHealingBashFragment({
@@ -1994,20 +2048,12 @@ die "Build failed after exhausting all mirrors"
 }
 
 // ─ live-build (Debian / Ubuntu) ──────────────────────────────
-function generateLiveBuild(base, name) {
+function generateLiveBuild(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, services, mirror, containerImage } = ctx;
   const de = state.de || 'none';
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
   const allPkgs = [dePackages, userPkgs].filter(Boolean).join(' ');
-  const mirror = validateMirrorUrl(
-    state.repoType === 'custom' ? state.customMirrorUrl : '',
-    base.mirror
-  );
   const areas = base.areas;
   const suite = base.suite;
-  const services = enabledServicesList();
-  const containerImage = base.family === 'ubuntu' ? `ubuntu:${suite}` : `debian:${suite}`;
 
   // Fallback mirrors for self-healing
   const fallbackMirrors = base.family === 'debian'
@@ -2333,18 +2379,10 @@ log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
 }
 
 // ─ archiso (Arch Linux) ───────────────────────────────────────
-function generateArchiso(base, name) {
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
+function generateArchiso(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, services, mirror, containerImage } = ctx;
   const allPkgsRaw = [dePackages, userPkgs, servicePkgs, 'base linux linux-firmware'].filter(Boolean).join(' ');
   const allPkgs = [...new Set(allPkgsRaw.split(' ').filter(Boolean))].join(' ');
-  const services = enabledServicesList();
-  const containerImage = 'archlinux:latest';
-  const mirror = validateMirrorUrl(
-    state.repoType === 'custom' ? state.customMirrorUrl : '',
-    base.mirror || 'https://mirror.rackspace.com/archlinux/$repo/os/$arch'
-  );
   const allFallbackMirrors = [
     'https://mirror.rackspace.com/archlinux/$repo/os/$arch',
     'https://mirrors.kernel.org/archlinux/$repo/os/$arch'
@@ -2448,17 +2486,14 @@ log "Checksum: $DISPLAY_OUTPUT_DIR/$DISTRO_NAME.iso.sha256"`,
 }
 
 // ─ lorax (Fedora) ─────────────────────────────────────────────
-function generateLorax(base, name) {
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
-  const services = enabledServicesList();
+function generateLorax(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, services, containerImage } = ctx;
   const loraxImageSizeMb = estimateLoraxImageSizeMb(base, dePackages, userPkgs, servicePkgs);
   const suite = base.suite; // f40, f41 …
   const version = suite.replace('f', '');
-  const containerImage = `fedora:${version}`;
+  const loraxContainerImage = containerImage || `fedora:${version}`;
 
-  return `${scriptHeader(name, 'lorax', containerImage)}
+  return `${scriptHeader(name, 'lorax', loraxContainerImage)}
 LORAX_OUT="\${OUTPUT_DIR}/lorax"
 KS_FILE="\${BUILD_DIR}/\${DISTRO_NAME}.ks"
 FEDORA_VERSION="${version}"
@@ -2551,11 +2586,8 @@ log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 }
 
 // ─ pi-gen (Raspberry Pi OS) ───────────────────────────────────
-function generatePiGen(base, name) {
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
-  const services = enabledServicesList();
+function generatePiGen(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, services } = ctx;
   const tier = base.piGenTier || 'lite';
   const hw = state.rpiHardware || 'rpi4';
   const hwObj = RPI_HARDWARE.find(h => h.id === hw) || { arch: 'aarch64' };
@@ -2672,22 +2704,14 @@ function buildConfigTxt(is64) {
 }
 
 // ─ ubuntu-rpi (Ubuntu for Raspberry Pi) ──────────────────────
-function generateUbuntuRpi(base, name) {
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
-  const services = enabledServicesList();
+function generateUbuntuRpi(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, services, mirror, containerImage } = ctx;
   const hw = state.rpiHardware || 'rpi4';
   const hwObj = RPI_HARDWARE.find(h => h.id === hw) || { arch: 'aarch64' };
   const arch = hwObj.arch;
   const suite = base.suite;
-  const mirror = validateMirrorUrl(
-    state.repoType === 'custom' ? state.customMirrorUrl : '',
-    base.mirror
-  );
   const areas = base.areas;
   const needsEeprom = ['rpi4','rpi5'].includes(hw);
-  const containerImage = `ubuntu:${suite}`;
 
   const configTxtLines = buildConfigTxt(arch === 'aarch64');
 
@@ -2806,13 +2830,12 @@ log "# xzcat \${IMG_FILE}.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fs
 }
 
 // ─ alarm-rpi (Arch Linux ARM for Pi) ─────────────────────────
-function generateAlarmRpi(base, name) {
+function generateAlarmRpi(ctx) {
+  const { base, name, userPkgs, services } = ctx;
   const hw = state.rpiHardware || 'rpi4';
   const isRpi5 = hw === 'rpi5';
   const tarball = 'ArchLinuxARM-rpi-aarch64-latest.tar.gz';
   const tarballUrl = 'http://os.archlinuxarm.org/os/' + tarball;
-  const userPkgs = enabledPkgList(base);
-  const services = enabledServicesList();
 
   const configTxtLines = buildConfigTxt(true);
 
@@ -2909,18 +2932,15 @@ log "  usermod -l pi alarm"
 }
 
 // ─ kiwi (openSUSE) ───────────────────────────────────────────
-function generateKiwi(base, name) {
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
-  const services = enabledServicesList();
+function generateKiwi(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, services, containerImage } = ctx;
   const suite = base.suite;
   const leapVersion = (base.label.match(/\d+\.\d+/) || ['15.6'])[0];
   // Use Tumbleweed as the KIWI build environment for both Leap and Tumbleweed
   // targets to avoid Leap/SLE repository dependency mismatches for kiwi tooling.
-  const containerImage = 'opensuse/tumbleweed';
+  const containerImageEffective = containerImage || 'opensuse/tumbleweed';
 
-  return `${scriptHeader(name, 'kiwi', containerImage)}
+  return `${scriptHeader(name, 'kiwi', containerImageEffective)}
 KIWI_DESC="\${BUILD_DIR}/kiwi-desc"
 
 # ── Prerequisites ─────────────────────────────────────────────
@@ -2996,19 +3016,16 @@ log "Checksum: \${DISPLAY_OUTPUT_DIR}/\${DISTRO_NAME}.iso.sha256"
 }
 
 // ── catalyst (Gentoo) ─────────────────────────────────────────
-function generateCatalyst(base, name) {
-  const dePackages = dePkgs(base);
-  const userPkgs = enabledPkgList(base);
-  const servicePkgs = enabledServicePkgList(base);
-  const rcServices = enabledServicesRcList();
+function generateCatalyst(ctx) {
+  const { base, name, dePackages, userPkgs, servicePkgs, mirror, serviceRcNames } = ctx;
   const installerPkgs = state.installer === 'calamares' ? ['app-admin/calamares'] : [];
 
-  const mirror = validateMirrorUrl(
+  const effectiveMirror = mirror || validateMirrorUrl(
     state.repoType === 'custom' ? state.customMirrorUrl : '',
     base.mirror || 'https://distfiles.gentoo.org'
   );
   // Single-quote-escape for embedding in shell script
-  const mirrorEscaped = mirror.replace(/'/g, "'\\''");
+  const mirrorEscaped = effectiveMirror.replace(/'/g, "'\\''");
   const containerImage = 'gentoo/stage3:amd64-openrc';
 
   // All packages to install in the live environment (deduplicated via Set)
@@ -3023,12 +3040,12 @@ function generateCatalyst(base, name) {
     ].filter(Boolean).join(' ').split(/\s+/).filter(Boolean)
   )];
 
-  const rcAddSpecLines = rcServices
-    ? rcServices.split(/\s+/).filter(Boolean).map(n => `  ${n}|default`).join('\n')
+  const rcAddSpecLines = serviceRcNames
+    ? serviceRcNames.split(/\s+/).filter(Boolean).map(n => `  ${n}|default`).join('\n')
     : '';
 
   const autologin = autologinHook(base);
-  const rcEnableBlock = serviceEnableBlockOpenRC(rcServices);
+  const rcEnableBlock = serviceEnableBlockOpenRC(serviceRcNames);
 
   return `${scriptHeader(name, 'catalyst', containerImage)}
 STOREDIR="\${BUILD_DIR}/catalyst-store"

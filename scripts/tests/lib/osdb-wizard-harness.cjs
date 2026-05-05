@@ -10,7 +10,7 @@ function loadWizard() {
   const initIdx = raw.indexOf("document.addEventListener('DOMContentLoaded'");
   const trimmed = initIdx >= 0 ? raw.slice(0, initIdx) : raw;
 
-  const exportSnippet = `\n;globalThis.__OSDB_TEST_EXPORTS__ = {\n  BASES,\n  PACKAGES,\n  PACKAGE_COMPAT,\n  SERVICES,\n  isStableTrack,\n  RPI_HARDWARE,\n  state,\n  initDefaultPkgs,\n  initDefaultServices,\n  generateScript\n};\n`;
+  const exportSnippet = `\n;globalThis.__OSDB_TEST_EXPORTS__ = {\n  BASES,\n  PACKAGES,\n  PACKAGE_COMPAT,\n  SERVICES,\n  isStableTrack,\n  RPI_HARDWARE,\n  state,\n  initDefaultPkgs,\n  initDefaultServices,\n  buildBuildContext,\n  generateScript\n};\n`;
 
   const script = `${trimmed}\n${exportSnippet}`;
   const context = {
