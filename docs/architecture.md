@@ -2,7 +2,7 @@
 
 OSDB is a static web application — no backend. The entire wizard runs in the browser, generates a bash Build Script as a string, and hands it to the user. The generated script self-containerises via Docker or Podman at runtime and invokes the distro's Build Tool to produce an ISO or IMG.
 
-This document is for contributors. For usage instructions see the [README](../README.md) and [how-to.md](../how-to.md).
+This document is for contributors. For usage instructions see the [README](../README.md) and [HOWTO.md](../HOWTO.md).
 
 ---
 
