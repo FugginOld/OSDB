@@ -3,18 +3,8 @@ name: Markdown Link Integrity
 on:
   push:
     branches: [ main ]
-    paths:
-      - '*.md'
-      - 'docs/**/*.md'
-      - 'scripts/tests/test-markdown-local-links.cjs'
-      - '.github/workflows/markdown-links.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - '*.md'
-      - 'docs/**/*.md'
-      - 'scripts/tests/test-markdown-local-links.cjs'
-      - '.github/workflows/markdown-links.yml'
 
 permissions:
   contents: read
@@ -33,4 +23,3 @@ jobs:
 
       - name: Check local markdown links
         run: node scripts/tests/test-markdown-local-links.cjs
-

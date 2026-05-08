@@ -132,7 +132,7 @@ CI runs `test-config-txt-definition.cjs` to verify all generators that reference
 | `stable-matrix.yml` | Push/PR touching `wizard.js` or `scripts/tests/` | Snapshot tests → regenerates test scripts → verifies permissions → git diff check → runs matrix |
 | `pages.yml` | Push to main touching `docs/` | Deploys `docs/` to GitHub Pages |
 | `shellcheck.yml` | Push/PR touching `scripts/examples/` | ShellChecks reference scripts |
-| `markdown-links.yml` | Push/PR touching `*.md` or `docs/**/*.md` | Fails CI on broken local markdown links (external links ignored) |
+| `markdown-links.yml` | All pushes/PRs to `main` | Fails CI on broken local markdown links (external links ignored) |
 
 ---
 
