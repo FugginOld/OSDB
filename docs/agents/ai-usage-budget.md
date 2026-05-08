@@ -13,6 +13,7 @@
 ## Claude — Context Rules
 
 Send only:
+
 - `AGENTS.md`
 - `CONTEXT.md`
 - Issue text
@@ -22,6 +23,7 @@ Send only:
 - `git diff`
 
 Do NOT send:
+
 - Entire repo dumps
 - Generated files (unless directly relevant)
 - Repeated full context after every change
@@ -48,6 +50,7 @@ Review only this diff for correctness, missing tests, architecture conflicts, an
 ## Codex / ChatGPT — Usage Rules
 
 Use for:
+
 - Implementation
 - Test writing
 - Repeated test/fix loops
@@ -55,6 +58,7 @@ Use for:
 - Local verification
 
 Always summarize on completion:
+
 ```text
 Changed files:
 Commands run:
@@ -80,12 +84,14 @@ Return changed files, commands run, and remaining risks.
 ## Copilot — Usage Rules
 
 Use for:
+
 - Inline suggestions
 - Boilerplate
 - Simple completion
 - Repetitive edits
 
 Avoid for:
+
 - Architecture decisions
 - Full repo review
 - Large context analysis
@@ -96,6 +102,7 @@ Avoid for:
 ## Escalation Rules
 
 ### Escalate Codex → Claude ONLY when:
+
 - Architecture is unclear
 - Tests conflict with expected behavior
 - Requirements are ambiguous
@@ -103,6 +110,7 @@ Avoid for:
 - An ADR may be needed
 
 ### Do NOT escalate for:
+
 - Syntax errors
 - Normal test failures
 - Formatting

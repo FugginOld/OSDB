@@ -5,6 +5,7 @@
 Enforces a **repeatable, low-token, high-quality AI development process**.
 
 Ensures:
+
 - predictable changes
 - strict scope control
 - proper agent usage
@@ -18,6 +19,7 @@ Ensures:
 ```text
 Context -> Plan -> Issue -> Branch -> Test -> Change
 -> Diagnose -> Review -> PR -> Merge
+
 ```
 
 Agents MUST NOT skip steps.
@@ -27,11 +29,14 @@ Agents MUST NOT skip steps.
 ## Gate 0 — Repo Setup (Run Once)
 
 Command:
+
 ```text
 /setup-matt-pocock-skills
+
 ```
 
 Verify files exist:
+
 ```text
 AGENTS.md
 CONTEXT.md
@@ -40,6 +45,7 @@ docs/agents/ai-usage-budget.md
 docs/agents/agent-handoff-template.md
 docs/decisions/
 .github templates
+
 ```
 
 Pass condition: Repo is AI-ready. Workflow + rules enforced.
@@ -49,13 +55,16 @@ Pass condition: Repo is AI-ready. Workflow + rules enforced.
 ## Gate 1 — Context (Claude)
 
 Commands:
+
 ```text
 /caveman lite
 /grill-with-docs
 /zoom-out
+
 ```
 
 Prompt:
+
 ```text
 Use AGENTS.md and CONTEXT.md.
 
@@ -66,6 +75,7 @@ Identify:
 - smallest safe change
 
 Do NOT propose implementation yet.
+
 ```
 
 Pass condition: Scope clearly defined. No unknown domain terms. No architecture conflicts ignored.
@@ -75,12 +85,15 @@ Pass condition: Scope clearly defined. No unknown domain terms. No architecture 
 ## Gate 2 — Plan → Issue (Claude)
 
 Commands:
+
 ```text
 /to-prd
 /to-issues
+
 ```
 
 Prompt:
+
 ```text
 Break this work into the smallest independent issue.
 
@@ -93,6 +106,7 @@ Include:
 - rollback plan
 
 Do NOT combine multiple concerns.
+
 ```
 
 Pass condition: Issue is independently completable. Fits in one branch. Has clear acceptance criteria.
@@ -103,6 +117,7 @@ Pass condition: Issue is independently completable. Fits in one branch. Has clea
 
 ```bash
 git checkout -b agent/<issue-number>-short-name
+
 ```
 
 Rules: One branch per issue. Clean working tree required.
@@ -112,12 +127,15 @@ Rules: One branch per issue. Clean working tree required.
 ## Gate 4 — TDD Loop (Codex / ChatGPT)
 
 Commands:
+
 ```text
 /caveman full
 /tdd
+
 ```
 
 Prompt:
+
 ```text
 Use AGENTS.md and CONTEXT.md.
 
@@ -134,6 +152,7 @@ Do NOT:
 - modify unrelated files
 - redesign architecture
 - skip tests unless justified
+
 ```
 
 Pass condition: Tests exist or justification provided. Smallest change implemented. No scope creep.
@@ -143,11 +162,14 @@ Pass condition: Tests exist or justification provided. Smallest change implement
 ## Gate 5 — Diagnose (Codex → Claude if needed)
 
 Command:
+
 ```text
 /diagnose
+
 ```
 
 Prompt:
+
 ```text
 Validate this change.
 
@@ -158,6 +180,7 @@ Check:
 - assumptions
 
 List any risks or gaps.
+
 ```
 
 Pass condition: No unresolved blockers. Critical paths tested. Risks identified.
@@ -167,11 +190,14 @@ Pass condition: No unresolved blockers. Critical paths tested. Risks identified.
 ## Gate 6 — Architecture Check (Claude, if needed)
 
 Command:
+
 ```text
 /improve-codebase-architecture
+
 ```
 
 Prompt:
+
 ```text
 Evaluate ONLY if needed.
 
@@ -182,6 +208,7 @@ Did this change:
 - introduce unnecessary abstraction?
 
 Reject overengineering.
+
 ```
 
 Pass condition: No unnecessary abstraction. No duplication introduced. No ADR conflicts.
@@ -197,6 +224,7 @@ npm run lint
 pytest
 ruff check .
 mypy .
+
 ```
 
 Pass condition: All checks pass. Failures fixed or documented.
@@ -206,12 +234,15 @@ Pass condition: All checks pass. Failures fixed or documented.
 ## Gate 8 — Final Review (Claude)
 
 Commands:
+
 ```text
 /caveman lite
 /diagnose
+
 ```
 
 Prompt:
+
 ```text
 Use AGENTS.md.
 
@@ -225,6 +256,7 @@ Block for:
 - architecture conflicts
 
 Do NOT review entire repo.
+
 ```
 
 Pass condition: Issues resolved. Risks documented.
@@ -235,6 +267,7 @@ Pass condition: Issues resolved. Risks documented.
 
 ```bash
 gh pr create --fill
+
 ```
 
 PR must include: linked issue, summary, tests run, risks, rollback plan.
@@ -246,6 +279,7 @@ PR must include: linked issue, summary, tests run, risks, rollback plan.
 ```bash
 git status
 git pull --rebase
+
 ```
 
 Merge only if: acceptance criteria met, tests pass, review complete, no unresolved comments.
