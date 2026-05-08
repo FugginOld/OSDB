@@ -8,6 +8,8 @@ const { execFileSync } = require('child_process');
 const repoRoot = path.resolve(__dirname, '..', '..');
 const canonicalDir = 'docs/decisions/';
 const deprecatedDir = `${path.posix.join('docs', 'adr')}/`;
+// Search pattern without trailing slash to catch both `docs/adr` and `docs/adr/` in content.
+const deprecatedPattern = path.posix.join('docs', 'adr');
 const selfRel = path.relative(repoRoot, __filename).split(path.sep).join('/');
 
 function listTrackedFiles() {
@@ -72,18 +74,18 @@ function main() {
     if (isBinaryBuffer(buf)) continue;
 
     const text = buf.toString('utf8');
-    if (!text.includes(deprecatedDir)) continue;
-    const loc = findFirstMatchLine(text, deprecatedDir);
+    if (!text.includes(deprecatedPattern)) continue;
+    const loc = findFirstMatchLine(text, deprecatedPattern);
     offenders.push({
       file: rel,
-      reason: `references deprecated path ${deprecatedDir}`,
+      reason: `references deprecated path ${deprecatedPattern}`,
       line: loc ? loc.line : null,
       preview: loc ? loc.preview : null,
     });
   }
 
   if (offenders.length > 0) {
-    console.error(`FAIL: found deprecated decision-record path ${deprecatedDir}`);
+    console.error(`FAIL: found deprecated decision-record path ${deprecatedPattern}`);
     for (const o of offenders.slice(0, 50)) {
       const where = o.line ? `:${o.line}` : '';
       const extra = o.preview ? ` | ${o.preview}` : '';
@@ -94,7 +96,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`OK: decision-record path is canonical (${canonicalDir}); no ${deprecatedDir} references found.`);
+  console.log(`OK: decision-record path is canonical (${canonicalDir}); no ${deprecatedPattern} references found.`);
 }
 
 main();
