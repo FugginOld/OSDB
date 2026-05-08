@@ -9,7 +9,7 @@ const repoRoot = path.resolve(__dirname, '..', '..');
 const canonicalDir = 'docs/decisions/';
 // Directory prefix (with trailing slash) used to detect tracked files living under the deprecated path.
 const deprecatedDirPrefix = `${path.posix.join('docs', 'adr')}/`;
-// Search pattern without trailing slash to catch both `docs/adr` and `docs/adr/` in content.
+// Search pattern without trailing slash so both deprecated forms (with/without trailing slash) are caught in content.
 const deprecatedPattern = path.posix.join('docs', 'adr');
 const selfRel = path.relative(repoRoot, __filename).split(path.sep).join('/');
 
