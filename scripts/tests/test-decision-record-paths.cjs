@@ -8,6 +8,7 @@ const { execFileSync } = require('child_process');
 const repoRoot = path.resolve(__dirname, '..', '..');
 const canonicalDir = 'docs/decisions/';
 const deprecatedDir = 'docs/adr/';
+const selfRel = path.relative(repoRoot, __filename).split(path.sep).join('/');
 
 function listTrackedFiles() {
   const out = execFileSync('git', ['-C', repoRoot, 'ls-files'], { encoding: 'utf8' });
@@ -54,6 +55,7 @@ function main() {
 
   const offenders = [];
   for (const rel of tracked) {
+    if (rel === selfRel) continue;
     if (shouldSkipFile(rel)) continue;
     const abs = path.join(repoRoot, rel);
     if (rel.startsWith(deprecatedDir)) {
