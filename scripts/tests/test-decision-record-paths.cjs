@@ -7,7 +7,7 @@ const { execFileSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 const canonicalDir = 'docs/decisions/';
-const deprecatedDir = 'docs/adr/';
+const deprecatedDir = `${path.posix.join('docs', 'adr')}/`;
 const selfRel = path.relative(repoRoot, __filename).split(path.sep).join('/');
 
 function listTrackedFiles() {
