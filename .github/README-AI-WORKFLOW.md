@@ -40,21 +40,21 @@ Every change follows this sequence.
 Start here:
 
 👉 **Quickstart guide**
-`HOWTO-AI-WORKFLOW.md`
+[HOWTO-AI-WORKFLOW.md](./HOWTO-AI-WORKFLOW.md)
 
 ---
 
 Then follow:
 
 👉 **Full workflow (source of truth)**
-`docs/agents/ci-style-ai-workflow.md`
+[docs/agents/ci-style-ai-workflow.md](../docs/agents/ci-style-ai-workflow.md)
 
 ---
 
 And obey:
 
 👉 **Rules and constraints**
-`AGENTS.md`
+[AGENTS.md](../AGENTS.md)
 
 ---
 
@@ -62,10 +62,10 @@ And obey:
 
 | File                        | Purpose                            |
 | --------------------------- | ---------------------------------- |
-| `AGENTS.md`                 | Rules, enforcement, agent behavior |
-| `ci-style-ai-workflow.md`   | Step-by-step workflow and prompts  |
-| `ai-usage-budget.md`        | Token control and agent limits     |
-| `agent-handoff-template.md` | Required agent switching format    |
+| [AGENTS.md](../AGENTS.md) | Rules, enforcement, agent behavior |
+| [ci-style-ai-workflow.md](../docs/agents/ci-style-ai-workflow.md) | Step-by-step workflow and prompts  |
+| [ai-usage-budget.md](../docs/agents/ai-usage-budget.md) | Token control and agent limits     |
+| [agent-handoff-template.md](../docs/agents/agent-handoff-template.md) | Required agent switching format    |
 
 ---
 
@@ -113,6 +113,6 @@ Do not improvise.
 
 Follow:
 
-* `HOWTO-AI-WORKFLOW.md` to run it
-* `ci-style-ai-workflow.md` to execute it correctly
-* `AGENTS.md` to enforce it
+* [HOWTO-AI-WORKFLOW.md](./HOWTO-AI-WORKFLOW.md) to run it
+* [ci-style-ai-workflow.md](../docs/agents/ci-style-ai-workflow.md) to execute it correctly
+* [AGENTS.md](../AGENTS.md) to enforce it
