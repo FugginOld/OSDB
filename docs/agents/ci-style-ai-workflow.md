@@ -38,7 +38,7 @@ CONTEXT.md
 docs/agents/ci-style-ai-workflow.md
 docs/agents/ai-usage-budget.md
 docs/agents/agent-handoff-template.md
-docs/adr/
+docs/decisions/
 .github templates
 ```
 

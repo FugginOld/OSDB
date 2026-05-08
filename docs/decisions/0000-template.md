@@ -1,7 +1,7 @@
-# ADR-0000: Title
+# Decision-0000: Title
 
 **Date:** YYYY-MM-DD
-**Status:** Proposed | Accepted | Deprecated | Superseded by ADR-XXXX
+**Status:** Proposed | Accepted | Deprecated | Superseded by Decision-XXXX
 
 ## Context
 
