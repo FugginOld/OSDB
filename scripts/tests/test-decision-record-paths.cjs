@@ -7,7 +7,8 @@ const { execFileSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 const canonicalDir = 'docs/decisions/';
-const deprecatedDir = `${path.posix.join('docs', 'adr')}/`;
+// Directory prefix (with trailing slash) used to detect tracked files living under the deprecated path.
+const deprecatedDirPrefix = `${path.posix.join('docs', 'adr')}/`;
 // Search pattern without trailing slash to catch both `docs/adr` and `docs/adr/` in content.
 const deprecatedPattern = path.posix.join('docs', 'adr');
 const selfRel = path.relative(repoRoot, __filename).split(path.sep).join('/');
@@ -60,9 +61,9 @@ function main() {
     if (rel === selfRel) continue;
     if (shouldSkipFile(rel)) continue;
     const abs = path.join(repoRoot, rel);
-    if (rel.startsWith(deprecatedDir)) {
+    if (rel.startsWith(deprecatedDirPrefix)) {
       if (!fs.existsSync(abs)) continue;
-      offenders.push({ file: rel, reason: `tracked file under deprecated directory ${deprecatedDir}` });
+      offenders.push({ file: rel, reason: `tracked file under deprecated directory ${deprecatedDirPrefix}` });
       continue;
     }
     let buf;
