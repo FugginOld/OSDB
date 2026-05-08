@@ -1,0 +1,291 @@
+# How to Run Your Generated Build Script
+
+After using the [OSDB wizard](https://fugginold.github.io/OSDB/) to configure your custom Linux distribution, you can either:
+
+- **Download** the script (named **`build-<DistroName>.sh`**, e.g. `build-MyDistro.sh`) using the **⬇ Download** button, or  
+- **Copy the ⚡ One-liner run command** from the summary page and paste it directly into your terminal.
+
+The one-liner encodes the full script as base64 and runs it in a single step — no manual download required:
+
+```bash
+echo '<base64-encoded-script>' | base64 -d > build-MyDistro.sh && chmod +x build-MyDistro.sh && sudo ./build-MyDistro.sh
+```
+
+> ⚠️ **Security tip:** Before running any script as root, review its contents first.  
+> Decode and inspect the command with `echo '<base64>' | base64 -d | less` before executing it.
+
+This guide covers everything you need to turn either approach into a bootable ISO or SD-card image.
+
+---
+
+## Wizard Package Presets
+
+The wizard’s **Packages** step is now preset-driven:
+
+- Quick Presets are loaded from `docs/environments/<base>_environment_profiles/.../environment.md`.
+- Each preset installs that profile’s **Core Package Set** (or **Core System Packages** for profiles that use that heading).
+- Selecting a preset shows package count and an expanded package list.
+- Generated scripts install the full Core Package Set for the selected preset.
+- The new **LLM / AI Workstation & Inference Server** preset appears only on compatible distro bases that provide `08_llm_ai_workstation_inference_server/environment.md`.
+
+### Using the LLM / AI Preset
+
+1. In the wizard, pick a compatible base distro.
+2. In **Packages**, select **LLM / AI Workstation & Inference Server**.
+3. Review the expanded package list and package count.
+4. Continue to **Services** and enable only what you actually need (for example SSH, container runtime, or model-serving stack components).
+
+The generated script installs the profile-defined core packages for that distro exactly as listed by the environment profile.
+
+---
+
+## 1. Prerequisites
+
+Prerequisites depend on the builder selected in the wizard:
+
+### Most builders (live-build, archiso, lorax, pi-gen, ubuntu-rpi, kiwi, catalyst)
+
+These scripts are fully self-contained: if they detect they are **not** already running inside a container they will automatically re-launch themselves inside the correct build environment via **Docker** or **Podman**. You only need one of these installed on your host machine.
+
+| Tool | Install guide |
+| --- | --- |
+| Docker | <https://docs.docker.com/engine/install/> |
+| Podman | <https://podman.io/docs/installation> |
+
+### Arch Linux ARM for Raspberry Pi (alarm-rpi)
+
+This builder writes directly to an SD card — **no container runtime is needed**. Instead it requires:
+
+- A **Linux host** (any distro)
+- **Root access** (`sudo` or root shell)
+- An **SD card reader** with the target card inserted
+- Standard tools: `curl`, `bsdtar`, `sfdisk`, `mkfs.vfat`, `mkfs.ext4`
+
+---
+
+## 2. Make the Script Executable
+
+> **Shortcut:** If you copied the **⚡ One-liner run command** from the summary page, skip this section — the command handles `chmod +x` and execution automatically.
+
+Open a terminal, navigate to where you saved the script, and grant it execute permission (replace `MyDistro` with the name you entered in the wizard):
+
+```bash
+chmod +x build-MyDistro.sh
+```
+
+---
+
+## 3. Run the Build
+
+### Most builders
+
+Simply execute the script with `sudo`:
+
+```bash
+sudo ./build-MyDistro.sh
+```
+
+The script will:
+
+1. Detect that it is not inside a container and pull the correct base image (e.g. `debian:bookworm`, `archlinux:latest`).
+2. Re-launch itself inside that container with `--privileged` access.
+3. Install the required build toolchain (e.g. `live-build`, `archiso`, `pi-gen`).
+4. Apply all your wizard selections (desktop environment, packages, services, installer).
+5. Produce a finished ISO or IMG file.
+
+### Run Arch Linux ARM for Raspberry Pi (alarm-rpi)
+
+Pass the SD card device path as the first argument:
+
+```bash
+sudo ./build-MyDistro.sh /dev/sdX
+```
+
+Replace `/dev/sdX` with your actual SD card device (check with `lsblk`). The script partitions, formats, and populates the card directly — no intermediate image file is created.
+
+Build times vary by base distribution:
+
+| Base | Typical time |
+| --- | --- |
+| Debian / Ubuntu (live-build) | 30 – 60 minutes |
+| Arch Linux (archiso) | 20 – 40 minutes |
+| Fedora (lorax) | 30 – 60 minutes |
+| Raspberry Pi OS (pi-gen) | 30 – 90 minutes |
+| Gentoo Linux (catalyst) | 2 – 4 hours |
+
+---
+
+## 4. Customise Output Location (optional)
+
+By default the finished image and build logs are written to `/var/tmp/distro-output` on your host. Override this with the `OUTPUT_DIR` environment variable before running:
+
+```bash
+OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
+```
+
+Similarly, the intermediate build tree defaults to `/var/tmp/distro-build` and can be changed with `BUILD_DIR`:
+
+```bash
+BUILD_DIR=~/build-workspace OUTPUT_DIR=~/my-builds sudo -E ./build-MyDistro.sh
+```
+
+Failed builds automatically remove their marked build workspace so downloaded packages and temporary build files do not pile up. To keep a failed workspace for debugging, set `CLEANUP_ON_FAILURE=false`:
+
+```bash
+CLEANUP_ON_FAILURE=false sudo -E ./build-MyDistro.sh
+```
+
+For Debian and Ubuntu live-build images, choose a `BUILD_DIR` on a filesystem mounted with device nodes and executable scripts enabled. Hardened `/tmp` mounts often use `nodev` or `noexec`, which makes `debootstrap` fail with errors such as `mknod ... Operation not permitted`.
+
+> **Note:** The `alarm-rpi` builder writes directly to the SD card device. `OUTPUT_DIR` and `BUILD_DIR` control the working directory for the downloaded tarball only.
+
+---
+
+## 5. Find Your Output
+
+Output artifacts differ by builder:
+
+| Builder | Output files | Checksum file | Build log |
+| --- | --- | --- | --- |
+| **live-build** (Debian / Ubuntu) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
+| **archiso** (Arch Linux) | ISO named by `mkarchiso` (e.g. `archlinux-YYYY.MM.DD-x86_64.iso`) | `MyDistro.iso.sha256` | `build.log` |
+| **lorax** (Fedora) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
+| **pi-gen** (Raspberry Pi OS) | `MyDistro.img` and/or `MyDistro.img.xz` | *(none)* | `build.log` |
+| **ubuntu-rpi** (Ubuntu for Pi) | `MyDistro.img.xz` | `MyDistro.img.xz.sha256` | `build.log` |
+| **kiwi** (openSUSE) | ISO file(s) in `OUTPUT_DIR` | `MyDistro.iso.sha256` | `build.log` |
+| **catalyst** (Gentoo) | `MyDistro.iso` | `MyDistro.iso.sha256` | `build.log` |
+| **alarm-rpi** (Arch ARM for Pi) | *(written directly to SD card)* | *(none)* | `build.log` |
+
+All files are placed in `OUTPUT_DIR` (default: `/var/tmp/distro-output`) except for `alarm-rpi`, which writes directly to the target SD card device. The generated script streams build output to the terminal and saves the same output to `build.log`.
+
+---
+
+## 6. Verify the Checksum
+
+Before writing the image to any media, confirm it was not corrupted:
+
+```bash
+sha256sum -c MyDistro.iso.sha256
+```
+
+A successful result looks like:
+
+```text
+MyDistro.iso: OK
+```
+
+---
+
+## 7. Write to Media
+
+### ISO → USB drive (x86-64 distributions)
+
+Replace `/dev/sdX` with your USB device (check with `lsblk`):
+
+```bash
+sudo dd if=/var/tmp/distro-output/MyDistro.iso of=/dev/sdX bs=4M status=progress conv=fsync
+sync
+```
+
+Alternatively use a graphical tool such as [Balena Etcher](https://etcher.balena.io/).
+
+### IMG → SD card (Raspberry Pi distributions)
+
+For a plain `.img` file:
+
+```bash
+sudo dd if=/var/tmp/distro-output/MyDistro.img of=/dev/sdX bs=4M status=progress conv=fsync
+sync
+```
+
+For a compressed `.img.xz` file:
+
+```bash
+xzcat /var/tmp/distro-output/MyDistro.img.xz | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
+sync
+```
+
+> ⚠️ **Double-check the device path** before running `dd`. Writing to the wrong device will overwrite that disk's data.
+
+---
+
+## 8. Troubleshooting
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `Docker or Podman is required…` error | Neither container runtime is installed | Install [Docker](https://docs.docker.com/engine/install/) or [Podman](https://podman.io/docs/installation) |
+| `This script must be run as root` error | Script was not invoked with root privileges | Re-run with `sudo ./build-MyDistro.sh` (or `sudo ./build-MyDistro.sh /dev/sdX` for `alarm-rpi`) |
+| `debootstrap` fails with `mknod ... Operation not permitted` or says the target is mounted with `noexec`/`nodev` | `BUILD_DIR` is on a restricted filesystem, commonly `/tmp` | Re-run with `sudo BUILD_DIR=/var/tmp/distro-build ./build-MyDistro.sh` or another build path on a `dev,exec` filesystem |
+| `console-setup`, `ubiquity`, or `ubiquity-frontend-gtk` fails during an Ubuntu build | An older generated script installed Ubiquity into the build container before live-build configured the image | Regenerate the build script with the latest wizard, then retry |
+| `lb config: unrecognized option '--bootloaders'` | An older generated script used a live-build option not accepted by Ubuntu's package | Regenerate the build script with the latest wizard, then retry |
+| `security.debian.org noble/updates Release` is missing | An older Ubuntu script let live-build fall back to Debian security/update mirrors | Regenerate the build script with the latest wizard, then retry |
+| Build fails partway through | Network issue or package mirror outage | Check `build.log` in `OUTPUT_DIR`, retry after a few minutes |
+| No ISO/IMG in output directory | Build error before the copy step | Review `build.log` for the first `ERROR` line |
+| Slow build on first run | Container image being pulled | Subsequent runs reuse the cached image and are faster |
+
+---
+
+## 9. Run Generator Matrix Tests
+
+OSDB now includes a generated test matrix for all **stable, non-EOL** bases.  
+Each per-base test runs one check for every DE supported by that base and validates:
+
+- default package selections
+- default service package selections
+- default service units
+
+Generate (or refresh) the tests:
+
+```bash
+node scripts/tests/generate-stable-base-tests.cjs
+```
+
+Run the whole stable matrix:
+
+```bash
+bash scripts/tests/run-stable-default-matrix.sh
+```
+
+Run from Windows PowerShell (no `bash` required):
+
+```powershell
+node .\scripts\tests\run-stable-default-matrix.cjs
+# or:
+.\scripts\tests\run-stable-default-matrix.ps1
+```
+
+Output behavior:
+
+- prints **nothing** when all tests pass
+- prints **only failures** when something is wrong (format: `base/de:reason`)
+- exits with non-zero status on failures
+
+You can also run a single base script:
+
+```bash
+bash scripts/tests/stable/fedora-42.sh
+```
+
+---
+
+## 10. Re-running and Cleaning Up
+
+To start a completely fresh build, remove the intermediate build directory:
+
+```bash
+rm -rf /var/tmp/distro-build
+```
+
+Generated scripts do this automatically after a failed build unless `CLEANUP_ON_FAILURE=false` is set.
+
+To also remove the finished images and build log from the output directory:
+
+```bash
+rm -rf /var/tmp/distro-output
+```
+
+To free up Docker/Podman disk space after building:
+
+```bash
+docker system prune   # or: podman system prune
+```
