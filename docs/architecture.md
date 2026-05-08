@@ -181,6 +181,7 @@ In `docs/wizard.js`, add to the `BASES` object:
 ```
 
 Key fields:
+
 - `family` — used to filter `PACKAGES` and `SERVICES`; add `'void'` to the `families` array of any package or service you want available for this distro
 - `builder` — must match the string used in `generateScript()`'s dispatch
 - `pkg` — package manager key used in `DE_PACKAGES` and `PACKAGES[n].pkgName`
@@ -210,6 +211,7 @@ case 'xbps-src':
 ```
 
 Every Generator must call:
+
 - `scriptHeader(name, 'xbps-src', containerImage)` — bash boilerplate
 - `containerPreamble(containerImage)` — Docker/Podman self-relaunch block
 - `enabledPkgList(base)` — user-selected packages resolved to this manager

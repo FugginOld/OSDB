@@ -29,6 +29,7 @@ For non-trivial changes:
 ## Token Efficiency Rules
 
 Avoid:
+
 - full logs
 - large pasted outputs
 - unnecessary file reads
@@ -36,6 +37,7 @@ Avoid:
 - broad recursive scans without filtering
 
 Prefer:
+
 - summaries
 - targeted reads
 - concise diffs
@@ -47,6 +49,7 @@ Prefer:
 ## File Reading Rules
 
 Before opening large files:
+
 1. Search/index first
 2. Identify relevant sections
 3. Read only necessary portions
@@ -57,6 +60,7 @@ Before opening large files:
 ## Architecture Workflow
 
 For unfamiliar repos:
+
 1. Identify entrypoints
 2. Identify build/test system
 3. Identify dependency structure
@@ -94,6 +98,7 @@ Next step:
 When switching agents, use: `docs/agents/agent-handoff-template.md`
 
 Rules:
+
 - Do not restart work
 - Do not expand scope
 - Continue from current branch
