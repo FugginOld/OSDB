@@ -82,5 +82,8 @@ jobs:
       - name: Verify decision-record paths
         run: node scripts/tests/test-decision-record-paths.cjs
 
+      - name: Verify canonical HOWTO references
+        run: node scripts/tests/test-howto-canonical.cjs
+
       - name: Run stable default matrix tests
         run: bash scripts/tests/run-stable-default-matrix.sh
