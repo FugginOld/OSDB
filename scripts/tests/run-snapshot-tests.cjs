@@ -4,20 +4,11 @@
 const fs = require('fs');
 const path = require('path');
 const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
+const { normalizeSnapshotText } = require('./lib/normalize-snapshot-text.cjs');
 
 const snapshotDir = path.resolve(__dirname, 'snapshots');
 
 const REQUIRED_HEADER_MARKERS = ['cleanup_build_dir()', 'finish_build()', 'start_logging()'];
-
-function normalizeSnapshotText(script) {
-  const normalizedTimestamp = script.replace(
-    /^# Generated At \(UTC\): .+$/m,
-    '# Generated At (UTC): <TIMESTAMP>',
-  );
-  const normalizedNewlines = normalizedTimestamp.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  if (normalizedNewlines.length === 0 || normalizedNewlines.endsWith('\n')) return normalizedNewlines;
-  return `${normalizedNewlines}\n`;
-}
 
 const {
   BASES,

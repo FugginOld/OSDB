@@ -4,19 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
+const { normalizeSnapshotText } = require('./lib/normalize-snapshot-text.cjs');
 
 const snapshotDir = path.resolve(__dirname, 'snapshots');
 fs.mkdirSync(snapshotDir, { recursive: true });
-
-function normalizeTimestamp(script) {
-  const normalizedTimestamp = script.replace(
-    /^# Generated At \(UTC\): .+$/m,
-    '# Generated At (UTC): <TIMESTAMP>',
-  );
-  const normalizedNewlines = normalizedTimestamp.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  if (normalizedNewlines.length === 0 || normalizedNewlines.endsWith('\n')) return normalizedNewlines;
-  return `${normalizedNewlines}\n`;
-}
 
 const {
   BASES,
@@ -57,7 +48,7 @@ for (const baseId of stableBaseIds) {
   initDefaultPkgs();
   initDefaultServices();
 
-  const script = normalizeTimestamp(generateScript());
+  const script = normalizeSnapshotText(generateScript());
   const outFile = path.join(snapshotDir, `${baseId}.sh`);
   fs.writeFileSync(outFile, script, 'utf8');
   fs.chmodSync(outFile, 0o755);
