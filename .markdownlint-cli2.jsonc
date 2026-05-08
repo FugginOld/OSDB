@@ -1,0 +1,10 @@
+{
+  "config": {
+    "extends": ".markdownlint.jsonc"
+  },
+  "globs": [
+    "*.md",
+    "docs/**/*.md",
+    "#.agents/skills/**"
+  ]
+}
