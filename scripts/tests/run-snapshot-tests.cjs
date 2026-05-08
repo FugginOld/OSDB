@@ -9,8 +9,14 @@ const snapshotDir = path.resolve(__dirname, 'snapshots');
 
 const REQUIRED_HEADER_MARKERS = ['cleanup_build_dir()', 'finish_build()', 'start_logging()'];
 
-function normalizeTimestamp(script) {
-  return script.replace(/^# Generated At \(UTC\): .+$/m, '# Generated At (UTC): <TIMESTAMP>');
+function normalizeSnapshotText(script) {
+  const normalizedTimestamp = script.replace(
+    /^# Generated At \(UTC\): .+$/m,
+    '# Generated At (UTC): <TIMESTAMP>',
+  );
+  const normalizedNewlines = normalizedTimestamp.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (normalizedNewlines.length === 0 || normalizedNewlines.endsWith('\n')) return normalizedNewlines;
+  return `${normalizedNewlines}\n`;
 }
 
 const {
@@ -124,7 +130,7 @@ for (const baseId of stableBaseIds) {
   initDefaultPkgs();
   initDefaultServices();
 
-  const fresh = normalizeTimestamp(generateScript());
+  const fresh = normalizeSnapshotText(generateScript());
 
   for (const marker of REQUIRED_HEADER_MARKERS) {
     if (!fresh.includes(marker)) {
@@ -135,7 +141,7 @@ for (const baseId of stableBaseIds) {
     }
   }
 
-  const stored = fs.readFileSync(snapshotFile, 'utf8');
+  const stored = normalizeSnapshotText(fs.readFileSync(snapshotFile, 'utf8'));
 
   if (fresh !== stored) {
     failures.push(baseId);

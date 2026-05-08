@@ -9,7 +9,13 @@ const snapshotDir = path.resolve(__dirname, 'snapshots');
 fs.mkdirSync(snapshotDir, { recursive: true });
 
 function normalizeTimestamp(script) {
-  return script.replace(/^# Generated At \(UTC\): .+$/m, '# Generated At (UTC): <TIMESTAMP>');
+  const normalizedTimestamp = script.replace(
+    /^# Generated At \(UTC\): .+$/m,
+    '# Generated At (UTC): <TIMESTAMP>',
+  );
+  const normalizedNewlines = normalizedTimestamp.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (normalizedNewlines.length === 0 || normalizedNewlines.endsWith('\n')) return normalizedNewlines;
+  return `${normalizedNewlines}\n`;
 }
 
 const {
