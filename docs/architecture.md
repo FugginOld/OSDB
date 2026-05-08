@@ -132,6 +132,7 @@ CI runs `test-config-txt-definition.cjs` to verify all generators that reference
 | `stable-matrix.yml` | Push/PR touching `wizard.js` or `scripts/tests/` | Snapshot tests → regenerates test scripts → verifies permissions → git diff check → runs matrix |
 | `pages.yml` | Push to main touching `docs/` | Deploys `docs/` to GitHub Pages |
 | `shellcheck.yml` | Push/PR touching `scripts/examples/` | ShellChecks reference scripts |
+| `markdown-links.yml` | Push/PR touching `*.md` or `docs/**/*.md` | Fails CI on broken local markdown links (external links ignored) |
 
 ---
 
@@ -300,6 +301,12 @@ Sort package lists alphabetically in-place:
 
 ```bash
 node scripts/tests/sort-environment-core-packages.cjs
+```
+
+Check local markdown links (external URLs ignored):
+
+```bash
+node scripts/tests/test-markdown-local-links.cjs
 ```
 
 ShellCheck reference scripts (requires [shellcheck](https://www.shellcheck.net/)):

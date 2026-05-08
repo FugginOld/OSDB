@@ -1,0 +1,36 @@
+name: Markdown Link Integrity
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '*.md'
+      - 'docs/**/*.md'
+      - 'scripts/tests/test-markdown-local-links.cjs'
+      - '.github/workflows/markdown-links.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '*.md'
+      - 'docs/**/*.md'
+      - 'scripts/tests/test-markdown-local-links.cjs'
+      - '.github/workflows/markdown-links.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  markdown-links:
+    name: Verify local markdown links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check local markdown links
+        run: node scripts/tests/test-markdown-local-links.cjs
+
