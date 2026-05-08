@@ -13,9 +13,9 @@ Excluded (managed content):
 - `/.agents/skills/**` (skill docs are managed outside this repository)
 
 ## Configuration files
-- `/.markdownlint.jsonc`: shared markdownlint rule configuration
+- `/.markdownlint.jsonc`: authoritative rule configuration (used by editors and extended by cli2)
 - `/.markdownlintignore`: ignore list for tools that support it
-- `/.markdownlint-cli2.jsonc`: markdownlint-cli2 entrypoint (globs + config)
+- `/.markdownlint-cli2.jsonc`: markdownlint-cli2 entrypoint (globs + extends `/.markdownlint.jsonc`)
 
 ## Rules
 The repo config disables a small set of high-noise style rules (for example table spacing and mandatory fence languages) to match the existing documentation style and keep CI output regression-focused.
