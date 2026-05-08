@@ -1,142 +1,194 @@
-# AGENTS.md
+# context-mode — MANDATORY routing rules
 
-## Purpose
+<!-- Source: https://github.com/FugginOld/ai-config/blob/main/global/AGENTS.md -->
+<!-- context-mode rules MUST remain first. Do not move or prepend. -->
+<!-- Core rules: https://github.com/FugginOld/ai-config/tree/main/core/ -->
 
-This repository uses a **CI-style AI workflow** to ensure all AI-assisted changes are:
+context-mode MCP tools available. Rules protect context window from flooding. One unrouted command dumps 56 KB into context. Codex CLI has NO hooks — these instructions are ONLY enforcement. Follow strictly.
 
-* Predictable
-* Reviewable
-* Safe
-* Token-efficient
+## Think in Code — MANDATORY
 
-This system is optimized for:
+Analyze/count/filter/compare/search/parse/transform data: **write code** via `ctx_execute(language, code)`, `console.log()` only the answer. Do NOT read raw data into context. PROGRAM the analysis, not COMPUTE it. Pure JavaScript — Node.js built-ins only (`fs`, `path`, `child_process`). `try/catch`, handle `null`/`undefined`. One script replaces ten tool calls.
 
-* Claude Pro (planning / architecture / review)
-* ChatGPT / Codex (implementation / testing)
-* GitHub Copilot (inline assistance)
+## BLOCKED — do NOT use
 
----
+### curl / wget — FORBIDDEN
 
-## Companion Docs
+Do NOT use `curl`/`wget` in shell. Dumps raw HTTP into context.
+Use: `ctx_fetch_and_index(url, source)` or `ctx_execute(language: "javascript", code: "const r = await fetch(...)")`
 
-| File                                      | Purpose                          |
-| ----------------------------------------- | -------------------------------- |
-| `docs/agents/ci-style-ai-workflow.md`     | Full gate-by-gate workflow       |
-| `docs/agents/ai-usage-budget.md`          | Token usage rules and escalation |
-| `docs/agents/agent-handoff-template.md`   | Required agent handoff format    |
-| `docs/agents/repo-bootstrap-checklist.md` | Repo setup checklist             |
+### Inline HTTP — FORBIDDEN
 
----
+No `node -e "fetch(..."`, `python -c "requests.get(..."`. Bypasses sandbox.
+Use: `ctx_execute(language, code)` — only stdout enters context
 
-## Workflow Model (Mandatory)
+### Direct web fetching — FORBIDDEN
 
-```text
-Context → Plan → Issue → Branch → Test → Change → Diagnose → Review → Merge
-```
+Raw HTML can exceed 100 KB.
+Use: `ctx_fetch_and_index(url, source)` then `ctx_search(queries)`
 
----
+## REDIRECTED — use sandbox
 
-## Workflow Enforcement (Non-Negotiable)
+### Shell (>20 lines output)
 
-All agents **MUST follow workflow gates in order**.
+Shell ONLY for: `git`, `mkdir`, `rm`, `mv`, `cd`, `ls`, `npm install`, `pip install`.
+Otherwise: `ctx_batch_execute(commands, queries)` or `ctx_execute(language: "shell", code: "...")`
 
-Agents MUST NOT:
+### File reading (for analysis)
 
-* Skip gates
-* Combine multiple issues into one branch
-* Begin implementation without a defined issue
-* Perform large multi-step changes in one pass
+Reading to **edit** → reading correct. Reading to **analyze/explore/summarize** → `ctx_execute_file(path, language, code)`.
 
-If a gate is incomplete:
-→ **STOP and complete it before continuing**
+### grep / search (large results)
 
----
+Use `ctx_execute(language: "shell", code: "grep ...")` in sandbox.
 
-## Agent Roles (Strict Separation)
+## Tool selection
 
-### Claude (Planner / Reviewer)
+0. **MEMORY**: `ctx_search(sort: "timeline")` — after resume, check prior context before asking user.
+1. **GATHER**: `ctx_batch_execute(commands, queries)` — runs all commands, auto-indexes, returns search. ONE call replaces 30+. Each command: `{label: "header", command: "..."}`.
+2. **FOLLOW-UP**: `ctx_search(queries: ["q1", "q2", ...])` — all questions as array, ONE call (default relevance mode).
+3. **PROCESSING**: `ctx_execute(language, code)` | `ctx_execute_file(path, language, code)` — sandbox, only stdout enters context.
+4. **WEB**: `ctx_fetch_and_index(url, source)` then `ctx_search(queries)` — raw HTML never enters context.
+5. **INDEX**: `ctx_index(content, source)` — store in FTS5 for later search.
 
-Use for:
+## Parallel I/O batches
 
-* `/zoom-out`
-* `/grill-with-docs`
-* `/to-prd`
-* `/to-issues`
-* architecture decisions
-* ADR creation/review
-* final PR review
-* ambiguous `/diagnose`
+For multi-URL fetches or multi-API calls, **always** include `concurrency: N` (1-8):
 
-Do NOT use for:
+- `ctx_batch_execute(commands: [3+ network commands], concurrency: 5)` — gh, curl, dig, docker inspect, multi-region cloud queries
+- `ctx_fetch_and_index(requests: [{url, source}, ...], concurrency: 5)` — multi-URL batch fetch
 
-* implementation loops
-* multi-file edits
-* repeated debugging
-* large code generation
+**Use concurrency 4-8** for I/O-bound work (network calls, API queries). **Keep concurrency 1** for CPU-bound (npm test, build, lint) or commands sharing state (ports, lock files, same-repo writes).
 
----
+GitHub API rate-limit: cap at 4 for `gh` calls.
 
-### ChatGPT / Codex (Builder)
+## Output
 
-Use for:
+Terse like caveman. Technical substance exact. Only fluff die.
+Drop: articles, filler (just/really/basically), pleasantries, hedging. Fragments OK. Short synonyms. Code unchanged.
+Pattern: [thing] [action] [reason]. [next step]. Auto-expand for: security warnings, irreversible actions, user confusion.
+Write artifacts to FILES — never inline. Return: file path + 1-line description.
+Descriptive source labels for `ctx_search(source: "label")`.
 
-* `/tdd`
-* implementation
-* writing tests
-* debugging
-* scripts
-* local validation
+## Session Continuity
 
-Rules:
+Skills, roles, and decisions persist for the entire session. Do not abandon them as the conversation grows.
 
-* One issue at a time
-* Tests first when practical
-* Smallest possible change
-* Run local checks before proceeding
+## Memory
 
-Do NOT:
+Session history is persistent and searchable. On resume, search BEFORE asking the user:
 
-* redesign architecture mid-task
-* modify unrelated files
-* work across multiple issues
+| Need | Command |
+| ------ | --------- |
+| What were we working on? | `ctx_search(queries: ["summary"], source: "compaction", sort: "timeline")` |
+| What did we decide? | `ctx_search(queries: ["decision"], source: "decision", sort: "timeline")` |
+| What NOT to repeat? | `ctx_search(queries: ["rejected"], source: "rejected-approach")` |
+| What constraints exist? | `ctx_search(queries: ["constraint"], source: "constraint")` |
 
----
+Note: user-prompt history not available.
 
-### GitHub Copilot (Inline Only)
+DO NOT ask "what were we working on?" — SEARCH FIRST.
+If search returns 0 results, proceed as a fresh session.
 
-Use for:
+## ctx commands
 
-* autocomplete
-* boilerplate
-* repetitive edits
+| Command | Action |
+| --------- | -------- |
+| `ctx stats` | Call `stats` MCP tool, display full output verbatim |
+| `ctx doctor` | Call `doctor` MCP tool, run returned shell command, display as checklist |
+| `ctx upgrade` | Call `upgrade` MCP tool, run returned shell command, display as checklist |
+| `ctx purge` | Call `purge` MCP tool with confirm: true. Warns before wiping knowledge base. |
 
-Do NOT use for:
+After /clear or /compact: knowledge base and session stats preserved. Use `ctx purge` to start fresh.
 
-* architecture decisions
-* repo-wide reasoning
-* replacing Codex or Claude roles
+## Windows notes
+
+**PowerShell cmdlets** — Sandbox uses bash. PowerShell cmdlets (`Format-List`, `Get-Culture`, etc.) fail with `command not found`. Wrap with `pwsh -NoProfile -Command "..."`.
+
+**Relative paths** — Sandbox CWD is temp dir, not project root. Convert to absolute paths. Ask user to confirm if unknown.
+
+**Windows drive letters** — Sandbox runs Git Bash / MSYS2. `X:\path` → `/x/path` (lowercase, no `/mnt/`). Never emit `/mnt/<letter>/`.
+
+**Quote paths** — Spaces in paths cause splits. Always double-quote: `rg "symbol" "$REPO_ROOT/some dir/Source"`.
 
 ---
 
-## Caveman Mode (Required)
+## Global AI Workflow Rules
 
-```text
-/caveman lite   → planning / review
-/caveman full   → implementation
-```
+<!-- Shared core. Edit at: https://github.com/FugginOld/ai-config/blob/main/core/workflow-core.md -->
+<!-- To update: edit core file, then re-sync this block. -->
 
-Use Caveman mode unless writing:
+## Workflow Priority
 
-* documentation
-* PR descriptions
-* ADRs
-* README content
+1. Repository-local instructions override global instructions.
+2. context-mode routing rules are mandatory.
+3. Use token-efficient workflows.
+4. Follow CI AI workflow discipline (see `docs/agents/ci-style-ai-workflow.md`).
+5. Prefer Matt Pocock-style issue/TDD workflow.
 
 ---
 
-## Required Output Format (All Agents)
+## Required Development Workflow
 
-Every response MUST end with:
+For non-trivial changes:
+
+1. Inspect repository instructions.
+2. Diagnose before implementing.
+3. Search before opening files.
+4. Use context-mode tools for scans, diagnostics, grep, test output, architecture review.
+5. Break large work into smaller scoped tasks/issues.
+6. Prefer TDD: reproduce → failing test → minimal fix → verify.
+7. Run targeted checks first.
+8. Run broader validation if shared behavior changes.
+9. Summarize: changed files, tests run, remaining risks, next recommended actions.
+
+---
+
+## Token Efficiency Rules
+
+Avoid:
+
+- full logs
+- large pasted outputs
+- unnecessary file reads
+- repeated context
+- broad recursive scans without filtering
+
+Prefer:
+
+- summaries
+- targeted reads
+- concise diffs
+- line references
+- actionable findings
+
+---
+
+## File Reading Rules
+
+Before opening large files:
+
+1. Search/index first
+2. Identify relevant sections
+3. Read only necessary portions
+4. Summarize before expanding context further
+
+---
+
+## Architecture Workflow
+
+For unfamiliar repos:
+
+1. Identify entrypoints
+2. Identify build/test system
+3. Identify dependency structure
+4. Identify CI/CD flow
+5. Identify shared libraries/modules
+6. Identify existing patterns before creating new ones
+
+---
+
+## Preferred Final Response Format
 
 ```text
 Changed files:
@@ -144,173 +196,4 @@ Commands run:
 Tests passing:
 Known risks:
 Next step:
-```
-
-Failure to include this = incomplete response
-
----
-
-## Scope Control (Strict)
-
-Agents MUST NOT:
-
-* modify unrelated files
-* refactor outside issue scope
-* introduce new abstractions unless required
-* expand task beyond issue definition
-
-If additional work is discovered:
-→ Create a **new issue**
-
----
-
-## Token Usage Rules (Enforced)
-
-### Claude Input Constraints
-
-Claude MUST only receive:
-
-* `AGENTS.md`
-* `CONTEXT.md`
-* issue description
-* changed files
-* relevant snippets only
-* `git diff`
-* trimmed test output
-
-Do NOT provide:
-
-* full repo dumps
-* repeated context
-* large generated files
-* long logs without trimming
-
----
-
-### Work Distribution
-
-| Agent         | Responsibility                     |
-| ------------- | ---------------------------------- |
-| Claude        | planning, architecture, review     |
-| ChatGPT/Codex | implementation, testing, debugging |
-| Copilot       | inline assistance                  |
-
----
-
-## Escalation Rules
-
-Escalate to Claude ONLY when:
-
-* architecture is unclear
-* requirements conflict
-* behavior is ambiguous
-* change spans multiple subsystems
-* ADR may be required
-
-Do NOT escalate for:
-
-* syntax errors
-* failing tests
-* formatting issues
-* small bugs
-
----
-
-## Agent Handoff (Required)
-
-When switching agents, you MUST use:
-
-`docs/agents/agent-handoff-template.md`
-
-Agents MUST:
-
-* continue from current branch
-* use existing context only
-* NOT redo completed work
-* NOT expand scope
-
----
-
-## Agent Switching Rules
-
-Switch **Claude → Codex** when:
-
-* issue is clearly defined
-* implementation begins
-
-Switch **Codex → Claude** when:
-
-* implementation is complete
-* final review is needed
-* risk or ambiguity is detected
-
----
-
-## Matt Pocock Skills (Required)
-
-Run once per repo:
-
-```text
-/setup-matt-pocock-skills
-```
-
-Core commands:
-
-```text
-/grill-with-docs
-/zoom-out
-/to-prd
-/to-issues
-/tdd
-/diagnose
-/improve-codebase-architecture
-```
-
-Rules:
-
-* `/tdd` is REQUIRED for implementation
-* `/diagnose` is REQUIRED before PR
-* `/improve-codebase-architecture` only after behavior is correct
-
----
-
-## Required Repo Files
-
-```text
-AGENTS.md
-CONTEXT.md
-docs/agents/ci-style-ai-workflow.md
-docs/agents/ai-usage-budget.md
-docs/agents/agent-handoff-template.md
-docs/adr/0000-template.md
-.github/pull_request_template.md
-.github/ISSUE_TEMPLATE/ai-task.md
-```
-
----
-
-## Non-Negotiable Rules
-
-* One issue per branch
-* Small, reviewable changes only
-* Tests before implementation (when practical)
-* No redesign during bug fixes
-* No abstraction before behavior works
-* All checks must pass before PR
-* Update `CONTEXT.md` when domain changes
-* Create ADRs for architecture decisions
-
----
-
-## Default Prompt (All AI Work)
-
-```text
-Use AGENTS.md and follow the CI workflow strictly.
-Use Caveman mode unless writing docs.
-Work on one issue only.
-Do not modify unrelated files.
-Do not redesign existing code.
-Write tests first when practical.
-Run all available checks.
-Return results in the required output format.
 ```
