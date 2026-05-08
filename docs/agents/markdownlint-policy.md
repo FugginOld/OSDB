@@ -23,7 +23,7 @@ Excluded (managed content):
 
 ## Rules
 
-The repo config disables a set of low-priority style rules (line length, table spacing, mandatory fence languages, duplicate headings, blank lines in blockquotes) to match the existing documentation style and keep CI output regression-focused. Structural rules (headings surrounded by blank lines, fenced code blocks surrounded by blank lines, lists surrounded by blank lines) are enabled.
+The repo config disables a set of low-priority style rules (line length, multiple consecutive blank lines, duplicate headings, trailing punctuation in headings, blank lines in blockquotes, mandatory fence languages, code fence style, table column style) to match the existing documentation style and keep CI output regression-focused. Structural rules (headings surrounded by blank lines, fenced code blocks surrounded by blank lines, lists surrounded by blank lines) are enabled.
 
 ## How to run
 
