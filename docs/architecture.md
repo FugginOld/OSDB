@@ -100,7 +100,9 @@ The Wizard Harness strips the `DOMContentLoaded` listener from `wizard.js` and e
 
 Each stable non-EOL Base has a committed reference Build Script at `scripts/tests/snapshots/{baseId}.sh`. These are generated from a **Canonical Config**: the default DE, `repoType: 'official'`, default packages, default services, and the best available installer for that Base.
 
-`run-snapshot-tests.cjs` regenerates each Build Script from the current wizard output and diffs it character-by-character against the stored reference. Any difference fails CI immediately and prints a unified diff of the first failure.
+`run-snapshot-tests.cjs` regenerates each Build Script from the current wizard output, then normalizes both the freshly generated script and the stored reference (timestamp placeholder, CRLF → LF, trailing newline) before diffing them. Any difference fails CI immediately and prints a unified diff of the first failure.
+
+This normalization prevents false snapshot failures on Windows checkouts (for example when Git `core.autocrlf=true` converts committed `.sh` files to CRLF on checkout).
 
 **Updating snapshots intentionally** (e.g. after a deliberate Generator change):
 

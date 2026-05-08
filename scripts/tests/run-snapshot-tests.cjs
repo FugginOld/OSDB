@@ -4,14 +4,11 @@
 const fs = require('fs');
 const path = require('path');
 const { loadWizard } = require('./lib/osdb-wizard-harness.cjs');
+const { normalizeSnapshotText } = require('./lib/normalize-snapshot-text.cjs');
 
 const snapshotDir = path.resolve(__dirname, 'snapshots');
 
 const REQUIRED_HEADER_MARKERS = ['cleanup_build_dir()', 'finish_build()', 'start_logging()'];
-
-function normalizeTimestamp(script) {
-  return script.replace(/^# Generated At \(UTC\): .+$/m, '# Generated At (UTC): <TIMESTAMP>');
-}
 
 const {
   BASES,
@@ -124,7 +121,7 @@ for (const baseId of stableBaseIds) {
   initDefaultPkgs();
   initDefaultServices();
 
-  const fresh = normalizeTimestamp(generateScript());
+  const fresh = normalizeSnapshotText(generateScript());
 
   for (const marker of REQUIRED_HEADER_MARKERS) {
     if (!fresh.includes(marker)) {
@@ -135,7 +132,7 @@ for (const baseId of stableBaseIds) {
     }
   }
 
-  const stored = fs.readFileSync(snapshotFile, 'utf8');
+  const stored = normalizeSnapshotText(fs.readFileSync(snapshotFile, 'utf8'));
 
   if (fresh !== stored) {
     failures.push(baseId);
