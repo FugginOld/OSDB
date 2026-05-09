@@ -6,11 +6,11 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
-const canonicalDir = 'docs/decisions/';
+const canonicalDir = 'docs/adr/';
 // Directory prefix (with trailing slash) used to detect tracked files living under the deprecated path.
-const deprecatedDirPrefix = `${path.posix.join('docs', 'adr')}/`;
+const deprecatedDirPrefix = `${path.posix.join('docs', 'decisions')}/`;
 // Search pattern without trailing slash so both deprecated forms (with/without trailing slash) are caught in content.
-const deprecatedPattern = path.posix.join('docs', 'adr');
+const deprecatedPattern = path.posix.join('docs', 'decisions');
 const selfRel = path.relative(repoRoot, __filename).split(path.sep).join('/');
 
 function listTrackedFiles() {
