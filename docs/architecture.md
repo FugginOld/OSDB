@@ -102,7 +102,7 @@ Each stable non-EOL Base has a committed reference Build Script at `scripts/test
 
 `run-snapshot-tests.cjs` regenerates each Build Script from the current wizard output, then normalizes both the freshly generated script and the stored reference (timestamp placeholder, CRLF → LF, trailing newline) before diffing them. Any difference fails CI immediately and prints a unified diff of the first failure.
 
-Committed snapshot `.sh` files are enforced as LF-only via `.gitattributes` (`scripts/tests/snapshots/*.sh text eol=lf`) to avoid line-ending-only churn across contributor environments. The normalization step remains as a safety net for generated output and local editor/checkout drift.
+Committed snapshot `.sh` files are enforced as LF-only via `.gitattributes` (`/scripts/tests/snapshots/*.sh text eol=lf`) to avoid line-ending-only churn across contributor environments. The normalization step remains as a safety net for generated output and local editor/checkout drift.
 
 **Updating snapshots intentionally** (e.g. after a deliberate Generator change):
 
