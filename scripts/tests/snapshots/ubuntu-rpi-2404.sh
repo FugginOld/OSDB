@@ -149,9 +149,34 @@ for m in "${FALLBACK_MIRRORS_RAW[@]}"; do
   FALLBACK_MIRRORS+=("${m}")
 done
 
+ensure_ubuntu_archive_signing_keys() {
+  local keyring="/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+  local archive_key="871920D1991BC93C"
+
+  command -v gpg >/dev/null 2>&1 || return 0
+  if gpg --batch --no-default-keyring --keyring "$keyring" --list-keys "$archive_key" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  log "Importing missing Ubuntu archive signing key: $archive_key"
+  gpg --batch --keyserver hkp://keyserver.ubuntu.com:80     --no-default-keyring --keyring "$keyring" --recv-keys "$archive_key" || true
+}
+
+apt_update_with_key_repair() {
+  if apt-get update -qq; then
+    return 0
+  fi
+
+  log "apt-get update failed; attempting Ubuntu key repair and retry..."
+  ensure_ubuntu_archive_signing_keys
+  rm -rf /var/lib/apt/lists/*
+  apt-get clean
+  apt-get update -qq
+}
+
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing build dependencies..."
-apt-get update -qq
+apt_update_with_key_repair
 apt-get install -y debootstrap qemu-user-static binfmt-support parted \
   dosfstools kpartx losetup rsync curl
 

@@ -157,6 +157,7 @@ ensure_live_build_workdir() {
 
 ensure_live_build_workdir "${BUILD_DIR}"
 
+
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing live-build..."
 apt-get update -qq
