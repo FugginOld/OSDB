@@ -185,7 +185,7 @@ apt_update_with_key_repair() {
 
   log "apt-get update failed; attempting Ubuntu key repair and retry..."
   ensure_ubuntu_archive_signing_keys || log "Ubuntu key repair failed or skipped; retrying apt-get update anyway"
-  rm -rf /var/lib/apt/lists/*
+  rm -rf -- /var/lib/apt/lists/*
   apt-get clean
   apt-get update -qq
 }

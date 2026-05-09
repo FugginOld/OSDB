@@ -1913,6 +1913,12 @@ function validatePpaString(ppa) {
   return /^ppa:[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(trimmed);
 }
 
+function formatInvalidPpaForComment(ppa) {
+  return String(ppa || '')
+    .replace(/[^a-zA-Z0-9._:/-]/g, '?')
+    .slice(0, 120);
+}
+
 function resolveMirrorUrl(base) {
   if (base.family === 'arch') {
     return validateMirrorUrl(
@@ -1988,7 +1994,7 @@ apt_update_with_key_repair() {
 
   log "apt-get update failed; attempting Ubuntu key repair and retry..."
   ensure_ubuntu_archive_signing_keys || log "Ubuntu key repair failed or skipped; retrying apt-get update anyway"
-  rm -rf /var/lib/apt/lists/*
+  rm -rf -- /var/lib/apt/lists/*
   apt-get clean
   apt-get update -qq
 }
@@ -2175,7 +2181,7 @@ SVC_EOF
       .filter(Boolean)
       .map(ppa => validatePpaString(ppa)
         ? { valid: true, line: `add-apt-repository -y "${ppa}"` }
-        : { valid: false, line: `# skipped invalid PPA: ${ppa}` }
+        : { valid: false, line: `# skipped invalid PPA: ${formatInvalidPpaForComment(ppa)}` }
       );
     if (!entries.some(e => e.valid)) return '';
     return entries.map(e => e.line).join('\n') + '\napt-get update';

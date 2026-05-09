@@ -198,8 +198,8 @@ testPpaInjection(
   'ppa:user/name\nrm -rf /tmp\necho evil',
   [
     { shouldContain: 'add-apt-repository -y "ppa:user/name"' },
-    { shouldContain: '# skipped invalid PPA: rm -rf /tmp' },
-    { shouldContain: '# skipped invalid PPA: echo evil' },
+    { shouldContain: '# skipped invalid PPA: rm?-rf?/tmp' },
+    { shouldContain: '# skipped invalid PPA: echo?evil' },
     { shouldNotContain: 'add-apt-repository -y "rm -rf /tmp"' },
     { shouldNotContain: 'add-apt-repository -y "echo evil"' }
   ]
@@ -224,7 +224,7 @@ testPpaInjection(
   [
     { shouldContain: 'add-apt-repository -y "ppa:deadsnakes/python3.8"' },
     { shouldContain: 'add-apt-repository -y "ppa:git-core/ppa"' },
-    { shouldContain: '# skipped invalid PPA: ppa:user/name" evil' },
+    { shouldContain: '# skipped invalid PPA: ppa:user/name??evil' },
     { shouldNotContain: 'add-apt-repository -y "ppa:user/name" evil"' }
   ]
 );
