@@ -49,6 +49,9 @@ for (const baseId of stableBaseIds) {
   initDefaultServices();
 
   const script = normalizeSnapshotText(generateScript());
+  if (script.includes('\r')) {
+    throw new Error(`Refusing to write CRLF snapshot for ${baseId}; snapshots must be LF-only.`);
+  }
   const outFile = path.join(snapshotDir, `${baseId}.sh`);
   fs.writeFileSync(outFile, script, 'utf8');
   fs.chmodSync(outFile, 0o755);

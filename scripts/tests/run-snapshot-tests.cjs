@@ -132,7 +132,22 @@ for (const baseId of stableBaseIds) {
     }
   }
 
-  const stored = normalizeSnapshotText(fs.readFileSync(snapshotFile, 'utf8'));
+  const storedRaw = fs.readFileSync(snapshotFile, 'utf8');
+  if (storedRaw.includes('\r')) {
+    failures.push(`${baseId}:crlf`);
+    if (firstFailure === null) {
+      firstFailure = {
+        baseId,
+        diff:
+          'Snapshot contains CR (\\r) characters; committed snapshots must be LF-only.\n' +
+          'If this persists after pulling, ensure your Git honors .gitattributes and rerun:\n' +
+          '  node scripts/tests/update-snapshots.cjs',
+      };
+    }
+    continue;
+  }
+
+  const stored = normalizeSnapshotText(storedRaw);
 
   if (fresh !== stored) {
     failures.push(baseId);
