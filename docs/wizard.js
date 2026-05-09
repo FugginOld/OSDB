@@ -1689,10 +1689,10 @@ function autologinHook(base) {
     return `\n# Auto-login hook (SDDM)\nmkdir -p /etc/sddm.conf.d\ncat > /etc/sddm.conf.d/autologin.conf << 'SDDM_EOF'\n[Autologin]\nUser=user\nSession=plasma\nSDDM_EOF`;
   }
   if (dm === 'gdm') {
-    return `\n# Auto-login hook (GDM)\nsed -i 's/#AutomaticLoginEnable/AutomaticLoginEnable/' /etc/gdm3/daemon.conf\nsed -i 's/#AutomaticLogin = user1/AutomaticLogin = user/' /etc/gdm3/daemon.conf`;
+    return `\n# Auto-login hook (GDM)\nmkdir -p /etc/gdm3\ncat > /etc/gdm3/custom.conf << 'GDM_EOF'\n[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=user\nGDM_EOF`;
   }
   if (dm === 'lightdm') {
-    return `\n# Auto-login hook (LightDM)\nsed -i 's/#autologin-user=/autologin-user=user/' /etc/lightdm/lightdm.conf`;
+    return `\n# Auto-login hook (LightDM)\nmkdir -p /etc/lightdm/lightdm.conf.d\ncat > /etc/lightdm/lightdm.conf.d/autologin.conf << 'LIGHTDM_EOF'\n[Seat:*]\nautologin-user=user\nautologin-user-timeout=0\nLIGHTDM_EOF`;
   }
   return '';
 }
