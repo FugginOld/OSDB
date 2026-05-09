@@ -151,15 +151,31 @@ done
 
 ensure_ubuntu_archive_signing_keys() {
   local keyring="/usr/share/keyrings/ubuntu-archive-keyring.gpg"
-  local archive_key="871920D1991BC93C"
+  local archive_key_id="871920D1991BC93C"
+  local archive_key_fpr="F6ECB3762474EDA9D21B7022871920D1991BC93C"
+  local gnupg_home
 
-  command -v gpg >/dev/null 2>&1 || return 0
-  if gpg --batch --no-default-keyring --keyring "$keyring" --list-keys "$archive_key" >/dev/null 2>&1; then
+  if ! command -v gpg >/dev/null 2>&1; then
+    log "gpg not found; skipping Ubuntu archive key repair"
+    return 1
+  fi
+  if gpg --batch --no-default-keyring --keyring "$keyring" --list-keys "$archive_key_fpr" >/dev/null 2>&1; then
     return 0
   fi
 
-  log "Importing missing Ubuntu archive signing key: $archive_key"
-  gpg --batch --keyserver hkp://keyserver.ubuntu.com:80     --no-default-keyring --keyring "$keyring" --recv-keys "$archive_key" || true
+  log "Importing missing Ubuntu archive signing key: $archive_key_id ($archive_key_fpr)"
+  gnupg_home="$(mktemp -d)"
+  chmod 700 "$gnupg_home"
+  GNUPGHOME="$gnupg_home" gpg --batch --keyserver hkp://keyserver.ubuntu.com:80 --no-default-keyring --keyring "$keyring" --recv-keys "$archive_key_fpr" || {
+    rm -rf "$gnupg_home"
+    return 1
+  }
+  rm -rf "$gnupg_home"
+
+  gpg --batch --no-default-keyring --keyring "$keyring" --with-colons --fingerprint "$archive_key_fpr" 2>/dev/null | grep -q "fpr:::::::::F6ECB3762474EDA9D21B7022871920D1991BC93C:" || {
+    log "Ubuntu archive signing key import did not verify: $archive_key_fpr"
+    return 1
+  }
 }
 
 apt_update_with_key_repair() {
@@ -168,11 +184,12 @@ apt_update_with_key_repair() {
   fi
 
   log "apt-get update failed; attempting Ubuntu key repair and retry..."
-  ensure_ubuntu_archive_signing_keys
+  ensure_ubuntu_archive_signing_keys || log "Ubuntu key repair failed or skipped; retrying apt-get update anyway"
   rm -rf /var/lib/apt/lists/*
   apt-get clean
   apt-get update -qq
 }
+
 
 # ── Prerequisites ─────────────────────────────────────────────
 log "Installing build dependencies..."
