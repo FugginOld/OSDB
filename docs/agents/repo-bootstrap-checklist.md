@@ -27,7 +27,7 @@ CONTEXT.md
 docs/agents/ci-style-ai-workflow.md
 docs/agents/ai-usage-budget.md
 docs/agents/agent-handoff-template.md
-docs/decisions/0000-template.md
+docs/adr/0000-template.md
 .github/pull_request_template.md
 .github/ISSUE_TEMPLATE/ai-task.md
 ```
