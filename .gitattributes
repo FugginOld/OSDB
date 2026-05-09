@@ -1,0 +1,2 @@
+# Enforce LF for generated shell snapshots to avoid CRLF/LF-only diffs.
+/scripts/tests/snapshots/*.sh text eol=lf
