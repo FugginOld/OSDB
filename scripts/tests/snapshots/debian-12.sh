@@ -275,8 +275,12 @@ HOOK_EOF
 set -e
 
 # Auto-login hook (GDM)
-sed -i 's/#AutomaticLoginEnable/AutomaticLoginEnable/' /etc/gdm3/daemon.conf
-sed -i 's/#AutomaticLogin = user1/AutomaticLogin = user/' /etc/gdm3/daemon.conf
+mkdir -p /etc/gdm3
+cat > /etc/gdm3/custom.conf << 'GDM_EOF'
+[daemon]
+AutomaticLoginEnable=True
+AutomaticLogin=user
+GDM_EOF
 HOOK_EOF
   chmod +x config/hooks/live/0020-autologin.hook.chroot
 
@@ -377,8 +381,12 @@ HOOK_EOF
 set -e
 
 # Auto-login hook (GDM)
-sed -i 's/#AutomaticLoginEnable/AutomaticLoginEnable/' /etc/gdm3/daemon.conf
-sed -i 's/#AutomaticLogin = user1/AutomaticLogin = user/' /etc/gdm3/daemon.conf
+mkdir -p /etc/gdm3
+cat > /etc/gdm3/custom.conf << 'GDM_EOF'
+[daemon]
+AutomaticLoginEnable=True
+AutomaticLogin=user
+GDM_EOF
 HOOK_EOF
   chmod +x config/hooks/live/0020-autologin.hook.chroot
 
