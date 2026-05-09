@@ -83,3 +83,16 @@ Tests passing:
 Known risks:
 Next step:
 ```
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in this repository's GitHub Issues via the `gh` CLI workflow. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Triage uses canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Domain docs use a single-context layout with root `CONTEXT.md` and ADR conventions. See `docs/agents/domain.md`.

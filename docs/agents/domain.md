@@ -1,35 +1,41 @@
 # Domain Docs
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+How engineering skills should consume this repo's domain documentation when exploring codebase.
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root
-- **`docs/decisions/`** — read decisions that touch the area you're about to work in
+- **`CONTEXT.md`** at repo root, or
+- **`CONTEXT-MAP.md`** at repo root if it exists (points to per-context `CONTEXT.md` files)
+- **`docs/adr/`** - read ADRs that touch area you are about to change
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The producer skill (`/grill-with-docs`) creates them lazily when terms or decisions actually get resolved.
+If any missing, proceed silently. Do not flag absence or suggest creating upfront.
 
 ## File structure
 
-Single-context repo:
+Single-context repo (this repo):
 
-```
+```text
 /
-├── CONTEXT.md
-├── docs/decisions/
-│   ├── 0001-example-decision.md
-│   └── ...
-└── src/
+|- CONTEXT.md
+|- docs/adr/
+`- src/
 ```
 
-## Use the glossary's vocabulary
+Multi-context repo (if `CONTEXT-MAP.md` exists):
 
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
+```text
+/
+|- CONTEXT-MAP.md
+|- docs/adr/
+`- src/
+   |- <context-a>/CONTEXT.md
+   `- <context-b>/CONTEXT.md
+```
 
-If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/grill-with-docs`).
+## Use glossary vocabulary
 
-## Flag decision conflicts
+When output names domain concepts (issue titles, refactor proposals, hypotheses, test names), use terms from `CONTEXT.md`. Avoid synonyms glossary rejects.
 
-If your output contradicts an existing decision, surface it explicitly rather than silently overriding:
+## Flag ADR conflicts
 
-> _Contradicts decision-0001 (mirror self-healing strategy) — but worth reopening because…_
+If output contradicts existing ADR, surface explicitly instead of silently overriding.
